@@ -83,10 +83,12 @@ class BoulevardMaintenanceApp {
       roleBadge.textContent = user.roleLabel;
       if (user.role === 'SUPERADMIN') {
         roleBadge.className = 'ad-badge-admin';
-        document.getElementById('btn-manage-users').style.display = 'inline-block';
+        const btnManage = document.getElementById('btn-manage-users');
+        if (btnManage) btnManage.style.display = 'inline-block';
       } else {
         roleBadge.className = 'ad-badge-user';
-        document.getElementById('btn-manage-users').style.display = 'none';
+        const btnManage = document.getElementById('btn-manage-users');
+        if (btnManage) btnManage.style.display = 'none';
       }
     }
   }
@@ -107,12 +109,10 @@ class BoulevardMaintenanceApp {
 
     if (!this.auth.hasAccess()) {
       if (mainView) mainView.style.display = 'none';
-      if (deniedView) deniedView.style.display = 'flex';
       return;
     }
 
     if (mainView) mainView.style.display = 'block';
-    if (deniedView) deniedView.style.display = 'none';
     this.render();
   }
 
