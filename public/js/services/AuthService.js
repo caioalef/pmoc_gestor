@@ -10,7 +10,7 @@ class AuthService {
         name: 'Caio Alef',
         password: 'Boulevard@1234',
         role: 'SUPERADMIN',
-        roleLabel: '🛡️ Superadmin',
+        roleLabel: 'Superadmin',
         canDelete: true,
         canInsert: true
       },
@@ -19,7 +19,7 @@ class AuthService {
         name: 'Pedro Lucas',
         password: 'Boulevard@1234',
         role: 'USER',
-        roleLabel: '👤 User',
+        roleLabel: 'User',
         canDelete: false,
         canInsert: true
       },
@@ -28,7 +28,7 @@ class AuthService {
         name: 'Renato Santos',
         password: 'Boulevard@1234',
         role: 'USER',
-        roleLabel: '👤 User',
+        roleLabel: 'User',
         canDelete: false,
         canInsert: true
       },
@@ -37,7 +37,7 @@ class AuthService {
         name: 'Matheus Lima',
         password: 'Boulevard@1234',
         role: 'USER',
-        roleLabel: '👤 User',
+        roleLabel: 'User',
         canDelete: false,
         canInsert: true
       },
@@ -46,8 +46,8 @@ class AuthService {
         name: 'Gilson Souza',
         password: 'Boulevard@1234',
         role: 'USER',
-        roleLabel: '👤 User',
-        canDelete: false,
+        roleLabel: 'User',
+        canDelete: true,
         canInsert: true
       }
     };
