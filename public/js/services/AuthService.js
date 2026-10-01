@@ -59,9 +59,7 @@ class AuthService {
     if (savedUser && this.users[savedUser]) {
       this.currentUser = this.users[savedUser];
     } else {
-      // Temporariamente logado como caio.alef por padrão para evitar a tela de login
-      this.currentUser = this.users['caio.alef'];
-      localStorage.setItem('auth_current_user', 'caio.alef');
+      this.currentUser = null;
     }
   }
 
