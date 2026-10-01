@@ -11,12 +11,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 5410, NR-10, NR-12',
     description: 'Inspeção termográfica detalhada, reaperto com torquímetro calibrado, verificação de aquecimento em barramentos e testes de disjuntores de entrada e saídas de cargas prioritárias do shopping.',
     pmoc: { attached: false },
-    months: {
-      3: { status: 'DONE', os: 'OS-2025-0112', date: '2025-03-12', notes: 'Termografia OK. Sem pontos quentes.' },
-      5: { status: 'DONE', os: 'OS-2025-0245', date: '2025-05-18', notes: 'Reaperto geral executado.' },
-      7: { status: 'ATTENTION', os: 'OS-2025-0389', date: '2025-07-22', notes: 'Aguardando substituição de disjuntor de 50A.' },
-      9: { status: 'SCHEDULED' },
-      11: { status: 'SCHEDULED' }
+    months: {}
     }
   },
   {
@@ -30,7 +25,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 5410, IEC 60439',
     description: 'Manutenção preventiva e corretiva anual do Quadro Geral de Baixa Tensão, Quadro de Transferência Automática rede/gerador e células capacitivas para correção de fator de potência.',
     pmoc: { attached: false },
-    months: { 8: { status: 'SCHEDULED' } }
+    months: {}
   },
   {
     id: 'elet-3',
@@ -55,17 +50,8 @@ const INITIAL_SYSTEMS_DATA = [
     na: false,
     standards: 'ABNT NBR 5419:2015 Partes 1 a 4',
     description: 'Sistema de Proteção contra Descargas Atmosféricas e Malha de Aterramento. Medição ôhmica de aterramento, continuidade das descidas, gaiola de Faraday e captores.',
-    pmoc: {
-      attached: true,
-      pmocFile: 'PMOC_SPDA_Boulevard_Feira_2025.pdf',
-      pmocDate: '10/01/2025',
-      pmocSize: '2.4 MB',
-      pmocDesc: 'Plano de Manutenção Preventiva do SPDA com ensaios ôhmicos de terra e integridade de captores.',
-      artFile: 'ART_CREA_SPDA_Eng_Ricardo.pdf',
-      artNumber: 'ART-BA-2025-098231',
-      engineer: 'Eng. Ricardo Silveira (CREA-BA 5062831)'
-    },
-    months: { 11: { status: 'SCHEDULED' } }
+    pmoc: { attached: false },
+    months: {}
   },
   {
     id: 'elet-5',
@@ -78,7 +64,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 15014, NR-10',
     description: 'Ensaio com carga real/resistiva de bancos de nobreaks UPS centrais da automação e CFTV, verificação de ripple e baterias.',
     pmoc: { attached: false },
-    months: { 8: { status: 'SCHEDULED' } }
+    months: {}
   },
   {
     id: 'elet-6',
@@ -91,11 +77,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 14197, NBR 14198',
     description: 'Medição da condutância interna, impedância e tensão individual de flutuação dos acumuladores dos grupos geradores e nobreaks.',
     pmoc: { attached: false },
-    months: {
-      3: { status: 'DONE', os: 'OS-2025-0144', date: '2025-03-20', notes: 'Baterias em conformidade técnica.' },
-      6: { status: 'ATTENTION', os: 'OS-2025-0312', date: '2025-06-15', notes: 'Dois vasos com impedância ligeiramente acima do nominal.' },
-      9: { status: 'SCHEDULED' },
-      12: { status: 'SCHEDULED' }
+    months: {}
     }
   },
 
@@ -124,9 +106,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ISO 10816-3',
     description: 'Análise preditiva de vibração espectral nos mancais das motobombas e motores de pressurização de água potável.',
     pmoc: { attached: false },
-    months: {
-      5: { status: 'DONE', os: 'OS-2025-0210', date: '2025-05-14', notes: 'Vibração dentro dos limites de norma.' },
-      11: { status: 'SCHEDULED' }
+    months: {}
     }
   },
   {
@@ -140,9 +120,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'Portaria GM/MS nº 888, CVS-5',
     description: 'Higienização, desinfecção com cloro ativo e laudo bacteriológico e físico-químico da água das caixas superior e inferior do shopping.',
     pmoc: { attached: false },
-    months: {
-      1: { status: 'DONE', os: 'OS-2025-0023', date: '2025-01-18', notes: 'Limpeza aprovada em laboratório.' },
-      7: { status: 'SCHEDULED' }
+    months: {}
     }
   },
   {
@@ -169,10 +147,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'Portaria Ministério da Saúde 888',
     description: 'Estação de Tratamento de Água (dosagem de produtos químicos e retrolavagem de leitos filtrantes).',
     pmoc: { attached: false },
-    months: {
-      1: { status: 'DONE' }, 2: { status: 'DONE' }, 3: { status: 'DONE' }, 4: { status: 'DONE' }, 5: { status: 'DONE' },
-      6: { status: 'ATTENTION' }, 7: { status: 'SCHEDULED' }, 8: { status: 'SCHEDULED' }, 9: { status: 'SCHEDULED' },
-      10: { status: 'SCHEDULED' }, 11: { status: 'SCHEDULED' }, 12: { status: 'SCHEDULED' }
+    months: {}
     }
   },
 
@@ -188,10 +163,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR NM 207, NM 313',
     description: 'Manutenção preventiva mensal obrigatória dos elevadores sociais e de serviço, freios de emergência, portas e cabos de tração.',
     pmoc: { attached: false },
-    months: {
-      1: { status: 'DONE' }, 2: { status: 'DONE' }, 3: { status: 'DONE' }, 4: { status: 'DONE' }, 5: { status: 'DONE' },
-      6: { status: 'ATTENTION' }, 7: { status: 'SCHEDULED' }, 8: { status: 'SCHEDULED' }, 9: { status: 'SCHEDULED' },
-      10: { status: 'SCHEDULED' }, 11: { status: 'SCHEDULED' }, 12: { status: 'SCHEDULED' }
+    months: {}
     }
   },
   {
@@ -219,17 +191,8 @@ const INITIAL_SYSTEMS_DATA = [
     na: false,
     standards: 'ABNT NBR 15526, NBR 15358',
     description: 'Ensaio pneumático com manômetro diferencial calibrado para teste de vazamentos na rede de GLP/GN da praça de alimentação.',
-    pmoc: {
-      attached: true,
-      pmocFile: 'PMOC_Rede_Gas_Boulevard_Feira.pdf',
-      pmocDate: '02/02/2025',
-      pmocSize: '3.1 MB',
-      pmocDesc: 'Plano e Procedimento de Teste de Estanqueidade da Rede de Gás da Praça de Alimentação.',
-      artFile: 'ART_CREA_Eng_Mecanico_Gas.pdf',
-      artNumber: 'ART-BA-2025-110482',
-      engineer: 'Eng. Marcelo Albuquerque (CREA-BA 884712)'
-    },
-    months: { 6: { status: 'ATTENTION', notes: 'Revalidação anual agendada.' } }
+    pmoc: { attached: false },
+    months: {}
   },
 
   // --- DISCIPLINA: ESTRUTURAL ---
@@ -244,7 +207,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 11682',
     description: 'Vistoria geotécnica periódica de encostas e contenção do estacionamento externo.',
     pmoc: { attached: false },
-    months: { 5: { status: 'UNREALIZED', notes: 'Chuva excessiva impediu vistoria. Reprogramar.' } }
+    months: {}
   },
   {
     id: 'est-2',
@@ -257,7 +220,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 9575, NBR 9574',
     description: 'Inspeção minuciosa das mantas impermeabilizantes, telhas metálicas, calhas e rufos contra infiltrações.',
     pmoc: { attached: false },
-    months: { 4: { status: 'DONE' }, 10: { status: 'SCHEDULED' } }
+    months: {}
   },
 
   // --- DISCIPLINA: PREVENÇÃO CONTRA INCÊNDIO ---
@@ -272,7 +235,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 10897, NBR 13714',
     description: 'Calibração dos pressostatos das bombas Jockey e Principal de combate a incêndio.',
     pmoc: { attached: false },
-    months: { 4: { status: 'DONE' }, 10: { status: 'SCHEDULED' } }
+    months: {}
   },
   {
     id: 'inc-2',
@@ -285,7 +248,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 14105-1',
     description: 'Calibração em bancada com padrão RBC dos manômetros dos barriletes de incêndio.',
     pmoc: { attached: false },
-    months: { 4: { status: 'DONE' } }
+    months: {}
   },
   {
     id: 'inc-3',
@@ -298,10 +261,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 13714, IT-22 CB',
     description: 'Acionamento semanal e ensaio funcional mensal das motobombas de Sprinklers e Hidrantes.',
     pmoc: { attached: false },
-    months: {
-      1: { status: 'DONE' }, 2: { status: 'DONE' }, 3: { status: 'DONE' }, 4: { status: 'DONE' }, 5: { status: 'DONE' },
-      6: { status: 'ATTENTION' }, 7: { status: 'SCHEDULED' }, 8: { status: 'SCHEDULED' }, 9: { status: 'SCHEDULED' },
-      10: { status: 'SCHEDULED' }, 11: { status: 'SCHEDULED' }, 12: { status: 'SCHEDULED' }
+    months: {}
     }
   },
   {
@@ -315,7 +275,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ISO 10816-3',
     description: 'Análise de vibração preditiva dos mancais das motobombas de incêndio.',
     pmoc: { attached: false },
-    months: { 4: { status: 'DONE' }, 10: { status: 'SCHEDULED' } }
+    months: {}
   },
   {
     id: 'inc-5',
@@ -354,10 +314,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 7240, IT-19 CB',
     description: 'Teste funcional com gás aerossol nos detectores de fumaça e acionadores manuais dos malls e lojas.',
     pmoc: { attached: false },
-    months: {
-      1: { status: 'DONE' }, 2: { status: 'DONE' }, 3: { status: 'DONE' }, 4: { status: 'DONE' }, 5: { status: 'DONE' },
-      6: { status: 'ATTENTION' }, 7: { status: 'SCHEDULED' }, 8: { status: 'SCHEDULED' }, 9: { status: 'SCHEDULED' },
-      10: { status: 'SCHEDULED' }, 11: { status: 'SCHEDULED' }, 12: { status: 'SCHEDULED' }
+    months: {}
     }
   },
   {
@@ -371,7 +328,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 13714',
     description: 'Ensaio prático com mangueira desenrolada, medição de pressão residual e vazão dinâmica.',
     pmoc: { attached: false },
-    months: { 2: { status: 'DONE' } }
+    months: {}
   },
   {
     id: 'inc-9',
@@ -384,7 +341,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 12779',
     description: 'Ensaio de estanqueidade e pressão de ruptura hidrostática com laudo individual.',
     pmoc: { attached: false },
-    months: { 10: { status: 'SCHEDULED' } }
+    months: {}
   },
   {
     id: 'inc-10',
@@ -396,17 +353,8 @@ const INITIAL_SYSTEMS_DATA = [
     na: false,
     standards: 'ABNT NBR 12962, Portaria INMETRO',
     description: 'Inspeção de 1º, 2º e 3º níveis dos extintores portáteis e carretas de PQS, CO2 e Água com selo INMETRO.',
-    pmoc: {
-      attached: true,
-      pmocFile: 'PMOC_Extintores_Boulevard_Feira_2025.pdf',
-      pmocDate: '18/01/2025',
-      pmocSize: '1.9 MB',
-      pmocDesc: 'Plano de Manutenção Preventiva e Inspeção dos Extintores do Boulevard Shopping Feira de Santana.',
-      artFile: 'ART_Eng_Seguranca_Extintores.pdf',
-      artNumber: 'ART-BA-2025-442109',
-      engineer: 'Engª. Camila Prado (CREA-BA 771920)'
-    },
-    months: { 7: { status: 'SCHEDULED' } }
+    pmoc: { attached: false },
+    months: {}
   },
   {
     id: 'inc-11',
@@ -419,8 +367,7 @@ const INITIAL_SYSTEMS_DATA = [
     standards: 'ABNT NBR 10897',
     description: 'Vistoria e checagem visual das válvulas de governo e registros de gaveta abertos e lacrados dos ramais de sprinkler das lojas.',
     pmoc: { attached: false },
-    months: {
-      3: { status: 'DONE' }, 6: { status: 'DONE' }, 9: { status: 'SCHEDULED' }, 12: { status: 'SCHEDULED' }
+    months: {}
     }
   }
 ];

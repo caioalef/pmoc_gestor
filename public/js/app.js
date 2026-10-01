@@ -23,7 +23,7 @@ class BoulevardMaintenanceApp {
     this.db = new DatabaseService();
 
     this.systems = this.db.getSystems();
-    this.currentYear = '2025';
+    this.currentYear = '2026';
     this.activeSystemId = null;
     this.activeMonthIndex = null;
     this.pendingAuthAction = null; // Armazena a ação aguardando aprovação do SYSADMIN
@@ -125,7 +125,7 @@ class BoulevardMaintenanceApp {
 
     const savedTheme = localStorage.getItem('theme');
     const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-    const currentTheme = savedTheme || (prefersLight ? 'light' : 'dark');
+    const currentTheme = savedTheme || 'light';
 
     root.setAttribute('data-theme', currentTheme);
 
