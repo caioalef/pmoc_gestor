@@ -123,6 +123,10 @@ class AuthService {
   canDirectDelete() {
     return this.currentUser && this.currentUser.canDelete;
   }
+
+  validateAdminAuthorization(pin) {
+    return pin === 'ADMIN123' || pin === '1234';
+  }
 }
 
 /* ==========================================================================
@@ -659,7 +663,7 @@ const INITIAL_SYSTEMS_DATA = [
    ========================================================================== */
 class BoulevardMaintenanceApp {
   constructor() {
-    this.ad = new ActiveDirectoryService();
+    this.auth = new AuthService();
     this.db = new DatabaseService();
 
     this.systems = this.db.getSystems();
@@ -676,6 +680,59 @@ class BoulevardMaintenanceApp {
     };
 
     this.init();
+    this.initAuthUI();
+  }
+
+  initAuthUI() {
+    const overlay = document.getElementById('login-overlay');
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('login-error');
+
+    if (this.auth.hasAccess()) {
+      overlay.classList.add('hidden');
+      this.updateAuthWidget();
+    } else {
+      overlay.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = document.getElementById('login-username').value;
+      const pass = document.getElementById('login-password').value;
+
+      if (this.auth.login(user, pass)) {
+        overlay.classList.add('hidden');
+        errorMsg.style.display = 'none';
+        this.updateAuthWidget();
+        this.renderTable();
+        this.updateKPIs();
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    });
+
+    document.getElementById('btn-login-modal').addEventListener('click', () => {
+      this.auth.logout();
+      overlay.classList.remove('hidden');
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+    });
+  }
+
+  updateAuthWidget() {
+    const user = this.auth.getCurrentUser();
+    if (user) {
+      document.getElementById('auth-user-name').textContent = user.name;
+      const roleBadge = document.getElementById('auth-badge-role');
+      roleBadge.textContent = user.roleLabel;
+      if (user.role === 'SUPERADMIN') {
+        roleBadge.className = 'ad-badge-admin';
+        document.getElementById('btn-manage-users').style.display = 'inline-block';
+      } else {
+        roleBadge.className = 'ad-badge-user';
+        document.getElementById('btn-manage-users').style.display = 'none';
+      }
+    }
   }
 
   init() {
@@ -692,7 +749,7 @@ class BoulevardMaintenanceApp {
     const mainView = document.getElementById('main-authorized-view');
     const deniedView = document.getElementById('access-denied-view');
 
-    if (!this.ad.hasAccess()) {
+    if (!this.auth.hasAccess()) {
       // Usuário não possui BSFS_OPE_SYSUSER: BLOQUEAR ACESSO
       if (mainView) mainView.style.display = 'none';
       if (deniedView) deniedView.style.display = 'flex';
@@ -708,7 +765,7 @@ class BoulevardMaintenanceApp {
   }
 
   updateAdHeaderWidget() {
-    const user = this.ad.getCurrentUser();
+    const user = this.auth.getCurrentUser();
     const avatar = document.getElementById('ad-user-avatar');
     const name = document.getElementById('ad-user-name');
     const roleBadge = document.getElementById('ad-badge-role');
@@ -757,10 +814,10 @@ class BoulevardMaintenanceApp {
       btnConfirmSwitch.addEventListener('click', () => {
         const selectedRadio = document.querySelector('input[name="ad_user_select"]:checked');
         if (selectedRadio) {
-          this.ad.switchUser(selectedRadio.value);
+          // this.auth.switchUser(selectedRadio.value);
           modalSwitch.classList.remove('is-active');
           this.checkAccessAndRender();
-          const user = this.ad.getCurrentUser();
+          const user = this.auth.getCurrentUser();
           this.showToast(`Sessão alterada para: ${user.name} (${user.primaryRole})`, 'info');
         }
       });
@@ -1112,10 +1169,10 @@ class BoulevardMaintenanceApp {
      5. Fluxo de Exclusão Protegido por BSFS_OPE_SYSADMIN
      ========================================================================== */
   triggerProtectedAction(actionData) {
-    const user = this.ad.getCurrentUser();
+    const user = this.auth.getCurrentUser();
 
     // Se for SYSADMIN: exclusão autorizada diretamente com confirmação
-    if (this.ad.canDirectDelete()) {
+    if (this.auth.canDirectDelete()) {
       if (confirm(`Ação Administrativa: Confirma ${actionData.description.toLowerCase()}?`)) {
         this.executeAuthorizedAction(actionData, user);
       }
@@ -1154,7 +1211,7 @@ class BoulevardMaintenanceApp {
     const adminEmail = adminSelect ? adminSelect.value : 'emily.farias@boulevardfs.com.br';
     const reason = reasonInput ? reasonInput.value.trim() : 'Exclusão autorizada';
 
-    if (!this.ad.validateAdminAuthorization(pin)) {
+    if (!this.auth.validateAdminAuthorization(pin)) {
       this.showToast('❌ PIN de autorização de SYSADMIN inválido! (Dica de teste: ADMIN123)', 'danger');
       return;
     }
@@ -1172,7 +1229,7 @@ class BoulevardMaintenanceApp {
     const authModal = document.getElementById('modal-admin-auth');
     if (authModal) authModal.classList.remove('is-active');
 
-    this.executeAuthorizedAction(actionData, this.ad.getCurrentUser(), authorizer);
+    this.executeAuthorizedAction(actionData, this.auth.getCurrentUser(), authorizer);
   }
 
   executeAuthorizedAction(actionData, requestUser, authorizer = null) {
@@ -1387,7 +1444,7 @@ class BoulevardMaintenanceApp {
       INCENDIO: '🧯'
     };
 
-    const isSysAdmin = this.ad.canDirectDelete();
+    const isSysAdmin = this.auth.canDirectDelete();
 
     Object.entries(grouped).forEach(([catKey, group]) => {
       const icon = categoryIcons[catKey] || '📋';
@@ -1724,7 +1781,7 @@ class BoulevardMaintenanceApp {
       'ANEXAR_PMOC_ART',
       'update',
       `Documentos PMOC (${pmocFileName}) e ART (${system.pmoc.artNumber}) anexados ao sistema "${system.name}".`,
-      this.ad.getCurrentUser()
+      this.auth.getCurrentUser()
     );
 
     this.updateKPIs();
@@ -1900,7 +1957,7 @@ class BoulevardMaintenanceApp {
       'ATUALIZAR_MES',
       'update',
       `Status do mês ${this.activeMonthIndex}/${this.currentYear} atualizado para ${newStatus} no sistema "${system.name}".`,
-      this.ad.getCurrentUser()
+      this.auth.getCurrentUser()
     );
 
     this.updateKPIs();
@@ -1923,7 +1980,7 @@ class BoulevardMaintenanceApp {
       'ALTERAR_APLICABILIDADE',
       'update',
       `Sistema "${system.name}" alterado para ${isChecked ? 'Não se Aplica (NA)' : 'Aplicável'}.`,
-      this.ad.getCurrentUser()
+      this.auth.getCurrentUser()
     );
 
     this.updateKPIs();
@@ -1979,7 +2036,7 @@ class BoulevardMaintenanceApp {
       'CRIAR_SISTEMA',
       'create',
       `Novo sistema "${name}" (${period}) cadastrado no setor ${catNames[cat] || cat}.`,
-      this.ad.getCurrentUser()
+      this.auth.getCurrentUser()
     );
 
     this.render();
