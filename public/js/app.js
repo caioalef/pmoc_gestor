@@ -53,8 +53,8 @@ class BoulevardMaintenanceApp {
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const user = document.getElementById('login-username').value;
-      const pass = document.getElementById('login-password').value;
+      const user = document.getElementById('login-username').value.trim();
+      const pass = document.getElementById('login-password').value.trim();
 
       if (this.auth.login(user, pass)) {
         overlay.classList.add('hidden');
