@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema Corporativo de Gestão de Manutenção, Calendário Master e Controle de PMOC/ART - Boulevard Shopping Feira de Santana. Integrado ao Active Directory e Banco de Dados.">
+  <meta name="theme-color" content="#8C4748">
+  
+  <title>Boulevard Shopping Feira de Santana | Gestão de Manutenção & PMOC/ART</title>
+
+  <!-- Google Fonts: Playfair Display (Serif Boulevard) + Plus Jakarta Sans + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Estilos Principais -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header Corporativo Boulevard Shopping Feira de Santana -->
+  <header class="system-header">
+    <div class="header-inner">
+      <!-- Logotipo Oficial Boulevard Shopping Feira de Santana -->
+      <div class="brand-group">
+        <div class="boulevard-logo-wrap">
+          <span class="logo-main-text">Boulevard</span>
+          <span class="logo-sub-text">Shopping</span>
+          <span class="logo-city-text">Feira de Santana</span>
+        </div>
+        <div class="brand-divider"></div>
+        <div class="system-tag-wrap">
+          <span class="system-title-badge">Operações & Engenharia</span>
+          <span class="system-sub-desc">Gestão de Manutenção Predial & PMOC/ART</span>
+        </div>
+      </div>
+
+      <!-- Widget do Sistema de Autenticação -->
+      <div class="auth-session-widget" id="auth-session-widget">
+        <div class="ad-user-info">
+          <div class="ad-user-name" id="auth-user-name">Carregando...</div>
+          <div class="ad-group-badge" id="auth-group-badge">
+            <span class="ad-badge-user" id="auth-badge-role">Carregando...</span>
+          </div>
+        </div>
+        <button type="button" class="ad-profile-switch-btn" id="btn-login-modal" title="Fazer Login">
+          <span>Login / Logout</span>
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" id="btn-manage-users" style="display: none; margin-left: 10px;" title="Gerenciar Usuários">
+          <span>Usuários</span>
+        </button>
+      </div>
+
+      <!-- Controles Globais do Topo -->
+      <div class="header-controls">
+        <!-- Status de Sincronização do Banco de Dados -->
+        <button type="button" class="db-status-pill" id="btn-open-db-modal" title="Clique para ver o status da conexão e logs do banco de dados">
+          <span class="db-dot"></span>
+          <span id="db-status-label">Banco: Sincronizado</span>
+        </button>
+
+        <!-- Seletor de Ano -->
+        <div class="control-box">
+          <label for="year-selector" class="control-label">Exercício:</label>
+          <div class="select-wrapper">
+            <select id="year-selector" class="custom-select" aria-label="Selecione o ano de referência">
+              <option value="2024">2024</option>
+              <option value="2025" selected>2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ações do Header -->
+        <div class="header-actions">
+          <button id="btn-view-audit" class="btn btn-outline btn-sm" title="Consultar log de auditoria de alterações do banco de dados">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>Auditoria</span>
+          </button>
+
+          <button id="btn-export-csv" class="btn btn-outline btn-sm" title="Exportar dados para planilha Excel / CSV">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="15"></line>
+            </svg>
+            <span>Exportar CSV</span>
+          </button>
+
+          <button id="btn-print-report" class="btn btn-outline btn-sm" title="Imprimir Relatório de Auditoria">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>Relatório</span>
+          </button>
+
+          <!-- Inserção de Novo Sistema: Permitido para qualquer usuário com acesso -->
+          <button id="btn-add-system" class="btn btn-primary btn-sm" title="Cadastrar novo sistema de manutenção">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Novo Sistema</span>
+          </button>
+
+          <!-- Alternador de Tema -->
+          <button id="theme-toggle" class="btn-icon" aria-label="Alternar modo claro e escuro" title="Alternar tema">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       CONTEÚDO PRINCIPAL (Exibido para membros de BSFS_OPE_SYSUSER e SYSADMIN)
+       ========================================================================== -->
+  <main class="main-content" id="main-authorized-view">
+    <div class="content-container">
+
+      <!-- Barra de Informação de Segurança e Permissões do AD -->
+      <section class="ad-security-notice-bar" aria-label="Política de Acesso do Domínio">
+        <div class="security-notice-text">
+          <svg class="security-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <div>
+            <strong>Política de Domínio Active Directory Ativa:</strong>
+            <span>Todos os usuários de <code>BSFS_OPE_SYSUSER</code> podem visualizar e inserir dados. Operações de <strong>exclusão</strong> exigem autorização do grupo <code>BSFS_OPE_SYSADMIN</code>.</span>
+          </div>
+        </div>
+        <div class="security-notice-actions">
+          <span class="user-permission-pill" id="user-permission-status">Permissão: Inserção & Exclusão Total</span>
+        </div>
+      </section>
+      
+      <!-- Cards de Resumo e Indicadores (Dashboard KPIs com Cores Boulevard) -->
+      <section class="kpi-grid" aria-label="Indicadores gerais de manutenção">
+        <!-- KPI 1: Conformidade PMOC/ART -->
+        <div class="kpi-card highlight-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Conformidade PMOC / ART</span>
+            <span class="kpi-tag" id="kpi-compliance-tag">Atenção</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-main-stat">
+              <span class="kpi-value" id="kpi-pmoc-percent">0%</span>
+              <span class="kpi-sub">Documentados</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill progress-bsfs" id="kpi-pmoc-bar" style="width: 0%;"></div>
+            </div>
+            <div class="kpi-footer-stats">
+              <span class="status-chip chip-green"><strong id="kpi-pmoc-ok">0</strong> Anexados (Verde)</span>
+              <span class="status-chip chip-red"><strong id="kpi-pmoc-pending">0</strong> Pendentes (Vermelho)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 2: Manutenções Executadas no Ano -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Execuções de Manutenção</span>
+            <span class="kpi-badge">Ano <span class="year-label">2025</span></span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-main-stat">
+              <span class="kpi-value text-emerald" id="kpi-done-count">0</span>
+              <span class="kpi-sub">Rotinas Realizadas</span>
+            </div>
+            <div class="kpi-mini-grid">
+              <div class="mini-stat">
+                <span class="mini-label">Programadas:</span>
+                <span class="mini-val text-peach" id="kpi-scheduled-count">0</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Atenção / Andamento:</span>
+                <span class="mini-val text-amber" id="kpi-attention-count">0</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Não Realizadas:</span>
+                <span class="mini-val text-red" id="kpi-unrealized-count">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 3: Total de Sistemas Críticos -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Sistemas Monitorados</span>
+            <span class="kpi-badge">Boulevard Feira</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-main-stat">
+              <span class="kpi-value" id="kpi-total-systems">0</span>
+              <span class="kpi-sub">Itens no Cronograma</span>
+            </div>
+            <div class="category-breakdown" id="category-breakdown-chips">
+              <!-- Gerado via JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 4: Guia Rápido PMOC & ART -->
+        <div class="kpi-card guide-kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Regras PMOC & ART</span>
+            <span class="kpi-tag-info">Lei 13.589/2018</span>
+          </div>
+          <div class="guide-kpi-body">
+            <p><strong>PMOC:</strong> Plano de Manutenção, Operação e Controle que comprova as rotinas preventivas de climatização e utilidades prediais.</p>
+            <p><strong>ART:</strong> Atestado de Responsabilidade Técnica emitido junto ao CREA/CFT pelo engenheiro responsável.</p>
+            <div class="guide-note">
+              <span class="bullet-dot green"></span> <span>Modal Verde: Documentos devidamente anexados.</span><br>
+              <span class="bullet-dot red"></span> <span>Modal Vermelho: Falta anexar PMOC e/ou ART.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Barra de Filtros e Busca Rápida -->
+      <section class="filters-toolbar" aria-label="Filtros da planilha">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="filter-search" class="search-input" placeholder="Buscar sistema por nome, periodicidade, descrição ou norma..." aria-label="Buscar sistema">
+          <button id="btn-clear-search" class="btn-clear" title="Limpar busca" style="display: none;">&times;</button>
+        </div>
+
+        <div class="filter-controls-group">
+          <!-- Filtro de Categoria -->
+          <div class="filter-item">
+            <label for="filter-category" class="filter-label">Disciplina / Setor:</label>
+            <select id="filter-category" class="filter-select">
+              <option value="ALL">Todas as Disciplinas</option>
+              <option value="ELETRICA">Elétrica / Sistemas Críticos</option>
+              <option value="HIDRAULICO">Hidráulico / Hidrossanitárias</option>
+              <option value="ELEVADORES">Elevadores e Escadas Rolantes</option>
+              <option value="GAS">Gás</option>
+              <option value="ESTRUTURAL">Estrutural</option>
+              <option value="INCENDIO">Prevenção Contra Incêndio</option>
+            </select>
+          </div>
+
+          <!-- Filtro de Status PMOC/ART -->
+          <div class="filter-item">
+            <label for="filter-pmoc" class="filter-label">Status PMOC/ART:</label>
+            <select id="filter-pmoc" class="filter-select">
+              <option value="ALL">Todos os Status</option>
+              <option value="ATTACHED">🟩 Anexado (Verde)</option>
+              <option value="PENDING">🟥 Pendente / Não Anexado (Vermelho)</option>
+            </select>
+          </div>
+
+          <!-- Filtro de Periodicidade -->
+          <div class="filter-item">
+            <label for="filter-periodicity" class="filter-label">Periodicidade:</label>
+            <select id="filter-periodicity" class="filter-select">
+              <option value="ALL">Todas</option>
+              <option value="Mensal">Mensal</option>
+              <option value="Bimestral">Bimestral</option>
+              <option value="Trimestral">Trimestral</option>
+              <option value="Semestral">Semestral</option>
+              <option value="Anual">Anual</option>
+              <option value="Conforme Instrutivo">Conforme Instrutivo</option>
+            </select>
+          </div>
+
+          <!-- Resetar Filtros -->
+          <button id="btn-reset-filters" class="btn btn-ghost btn-sm" title="Limpar todos os filtros">
+            Limpar Filtros
+          </button>
+        </div>
+      </section>
+
+      <!-- Container da Planilha / Calendário Master -->
+      <section class="spreadsheet-section" aria-label="Planilha de Manutenção">
+        <div class="spreadsheet-card">
+          
+          <!-- Top Bar da Planilha -->
+          <div class="spreadsheet-top-bar">
+            <div class="top-bar-left">
+              <h2 class="table-title">Cronograma Master de Manutenções & Certificações</h2>
+              <span class="active-year-badge">Exercício <span class="year-label">2025</span></span>
+            </div>
+            <div class="top-bar-right">
+              <span class="systems-count-info"><strong id="visible-systems-count">0</strong> sistemas em monitoramento</span>
+            </div>
+          </div>
+
+          <!-- Área da Tabela com Scroll Horizontal Suave -->
+          <div class="table-responsive" id="table-scroll-container">
+            <table class="maintenance-table" id="maintenance-table">
+              <thead>
+                <tr>
+                  <th class="th-sistema" scope="col">Sistema</th>
+                  <th class="th-period" scope="col">Periodicidade</th>
+                  <th class="th-pendencias" scope="col" id="th-pendencias-title">Pendências de 2024</th>
+                  <th class="th-na" scope="col" title="Não se Aplica">NA</th>
+                  <th class="th-pmoc" scope="col" title="Plano de Manutenção e Responsabilidade Técnica">PMOC/ART</th>
+                  <th class="th-month" scope="col">Janeiro</th>
+                  <th class="th-month" scope="col">Fevereiro</th>
+                  <th class="th-month" scope="col">Março</th>
+                  <th class="th-month" scope="col">Abril</th>
+                  <th class="th-month" scope="col">Maio</th>
+                  <th class="th-month" scope="col">Junho</th>
+                  <th class="th-month" scope="col">Julho</th>
+                  <th class="th-month" scope="col">Agosto</th>
+                  <th class="th-month" scope="col">Setembro</th>
+                  <th class="th-month" scope="col">Outubro</th>
+                  <th class="th-month" scope="col">Novembro</th>
+                  <th class="th-month" scope="col">Dezembro</th>
+                  <th class="th-actions" scope="col" title="Ações">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="maintenance-tbody">
+                <!-- Renderizado dinamicamente via JS com dados do Banco de Dados -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Legenda de Símbolos e Ícones -->
+          <div class="table-legend-footer">
+            <div class="legend-header">Legenda de Símbolos:</div>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="status-icon icon-done">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                <span>Realizado</span>
+              </div>
+
+              <div class="legend-item">
+                <span class="status-icon icon-attention">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                </span>
+                <span>Atenção / Em Execução</span>
+              </div>
+
+              <div class="legend-item">
+                <span class="status-icon icon-scheduled">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 22h14"></path>
+                    <path d="M5 2h14"></path>
+                    <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
+                    <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+                  </svg>
+                </span>
+                <span>Programado</span>
+              </div>
+
+              <div class="legend-item">
+                <span class="status-icon icon-unrealized">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </span>
+                <span>Não Realizado</span>
+              </div>
+
+              <div class="legend-separator"></div>
+
+              <div class="legend-item">
+                <span class="doc-badge badge-green-mini" title="Arquivos Anexados">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <polyline points="9 15 11 17 15 13"></polyline>
+                  </svg>
+                </span>
+                <span>PMOC/ART Anexado (Verde)</span>
+              </div>
+
+              <div class="legend-item">
+                <span class="doc-badge badge-red-mini" title="Arquivos Pendentes">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="11" x2="12" y2="15"></line>
+                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                  </svg>
+                </span>
+                <span>PMOC/ART Pendente (Vermelho)</span>
+              </div>
+
+              <div class="legend-item">
+                <span class="na-pill-mini">NA</span>
+                <span>Não se Aplica</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       TELA DE ACESSO NEGADO DO ACTIVE DIRECTORY (Quando usuário não tem BSFS_OPE_SYSUSER)
+       ========================================================================== -->
+  <section class="access-denied-screen" id="access-denied-view" style="display: none;">
+    <div class="access-denied-card">
+      <div class="denied-icon-wrap">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+      </div>
+      <h2 class="denied-title">Acesso Restrito ao Domínio Active Directory</h2>
+      <p class="denied-message">
+        A sua conta de usuário não faz parte do grupo de domínio de operações autorizado para o Sistema de Gestão de Manutenção do <strong>Boulevard Shopping Feira de Santana</strong>.
+      </p>
+      <div class="denied-group-box">
+        Grupo Obrigatório Requerido: <strong>BSFS_OPE_SYSUSER</strong>
+      </div>
+      <p class="denied-message" style="font-size: 0.8rem;">
+        Se você faz parte da equipe de operações ou engenharia, solicite ao Administrador de Rede a inclusão do seu usuário no grupo de segurança.
+      </p>
+      <button type="button" class="btn btn-primary" id="btn-switch-denied-user">
+        Alternar para Conta com Permissão (Simulador AD)
+      </button>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       MODAL 1: PMOC / ART (VERDE SE ANEXADO / VERMELHO SE NÃO ANEXADO)
+       ========================================================================== -->
+  <div id="modal-pmoc-art" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="pmoc-modal-title">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" id="pmoc-modal-content">
+        
+        <!-- Header Dinâmico do Modal (Verde ou Vermelho) -->
+        <div class="modal-header" id="pmoc-modal-header">
+          <div class="modal-header-icon-wrap" id="pmoc-header-icon">
+            <!-- Ícone SVG injetado via JS -->
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title" id="pmoc-system-category">SISTEMA DA MANUTENÇÃO</div>
+            <h3 class="modal-title" id="pmoc-modal-title">Controle de Documentos PMOC & ART</h3>
+            <p class="modal-system-name" id="pmoc-modal-system-name">Nome do Sistema</p>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-pmoc-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <!-- Banner de Status Notável (Verde ou Vermelho) -->
+        <div class="modal-status-banner" id="pmoc-status-banner">
+          <div class="status-banner-badge" id="pmoc-status-badge">STATUS DO DOCUMENTO</div>
+          <div class="status-banner-text" id="pmoc-status-message">Mensagem de status</div>
+        </div>
+
+        <div class="modal-body">
+          
+          <!-- Seção de Alerta e Definições de PMOC e ART -->
+          <div class="doc-explanation-card">
+            <div class="explanation-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </div>
+            <div class="explanation-content">
+              <strong>Documentação Obrigatória - Boulevard Shopping Feira de Santana:</strong>
+              <ul>
+                <li><strong>PMOC:</strong> Documento oficial de comprovação do plano de manutenção do sistema (rotinas, periodicidades e controles técnicos).</li>
+                <li><strong>ART (ou TRT):</strong> Atestado de Responsabilidade Técnica emitido junto ao conselho de classe (CREA/CFT) com profissional habilitado.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- SEÇÃO A: ARQUIVOS ANEXADOS (Exibido quando arquivos constam anexados) -->
+          <div id="pmoc-attached-view" class="doc-view-section" style="display: none;">
+            <div class="section-subtitle">Arquivos Atuais no Banco de Dados:</div>
+            
+            <div class="doc-cards-grid">
+              <!-- Card PMOC -->
+              <div class="doc-file-card" id="card-pmoc-info">
+                <div class="file-card-top">
+                  <div class="file-badge-type">PMOC</div>
+                  <span class="file-status-valid">✓ Válido</span>
+                </div>
+                <div class="file-card-body">
+                  <div class="file-icon-pdf">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <path d="M9 13h6"></path>
+                      <path d="M9 17h6"></path>
+                    </svg>
+                  </div>
+                  <div class="file-info-text">
+                    <div class="file-name" id="view-pmoc-filename">PMOC_Manutencao_2025.pdf</div>
+                    <div class="file-meta">
+                      <span id="view-pmoc-date">Anexado em: 15/01/2025</span> &bull; 
+                      <span id="view-pmoc-size">1.8 MB</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="file-card-actions">
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-preview-pmoc">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Visualizar</span>
+                  </button>
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-download-pmoc">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="15"></line>
+                    </svg>
+                    <span>Baixar</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card ART -->
+              <div class="doc-file-card" id="card-art-info">
+                <div class="file-card-top">
+                  <div class="file-badge-type">ART / CREA</div>
+                  <span class="file-status-valid">✓ Registrada</span>
+                </div>
+                <div class="file-card-body">
+                  <div class="file-icon-pdf">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <polyline points="10 14 12 16 16 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="file-info-text">
+                    <div class="file-name" id="view-art-filename">ART_CREA_2025_Registrada.pdf</div>
+                    <div class="file-meta">
+                      <span>Nº ART: <strong id="view-art-number">ART-BA-2025-08129</strong></span><br>
+                      <span>Resp. Técnico: <span id="view-art-engineer">Eng. Ricardo Silveira (CREA 5062831)</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="file-card-actions">
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-preview-art">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Visualizar</span>
+                  </button>
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-download-art">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="15"></line>
+                    </svg>
+                    <span>Baixar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botões de Ação para Documentos Anexados -->
+            <div class="attached-actions-bar">
+              <button type="button" class="btn btn-outline" id="btn-toggle-replace">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+                <span>Substituir / Atualizar Arquivos</span>
+              </button>
+              
+              <!-- Desanexar é uma exclusão de informação: requer BSFS_OPE_SYSADMIN -->
+              <button type="button" class="btn btn-danger-outline" id="btn-delete-attachments">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Desanexar Arquivos (Requer BSFS_OPE_SYSADMIN)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SEÇÃO B: FORMULÁRIO DE UPLOAD E ANEXAÇÃO (Inserção permitida para SYSUSER e SYSADMIN) -->
+          <div id="pmoc-upload-view" class="doc-upload-section">
+            <div class="upload-alert-box" id="upload-pending-alert">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div>
+                <strong>Atenção: Sistema Irregular / Sem Comprovação</strong>
+                <p>Anexe o documento de PMOC e o atestado de ART abaixo para regularizar o sistema no banco de dados e converter para status CONFORME (Verde).</p>
+              </div>
+            </div>
+
+            <form id="form-upload-pmoc-art" class="upload-form">
+              <div class="form-grid-two">
+                
+                <!-- Bloco de Upload do PMOC -->
+                <div class="upload-drop-card">
+                  <div class="drop-header">
+                    <span class="drop-step">1</span>
+                    <div>
+                      <strong class="drop-title">Documento de PMOC</strong>
+                      <p class="drop-subtitle">Comprovante do Plano de Manutenção (PDF)</p>
+                    </div>
+                  </div>
+                  
+                  <div class="drop-zone" id="dropzone-pmoc">
+                    <input type="file" id="file-pmoc-input" accept=".pdf,.doc,.docx" class="file-hidden-input">
+                    <div class="drop-zone-content">
+                      <svg class="drop-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <span class="drop-main-text">Clique ou arraste o PDF do PMOC</span>
+                      <span class="drop-sub-text">Formatos aceitos: PDF, DOCX (Max: 20MB)</span>
+                    </div>
+                    <div class="selected-file-preview" id="preview-file-pmoc" style="display: none;">
+                      <span class="preview-filename" id="name-file-pmoc"></span>
+                      <button type="button" class="btn-remove-selected" id="btn-remove-pmoc-sel">&times;</button>
+                    </div>
+                  </div>
+
+                  <div class="form-group-field">
+                    <label for="input-pmoc-desc" class="field-label">Descrição / Escopo do PMOC:</label>
+                    <input type="text" id="input-pmoc-desc" class="form-input" placeholder="Ex: PMOC Semestral Conforme NBR 13971 - Boulevard Feira">
+                  </div>
+                </div>
+
+                <!-- Bloco de Upload da ART -->
+                <div class="upload-drop-card">
+                  <div class="drop-header">
+                    <span class="drop-step">2</span>
+                    <div>
+                      <strong class="drop-title">Documento da ART / TRT</strong>
+                      <p class="drop-subtitle">Atestado de Responsabilidade Técnica</p>
+                    </div>
+                  </div>
+                  
+                  <div class="drop-zone" id="dropzone-art">
+                    <input type="file" id="file-art-input" accept=".pdf,.doc,.docx" class="file-hidden-input">
+                    <div class="drop-zone-content">
+                      <svg class="drop-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <span class="drop-main-text">Clique ou arraste o PDF da ART</span>
+                      <span class="drop-sub-text">Formatos aceitos: PDF, DOCX (Max: 20MB)</span>
+                    </div>
+                    <div class="selected-file-preview" id="preview-file-art" style="display: none;">
+                      <span class="preview-filename" id="name-file-art"></span>
+                      <button type="button" class="btn-remove-selected" id="btn-remove-art-sel">&times;</button>
+                    </div>
+                  </div>
+
+                  <div class="form-group-field">
+                    <label for="input-art-number" class="field-label">Número da ART / RRT / TRT:</label>
+                    <input type="text" id="input-art-number" class="form-input" placeholder="Ex: ART-BA-2025-098231">
+                  </div>
+
+                  <div class="form-group-field">
+                    <label for="input-art-engineer" class="field-label">Engenheiro / Responsável Técnico (CREA):</label>
+                    <input type="text" id="input-art-engineer" class="form-input" placeholder="Ex: Eng. Ricardo Silveira (CREA 5062831)">
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Botão Rápido para Preenchimento de Demonstração -->
+              <div class="quick-sample-box">
+                <button type="button" class="btn btn-ghost btn-xs" id="btn-quick-fill-sample">
+                  ⚡ Preencher dados de teste para anexar agora
+                </button>
+              </div>
+
+              <!-- Ações do Formulário de Upload -->
+              <div class="upload-footer-actions">
+                <button type="button" class="btn btn-outline" id="btn-cancel-upload">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btn-submit-pmoc-art">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  <span>Salvar e Anexar Documentos no Banco</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <div class="modal-footer-legal">
+            <small>Em conformidade com a Lei Federal 13.589/2018 e Resoluções CONFEA/CREA-BA.</small>
+          </div>
+          <button type="button" class="btn btn-outline" id="btn-footer-close-pmoc">Fechar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: AUTORIZAÇÃO SYSADMIN PARA EXCLUSÃO (Requisito AD)
+       ========================================================================== -->
+  <div id="modal-admin-auth" class="modal-backdrop modal-admin-auth" aria-hidden="true" role="dialog" aria-labelledby="auth-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-red">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title">POLÍTICA DE DOMÍNIO ACTIVE DIRECTORY</div>
+            <h3 class="modal-title" id="auth-modal-title">Autorização de Exclusão Requerida</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-auth-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <form id="form-admin-auth">
+          <div class="modal-body">
+            <div class="auth-lock-card">
+              <div class="auth-lock-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+              </div>
+              <div class="auth-lock-content">
+                <strong>Ação Restrita ao Grupo BSFS_OPE_SYSADMIN</strong>
+                <p id="auth-action-description">
+                  O usuário logado possui perfil de inserção (<code>BSFS_OPE_SYSUSER</code>). A exclusão de sistemas ou remoção de comprovações de PMOC/ART afeta a conformidade legal do shopping e requer a aprovação expressa de um administrador de operações.
+                </p>
+              </div>
+            </div>
+
+            <div class="auth-credentials-box">
+              <span class="auth-admin-badge">🔐 Validação de Credencial Administrativa</span>
+              
+              <div class="form-group-field">
+                <label for="admin-auth-user" class="field-label">Administrador Autorizador (AD):</label>
+                <select id="admin-auth-user" class="form-select">
+                  <option value="emily.farias@boulevardfs.com.br">Emily Farias (emily.farias@boulevardfs.com.br - BSFS_OPE_SYSADMIN)</option>
+                  <option value="gestor.predial@boulevardfs.com.br">Gestor Predial (gestor.predial@boulevardfs.com.br - BSFS_OPE_SYSADMIN)</option>
+                </select>
+              </div>
+
+              <div class="form-group-field">
+                <label for="admin-auth-pin" class="field-label">PIN ou Senha de Autorização do SYSADMIN: *</label>
+                <input type="password" id="admin-auth-pin" class="form-input" placeholder="Digite o PIN (Dica para teste: ADMIN123)" required>
+              </div>
+
+              <div class="form-group-field">
+                <label for="admin-auth-reason" class="field-label">Justificativa da Exclusão para Log de Auditoria:</label>
+                <input type="text" id="admin-auth-reason" class="form-input" placeholder="Ex: Equipamento desativado ou reestruturação de planta" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="btn-cancel-auth">Cancelar</button>
+            <button type="submit" class="btn btn-danger-outline" style="background: #ef4444; color: #fff;">
+              Autorizar e Concluir Exclusão
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: ALTERNAR USUÁRIO / SESSÃO DO ACTIVE DIRECTORY (Simulador de Teste)
+       ========================================================================== -->
+  <div id="modal-switch-ad-user" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="switch-user-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-peach">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title">ACTIVE DIRECTORY & CONTROLE DE ACESSO</div>
+            <h3 class="modal-title" id="switch-user-modal-title">Alternar Conta do Active Directory</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-switch-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">
+            Selecione uma das contas do domínio <code>boulevardfs.com.br</code> para testar e homologar as regras de acesso e permissões:
+          </p>
+
+          <div class="status-options-grid">
+            <!-- Conta 1: SYSADMIN -->
+            <label class="status-option-card">
+              <input type="radio" name="ad_user_select" value="SYSADMIN" checked>
+              <div class="status-option-content">
+                <div class="ad-user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">EF</div>
+                <div class="status-opt-texts">
+                  <strong>Emily Farias (Administrador)</strong>
+                  <small>Grupo AD: <code class="ad-badge-admin">BSFS_OPE_SYSADMIN</code> &bull; Permissão Total (Inserção e Exclusão)</small>
+                </div>
+              </div>
+            </label>
+
+            <!-- Conta 2: SYSUSER -->
+            <label class="status-option-card">
+              <input type="radio" name="ad_user_select" value="SYSUSER">
+              <div class="status-option-content">
+                <div class="ad-user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem; background: #0284c7;">CO</div>
+                <div class="status-opt-texts">
+                  <strong>Carlos Operações (Operador)</strong>
+                  <small>Grupo AD: <code class="ad-badge-user">BSFS_OPE_SYSUSER</code> &bull; Pode Inserir (Exclusão Requer Aprovação)</small>
+                </div>
+              </div>
+            </label>
+
+            <!-- Conta 3: SEM GRUPO (Acesso Negado) -->
+            <label class="status-option-card">
+              <input type="radio" name="ad_user_select" value="DENIED">
+              <div class="status-option-content">
+                <div class="ad-user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem; background: #64748b;">UE</div>
+                <div class="status-opt-texts">
+                  <strong>Usuário Externo (Sem grupo de Operações)</strong>
+                  <small>Grupo AD: <code class="ad-badge-denied">SEM_GRUPO_OPE</code> &bull; Bloqueia Acesso à Planilha</small>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-close-switch-footer">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btn-confirm-switch-user">Aplicar Usuário no Sistema</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: AUDITORIA E LOGS DO BANCO DE DADOS
+       ========================================================================== -->
+  <div id="modal-audit-logs" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="audit-modal-title">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-marsala">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title">BANCO DE DADOS & SEGURANÇA</div>
+            <h3 class="modal-title" id="audit-modal-title">Registro de Auditoria de Operações (Audit Log)</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-audit-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">
+            Histórico imutável de todas as inserções, atualizações de status e exclusões realizadas no sistema com identificação do usuário do Active Directory:
+          </p>
+
+          <div class="audit-logs-list" id="audit-logs-container">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-clear-logs-test">Limpar Logs de Teste</button>
+          <button type="button" class="btn btn-primary" id="btn-close-audit-footer">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 5: DETALHES DO SISTEMA (i da coluna Sistema)
+       ========================================================================== -->
+  <div id="modal-sistema-info" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="info-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-marsala">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title" id="info-modal-category">DISCIPLINA</div>
+            <h3 class="modal-title" id="info-modal-title">Detalhes do Sistema</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-info-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="info-details-list">
+            <div class="info-detail-item">
+              <span class="info-label">Nome do Sistema:</span>
+              <strong class="info-value" id="info-detail-name">-</strong>
+            </div>
+            <div class="info-detail-item">
+              <span class="info-label">Periodicidade Recomendada:</span>
+              <span class="info-value badge-periodicity" id="info-detail-period">-</span>
+            </div>
+            <div class="info-detail-item">
+              <span class="info-label">Normas Regulamentadoras & ABNT:</span>
+              <span class="info-value" id="info-detail-standards">-</span>
+            </div>
+            <div class="info-detail-item">
+              <span class="info-label">Escopo das Atividades Preventivas:</span>
+              <p class="info-desc-text" id="info-detail-desc">-</p>
+            </div>
+            <div class="info-detail-item">
+              <span class="info-label">Status da Documentação PMOC/ART:</span>
+              <div id="info-detail-pmoc-status">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-open-pmoc-from-info">Gerenciar PMOC/ART</button>
+          <button type="button" class="btn btn-primary" id="btn-close-info-footer">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 6: EDIÇÃO DE STATUS DO MÊS
+       ========================================================================== -->
+  <div id="modal-month-status" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="month-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-peach">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title" id="month-modal-pretitle">ATUALIZAR CRONOGRAMA</div>
+            <h3 class="modal-title" id="month-modal-title">Manutenção de [Mês]</h3>
+            <p class="modal-system-name" id="month-modal-system-name">Nome do Sistema</p>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-month-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <form id="form-update-month">
+          <div class="modal-body">
+            <div class="status-selector-label">Selecione o Status da Manutenção:</div>
+            
+            <div class="status-options-grid">
+              <label class="status-option-card">
+                <input type="radio" name="month_status_radio" value="DONE">
+                <div class="status-option-content">
+                  <span class="status-icon icon-done">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  <div class="status-opt-texts">
+                    <strong>Realizado</strong>
+                    <small>Manutenção executada e aprovada</small>
+                  </div>
+                </div>
+              </label>
+
+              <label class="status-option-card">
+                <input type="radio" name="month_status_radio" value="ATTENTION">
+                <div class="status-option-content">
+                  <span class="status-icon icon-attention">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                  </span>
+                  <div class="status-opt-texts">
+                    <strong>Atenção / Em Execução</strong>
+                    <small>Iniciado ou com pendências leves</small>
+                  </div>
+                </div>
+              </label>
+
+              <label class="status-option-card">
+                <input type="radio" name="month_status_radio" value="SCHEDULED">
+                <div class="status-option-content">
+                  <span class="status-icon icon-scheduled">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M5 22h14"></path>
+                      <path d="M5 2h14"></path>
+                      <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
+                      <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+                    </svg>
+                  </span>
+                  <div class="status-opt-texts">
+                    <strong>Programado</strong>
+                    <small>Agendado para este período</small>
+                  </div>
+                </div>
+              </label>
+
+              <label class="status-option-card">
+                <input type="radio" name="month_status_radio" value="UNREALIZED">
+                <div class="status-option-content">
+                  <span class="status-icon icon-unrealized">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </span>
+                  <div class="status-opt-texts">
+                    <strong>Não Realizado / Reprovado</strong>
+                    <small>Não executado no prazo ou com anomalia</small>
+                  </div>
+                </div>
+              </label>
+
+              <label class="status-option-card">
+                <input type="radio" name="month_status_radio" value="NONE">
+                <div class="status-option-content">
+                  <span class="status-icon icon-empty">&mdash;</span>
+                  <div class="status-opt-texts">
+                    <strong>Não Previsto / Limpar</strong>
+                    <small>Sem atividade para este mês</small>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-grid-two mt-4">
+              <div class="form-group-field">
+                <label for="month-exec-date" class="field-label">Data de Execução:</label>
+                <input type="date" id="month-exec-date" class="form-input">
+              </div>
+              <div class="form-group-field">
+                <label for="month-os-number" class="field-label">Nº Ordem de Serviço (O.S.):</label>
+                <input type="text" id="month-os-number" class="form-input" placeholder="Ex: OS-2025-0492">
+              </div>
+            </div>
+
+            <div class="form-group-field mt-3">
+              <label for="month-notes" class="field-label">Observações / Relatório do Técnico:</label>
+              <textarea id="month-notes" class="form-textarea" rows="2" placeholder="Observações pertinentes à rotina de manutenção realizada ou justificativa..."></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="btn-close-month-footer">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar no Banco de Dados</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 7: CADASTRAR NOVO SISTEMA DE MANUTENÇÃO (Permitido para SYSUSER e SYSADMIN)
+       ========================================================================== -->
+  <div id="modal-new-system" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="new-sys-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-marsala">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title">CADASTRO DE ENGENHARIA</div>
+            <h3 class="modal-title" id="new-sys-modal-title">Novo Sistema de Manutenção</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-new-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <form id="form-new-system">
+          <div class="modal-body">
+            <div class="form-group-field">
+              <label for="new-sys-category" class="field-label">Disciplina / Categoria: *</label>
+              <select id="new-sys-category" class="form-select" required>
+                <option value="ELETRICA">ELÉTRICA / SISTEMAS CRÍTICOS</option>
+                <option value="HIDRAULICO">HIDRÁULICO / HIDROSSANITÁRIAS</option>
+                <option value="ELEVADORES">ELEVADORES E ESCADAS ROLANTES</option>
+                <option value="GAS">GÁS</option>
+                <option value="ESTRUTURAL">ESTRUTURAL</option>
+                <option value="INCENDIO">PREVENÇÃO CONTRA INCÊNDIO</option>
+              </select>
+            </div>
+
+            <div class="form-group-field">
+              <label for="new-sys-name" class="field-label">Nome do Sistema: *</label>
+              <input type="text" id="new-sys-name" class="form-input" placeholder="Ex: Grupo Gerador de Emergência - Boulevard" required>
+            </div>
+
+            <div class="form-grid-two">
+              <div class="form-group-field">
+                <label for="new-sys-period" class="field-label">Periodicidade: *</label>
+                <select id="new-sys-period" class="form-select" required>
+                  <option value="Mensal">Mensal</option>
+                  <option value="Bimestral">Bimestral</option>
+                  <option value="Trimestral">Trimestral</option>
+                  <option value="Semestral">Semestral</option>
+                  <option value="Anual">Anual</option>
+                  <option value="Conforme Instrutivo">Conforme Instrutivo</option>
+                </select>
+              </div>
+
+              <div class="form-group-field">
+                <label for="new-sys-pendencias" class="field-label">Pendências do Ano Anterior:</label>
+                <input type="text" id="new-sys-pendencias" class="form-input" placeholder="Ex: Nenhuma ou detalhar">
+              </div>
+            </div>
+
+            <div class="form-group-field">
+              <label for="new-sys-desc" class="field-label">Descrição Técnica e Escopo Preventivo:</label>
+              <textarea id="new-sys-desc" class="form-textarea" rows="2" placeholder="Descreva os componentes, testes requeridos e rotinas do Boulevard Shopping..."></textarea>
+            </div>
+
+            <div class="form-check-field">
+              <label class="custom-checkbox-label">
+                <input type="checkbox" id="new-sys-na">
+                <span class="checkmark"></span>
+                <span>Marcar como <strong>NA (Não se Aplica)</strong> inicialmente</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="btn-close-new-footer">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Gravar no Banco de Dados</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 8: VISUALIZADOR DE DOCUMENTO (PREVIEW MOCK COM TIMBRE BOULEVARD)
+       ========================================================================== -->
+  <div id="modal-preview-doc" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="preview-doc-title">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-icon-wrap icon-marsala">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <div class="modal-pre-title">DOCUMENTO OFICIAL ANEXADO</div>
+            <h3 class="modal-title" id="preview-doc-title">Visualização de Arquivo</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-preview-modal" aria-label="Fechar visualizador">&times;</button>
+        </div>
+
+        <div class="modal-body preview-modal-body">
+          <div class="pdf-mock-viewer">
+            <div class="pdf-mock-toolbar">
+              <span class="pdf-file-title" id="preview-filename-text">documento.pdf</span>
+              <div class="pdf-toolbar-actions">
+                <span class="pdf-page-count">Página 1 de 4</span>
+                <span class="pdf-tag-verified">🔒 Autenticação Digital ICP-Brasil</span>
+              </div>
+            </div>
+
+            <div class="pdf-mock-page">
+              <div class="pdf-header-official">
+                <div class="official-seal">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="official-title">BOULEVARD SHOPPING FEIRA DE SANTANA</h4>
+                  <p class="official-sub">LAUDO TÉCNICO DE ENGENHARIA & PLANO DE MANUTENÇÃO (PMOC) &bull; Lei 13.589/2018</p>
+                </div>
+              </div>
+
+              <div class="pdf-body-details">
+                <div class="pdf-detail-row">
+                  <span>Edifício / Empreendimento:</span>
+                  <strong>Boulevard Shopping Feira de Santana - BA</strong>
+                </div>
+                <div class="pdf-detail-row">
+                  <span>Sistema Técnico Auditado:</span>
+                  <strong id="preview-system-name">-</strong>
+                </div>
+                <div class="pdf-detail-row">
+                  <span>Periodicidade Contratual:</span>
+                  <span id="preview-system-period">-</span>
+                </div>
+                <div class="pdf-detail-row">
+                  <span>Atestado ART Nº:</span>
+                  <strong id="preview-art-num">-</strong>
+                </div>
+                <div class="pdf-detail-row">
+                  <span>Responsável Técnico:</span>
+                  <span id="preview-eng-name">-</span>
+                </div>
+              </div>
+
+              <div class="pdf-audit-content">
+                <h5>PARECER TÉCNICO CONCLUSIVO:</h5>
+                <p>
+                  Certificamos que as rotinas preventivas, inspeções termográficas, ensaios de estanqueidade e aferições instrumentais foram integralmente executadas no Boulevard Shopping Feira de Santana em conformidade com as normas ABNT e diretrizes regulamentadoras vigentes. O sistema encontra-se apto e seguro para operação regular.
+                </p>
+              </div>
+
+              <div class="pdf-stamps-row">
+                <div class="stamp-box crea-stamp">
+                  <div class="stamp-title">CREA-BA / CFT</div>
+                  <div class="stamp-sub">ART REGISTRADA E VIGENTE</div>
+                  <div class="stamp-code">CERT-2025-98214-BA</div>
+                </div>
+                <div class="stamp-box digital-stamp">
+                  <div class="stamp-title">ASSINATURA DIGITAL</div>
+                  <div class="stamp-sub">Certificado Digital Qualificado</div>
+                  <div class="stamp-date">Emitido em 15/01/2025 às 14:32</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-close-preview-footer">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container de Toasts / Notificações -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Script da Aplicação -->
+  <script src="js/app.js"></script>
+</body>
+</html>

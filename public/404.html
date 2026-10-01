@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Página não encontrada - 404">
+  <title>404 - Página Não Encontrada | Modern Firebase</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .error-wrapper {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+    .error-card {
+      max-width: 520px;
+      padding: 3rem 2rem;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+    .error-code {
+      font-family: var(--font-mono);
+      font-size: 5.5rem;
+      font-weight: 800;
+      line-height: 1;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .error-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </span>
+        <span class="brand-name">Modern<span class="highlight">Firebase</span></span>
+      </a>
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-outline btn-sm">Voltar ao Início</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="error-wrapper">
+    <div class="error-card">
+      <div class="error-code">404</div>
+      <h1 class="error-title">Página Não Encontrada</h1>
+      <p class="error-desc">
+        O link que você tentou acessar não existe ou foi movido. Não se preocupe, você pode retornar à página inicial com facilidade.
+      </p>
+      <a href="index.html" class="btn btn-primary">
+        Ir para a Página Inicial
+      </a>
+    </div>
+  </main>
+</body>
+</html>
