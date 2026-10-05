@@ -24,7 +24,7 @@ echo "=== [3/5] Ajustando permissões e SELinux no Rocky Linux ==="
 sudo chown -R $USER:$USER /opt/pmoc_gestor 2>/dev/null || true
 find /opt/pmoc_gestor -type d -exec chmod 755 {} + 2>/dev/null || true
 find /opt/pmoc_gestor -type f -exec chmod 644 {} + 2>/dev/null || true
-chcon -Rt container_file_t /opt/pmoc_gestor/public 2>/dev/null || true
+chcon -Rt container_file_t /opt/pmoc_gestor 2>/dev/null || true
 
 echo "=== [4/5] Liberando porta 8081 no Firewall (Firewalld) ==="
 if systemctl is-active --quiet firewalld 2>/dev/null; then
