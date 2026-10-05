@@ -59,7 +59,15 @@ class AuthService {
         body: JSON.stringify({ username, password })
       });
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        data = {
+          success: false,
+          error: `Erro no servidor web (Status HTTP ${response.status} - ${response.statusText}). O container da API pode estar iniciando ou fora do ar.`
+        };
+      }
 
       if (response.ok && data.success) {
         this.currentUser = data.user;
@@ -71,7 +79,7 @@ class AuthService {
       } else {
         return {
           success: false,
-          error: data.error || 'Credenciais inválidas no Active Directory.'
+          error: data.error || `Falha na autenticação (HTTP ${response.status})`
         };
       }
     } catch (netErr) {
