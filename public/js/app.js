@@ -46,8 +46,10 @@ class BoulevardMaintenanceApp {
 
     if (this.auth.hasAccess()) {
       overlay.classList.add('hidden');
+      overlay.style.display = 'none';
       this.updateAuthWidget();
     } else {
+      overlay.style.display = 'flex';
       overlay.classList.remove('hidden');
     }
 
@@ -67,18 +69,25 @@ class BoulevardMaintenanceApp {
         const result = await this.auth.login(user, pass);
         if (result && result.success) {
           overlay.classList.add('hidden');
+          overlay.style.display = 'none';
           errorMsg.style.display = 'none';
           this.updateAuthWidget();
-          this.checkAccessAndRender();
-          try {
-            const fresh = await this.db.fetchSystemsFromAPI();
+
+          const mainView = document.getElementById('main-authorized-view');
+          if (mainView) {
+            mainView.style.display = 'block';
+          }
+          this.render();
+
+          // Sincroniza dados frescos do MariaDB em background
+          this.db.fetchSystemsFromAPI().then(fresh => {
             if (fresh && fresh.length > 0) {
               this.systems = fresh;
               this.render();
             }
-          } catch (fetchErr) {
+          }).catch(fetchErr => {
             console.warn('Erro ao atualizar dados do MariaDB:', fetchErr);
-          }
+          });
         } else {
           errorMsg.textContent = (result && result.error) || 'Usuário ou senha incorretos.';
           errorMsg.style.display = 'block';
@@ -96,7 +105,10 @@ class BoulevardMaintenanceApp {
 
     document.getElementById('btn-login-modal').addEventListener('click', () => {
       this.auth.logout();
+      overlay.style.display = 'flex';
       overlay.classList.remove('hidden');
+      const mainView = document.getElementById('main-authorized-view');
+      if (mainView) mainView.style.display = 'none';
       document.getElementById('login-username').value = '';
       document.getElementById('login-password').value = '';
     });
