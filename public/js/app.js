@@ -51,19 +51,42 @@ class BoulevardMaintenanceApp {
       overlay.classList.remove('hidden');
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('login-username').value.trim();
       const pass = document.getElementById('login-password').value.trim();
+      const submitBtn = form.querySelector('button[type="submit"]');
 
-      if (this.auth.login(user, pass)) {
-        overlay.classList.add('hidden');
-        errorMsg.style.display = 'none';
-        this.updateAuthWidget();
-        this.renderTable();
-        this.updateKPIs();
-      } else {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Autenticando no AD...';
+      }
+      errorMsg.style.display = 'none';
+
+      try {
+        const result = await this.auth.login(user, pass);
+        if (result && result.success) {
+          overlay.classList.add('hidden');
+          errorMsg.style.display = 'none';
+          this.updateAuthWidget();
+          const fresh = await this.db.fetchSystemsFromAPI();
+          if (fresh && fresh.length > 0) {
+            this.systems = fresh;
+          }
+          this.renderTable();
+          this.updateKPIs();
+        } else {
+          errorMsg.textContent = (result && result.error) || 'Usuário ou senha incorretos.';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Erro ao conectar ao servidor: ' + err.message;
         errorMsg.style.display = 'block';
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Entrar';
+        }
       }
     });
 
@@ -93,11 +116,23 @@ class BoulevardMaintenanceApp {
     }
   }
 
-  init() {
+  async init() {
     this.bindTheme();
-    // this.bindADSessionUI(); // Removido
     this.bindEventListeners();
     this.checkAccessAndRender();
+
+    if (this.auth.hasAccess()) {
+      try {
+        const fresh = await this.db.fetchSystemsFromAPI();
+        if (fresh && fresh.length > 0) {
+          this.systems = fresh;
+          this.renderTable();
+          this.updateKPIs();
+        }
+      } catch (e) {
+        console.warn('Sincronização com MariaDB falhou:', e);
+      }
+    }
   }
 
   /* ==========================================================================
@@ -1120,10 +1155,17 @@ class BoulevardMaintenanceApp {
   /* ==========================================================================
      8. Modal de Auditoria e Logs do Banco de Dados
      ========================================================================== */
-  openAuditLogsModal() {
+  async openAuditLogsModal() {
     this.renderAuditLogsList();
     const modal = document.getElementById('modal-audit-logs');
     if (modal) modal.classList.add('is-active');
+
+    try {
+      await this.db.fetchAuditLogsFromAPI();
+      this.renderAuditLogsList();
+    } catch (e) {
+      console.warn('Erro ao atualizar logs:', e);
+    }
   }
 
   renderAuditLogsList() {

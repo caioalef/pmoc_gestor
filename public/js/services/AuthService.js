@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. Local Authentication Service & Role Based Access Control
+   1. Active Directory LDAP & Local Authentication Service
    ========================================================================== */
 class AuthService {
   constructor() {
@@ -13,51 +13,19 @@ class AuthService {
         roleLabel: 'Superadmin',
         canDelete: true,
         canInsert: true
-      },
-      'pedro.lucas': {
-        id: 'pedro.lucas',
-        name: 'Pedro Lucas',
-        password: 'Boulevard@1234',
-        role: 'USER',
-        roleLabel: 'User',
-        canDelete: false,
-        canInsert: true
-      },
-      'renato.santos': {
-        id: 'renato.santos',
-        name: 'Renato Santos',
-        password: 'Boulevard@1234',
-        role: 'USER',
-        roleLabel: 'User',
-        canDelete: false,
-        canInsert: true
-      },
-      'matheus.lima': {
-        id: 'matheus.lima',
-        name: 'Matheus Lima',
-        password: 'Boulevard@1234',
-        role: 'USER',
-        roleLabel: 'User',
-        canDelete: false,
-        canInsert: true
-      },
-      'gilson.souza': {
-        id: 'gilson.souza',
-        name: 'Gilson Souza',
-        password: 'Boulevard@1234',
-        role: 'USER',
-        roleLabel: 'User',
-        canDelete: true,
-        canInsert: true
       }
     };
 
     this.users = this.loadUsers();
 
-    // Load saved auth state or default to unauthenticated
+    // Carrega usuário salvo da sessão
     const savedUser = localStorage.getItem('auth_current_user');
-    if (savedUser && this.users[savedUser]) {
-      this.currentUser = this.users[savedUser];
+    if (savedUser) {
+      try {
+        this.currentUser = JSON.parse(savedUser);
+      } catch (e) {
+        this.currentUser = null;
+      }
     } else {
       this.currentUser = null;
     }
@@ -70,7 +38,7 @@ class AuthService {
         return JSON.parse(data);
       }
     } catch (e) {
-      console.warn('Erro ao carregar usuarios:', e);
+      console.warn('Erro ao carregar usuarios locais:', e);
     }
     return JSON.parse(JSON.stringify(this.defaultUsers));
   }
@@ -79,19 +47,59 @@ class AuthService {
     localStorage.setItem(this.usersKey, JSON.stringify(this.users));
   }
 
+  /**
+   * Realiza login no Active Directory via backend /api/auth/login
+   * com fallback local caso a API esteja temporariamente offline.
+   */
+  async login(username, password) {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
 
-  login(username, password) {
-    if (this.users[username] && this.users[username].password === password) {
-      this.currentUser = this.users[username];
-      localStorage.setItem('auth_current_user', username);
-      return true;
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        this.currentUser = data.user;
+        localStorage.setItem('auth_current_user', JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
+        return { success: true, user: data.user };
+      } else {
+        return {
+          success: false,
+          error: data.error || 'Credenciais inválidas no Active Directory.'
+        };
+      }
+    } catch (netErr) {
+      console.warn('[AuthService] Backend API indisponível, tentando autenticação local de contingência:', netErr.message);
+
+      // Contingência local se a API estiver fora do ar
+      const cleanUser = username.toLowerCase().trim();
+      if (this.users[cleanUser] && this.users[cleanUser].password === password) {
+        this.currentUser = this.users[cleanUser];
+        localStorage.setItem('auth_current_user', JSON.stringify(this.currentUser));
+        return { success: true, user: this.currentUser, fallback: true };
+      }
+
+      return {
+        success: false,
+        error: 'Servidor de autenticação inacessível. Verifique a conexão com o servidor e o AD.'
+      };
     }
-    return false;
   }
 
   logout() {
     this.currentUser = null;
     localStorage.removeItem('auth_current_user');
+    localStorage.removeItem('auth_token');
+  }
+
+  getToken() {
+    return localStorage.getItem('auth_token') || '';
   }
 
   getCurrentUser() {
@@ -103,14 +111,10 @@ class AuthService {
   }
 
   canDirectDelete() {
-    return this.currentUser && this.currentUser.canDelete;
+    return this.currentUser && (this.currentUser.canDelete || this.currentUser.role === 'SUPERADMIN');
   }
 
   validateAdminAuthorization(pin) {
-    return pin === 'ADMIN123' || pin === '1234';
+    return pin === 'ADMIN123' || pin === '1234' || (this.currentUser && this.currentUser.role === 'SUPERADMIN');
   }
 }
-
-/* ==========================================================================
-   2. Serviço de Banco de Dados & Registro de Auditoria (Audit Log)
-   ========================================================================== */
