@@ -283,12 +283,13 @@
             <label for="filter-category" class="filter-label">Disciplina / Setor:</label>
             <select id="filter-category" class="filter-select">
               <option value="ALL">Todas as Disciplinas</option>
-              <option value="ELETRICA">Elétrica / Sistemas Críticos</option>
-              <option value="HIDRAULICO">Hidráulico / Hidrossanitárias</option>
-              <option value="ELEVADORES">Elevadores e Escadas Rolantes</option>
-              <option value="GAS">Gás</option>
+              <option value="AR_CONDICIONADO">Ar Condicionado</option>
+              <option value="ELÉTRICO">Elétrico</option>
+              <option value="PREVENÇÃO_CONTRA_INCÊNDIO">Prevenção Contra Incêndio</option>
+              <option value="GÁS">Gás</option>
               <option value="ESTRUTURAL">Estrutural</option>
-              <option value="INCENDIO">Prevenção Contra Incêndio</option>
+              <option value="HIDRÁULICO">Hidráulico / Hidrossanitárias</option>
+              <option value="ELEVADORES">Elevadores e Escadas Rolantes</option>
             </select>
           </div>
 
@@ -297,8 +298,10 @@
             <label for="filter-pmoc" class="filter-label">Status PMOC/ART:</label>
             <select id="filter-pmoc" class="filter-select">
               <option value="ALL">Todos os Status</option>
-              <option value="ATTACHED">🟩 Anexado (Verde)</option>
-              <option value="PENDING">🟥 Pendente / Não Anexado (Vermelho)</option>
+              <option value="REQUIRED_NOT_INSERTED">🟥 Não Inserida (Vermelho)</option>
+              <option value="REQUIRED_ATTACHED">🟩 Inserida sem pendência (Verde)</option>
+              <option value="REQUIRED_EXPIRED">🟧 Validade Vencida (Laranja)</option>
+              <option value="NOT_REQUIRED">⬜ Não exigido (Cinza)</option>
             </select>
           </div>
 
@@ -310,6 +313,7 @@
               <option value="Mensal">Mensal</option>
               <option value="Bimestral">Bimestral</option>
               <option value="Trimestral">Trimestral</option>
+              <option value="Quadrimestral">Quadrimestral</option>
               <option value="Semestral">Semestral</option>
               <option value="Anual">Anual</option>
               <option value="Conforme Instrutivo">Conforme Instrutivo</option>
@@ -343,11 +347,14 @@
             <table class="maintenance-table" id="maintenance-table">
               <thead>
                 <tr>
+                  <th class="th-shopping" scope="col">Shopping</th>
+                  <th class="th-programacao" scope="col">Programação</th>
                   <th class="th-sistema" scope="col">Sistema</th>
+                  <th class="th-manutencao" scope="col">Manutenção</th>
+                  <th class="th-resp" scope="col">Resp. Técnico</th>
                   <th class="th-period" scope="col">Periodicidade</th>
-                  <th class="th-pendencias" scope="col" id="th-pendencias-title">Pendências de 2026</th>
                   <th class="th-na" scope="col" title="Não se Aplica">NA</th>
-                  <th class="th-pmoc" scope="col" title="Plano de Manutenção e Responsabilidade Técnica">PMOC/ART</th>
+                  <th class="th-pmoc-status" scope="col">Status PMOC/Art</th>
                   <th class="th-month" scope="col">Janeiro</th>
                   <th class="th-month" scope="col">Fevereiro</th>
                   <th class="th-month" scope="col">Março</th>
@@ -1064,16 +1071,6 @@
                 </div>
               </label>
 
-              <label class="status-option-card">
-                <input type="radio" name="month_status_radio" value="NONE">
-                <div class="status-option-content">
-                  <span class="status-icon icon-empty">&mdash;</span>
-                  <div class="status-opt-texts">
-                    <strong>Não Previsto / Limpar</strong>
-                    <small>Sem atividade para este mês</small>
-                  </div>
-                </div>
-              </label>
             </div>
 
             <div class="form-grid-two mt-4">
@@ -1090,6 +1087,40 @@
             <div class="form-group-field mt-3">
               <label for="month-notes" class="field-label">Observações / Relatório do Técnico:</label>
               <textarea id="month-notes" class="form-textarea" rows="2" placeholder="Observações pertinentes à rotina de manutenção realizada ou justificativa..."></textarea>
+            </div>
+
+            <!-- Seção de Inserção de Documentos Técnicos da Manutenção do Mês -->
+            <div class="month-docs-section mt-4">
+              <div class="section-docs-header">
+                <div class="section-docs-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                  <strong>Documentos Técnicos Anexados a Esta Manutenção</strong>
+                </div>
+                <span class="badge-docs-count" id="month-docs-counter">0 arquivos</span>
+              </div>
+
+              <!-- Dropzone de Arquivos -->
+              <div class="month-doc-dropzone" id="month-doc-dropzone">
+                <input type="file" id="month-doc-file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="display: none;">
+                <div class="dropzone-inner" id="btn-trigger-month-upload" role="button" tabindex="0">
+                  <span class="upload-icon-circle">📎</span>
+                  <div class="dropzone-text">
+                    <strong style="color: var(--bsfs-marsala);">Clique aqui para inserir documentos ou arraste arquivos</strong>
+                    <small style="color: var(--text-muted); display: block; margin-top: 2px;">Laudos técnicos, comprovantes, ordens de serviço, fotos ou checklists (PDF, DOCX, Imagens até 15MB)</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Documentos Inseridos -->
+              <div class="month-docs-list" id="month-docs-list">
+                <!-- Renderizado via JavaScript -->
+              </div>
             </div>
           </div>
 
@@ -1289,9 +1320,9 @@
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   <!-- Scripts da Aplicação Segmentados -->
-  <script src="js/data/initialData.js?v=2"></script>
-  <script src="js/services/DatabaseService.js?v=2"></script>
-  <script src="js/services/AuthService.js?v=2"></script>
-  <script src="js/app.js?v=2"></script>
+  <script src="js/data/initialData.js?v=4"></script>
+  <script src="js/services/DatabaseService.js?v=4"></script>
+  <script src="js/services/AuthService.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>

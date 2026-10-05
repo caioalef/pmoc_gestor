@@ -1,6 +1,6 @@
 class DatabaseService {
   constructor() {
-    this.systemsKey = 'bsfs_db_systems_v2';
+    this.systemsKey = 'bsfs_db_systems_v4';
     this.auditKey = 'bsfs_db_audit_logs';
   }
 

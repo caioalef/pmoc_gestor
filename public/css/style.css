@@ -950,23 +950,26 @@ body {
   border-right: none;
 }
 
+.th-shopping { width: 75px; min-width: 70px; }
+.th-programacao { width: 105px; min-width: 95px; }
 .th-sistema {
-  width: 290px;
-  min-width: 260px;
+  width: 190px;
+  min-width: 170px;
   text-align: left !important;
-  padding-left: 16px !important;
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.15);
+  padding-left: 12px !important;
 }
-
-.th-period { width: 140px; min-width: 120px; }
-.th-pendencias { width: 120px; min-width: 100px; }
-.th-na { width: 50px; min-width: 45px; }
-.th-pmoc { width: 110px; min-width: 100px; }
-.th-month { width: 70px; min-width: 65px; }
-.th-actions { width: 60px; min-width: 55px; }
+.th-manutencao {
+  width: 270px;
+  min-width: 240px;
+  text-align: left !important;
+  padding-left: 12px !important;
+}
+.th-resp { width: 120px; min-width: 110px; }
+.th-period { width: 130px; min-width: 110px; }
+.th-na { width: 55px; min-width: 50px; }
+.th-pmoc-status { width: 230px; min-width: 210px; }
+.th-month { width: 60px; min-width: 55px; }
+.th-actions { width: 55px; min-width: 50px; }
 
 /* Barra de Categoria / Disciplina */
 .category-row td {
@@ -1170,59 +1173,373 @@ body {
   color: #ef4444;
 }
 
-/* Células de Mês */
-.td-month {
+/* Coluna Shopping */
+.td-shopping { text-align: center; }
+.badge-shopping {
+  display: inline-block;
+  padding: 3px 8px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+/* Coluna Programação */
+.td-programacao { text-align: center; }
+.badge-programacao {
+  display: inline-block;
+  padding: 3px 8px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  border-radius: 4px;
+  background: #48bb78;
+  color: #ffffff;
+}
+
+/* Coluna Sistema e Manutenção */
+.td-sistema-name {
+  text-align: left;
+  padding-left: 12px !important;
+}
+.system-cat-text {
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+.td-manutencao {
+  text-align: left;
+  padding-left: 12px !important;
+}
+.system-manutencao-text {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+.td-resp-tecnico {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Coluna NA */
+.badge-na-sim {
+  display: inline-block;
+  padding: 3px 8px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  border-radius: 4px;
+  background: #48bb78;
+  color: #ffffff;
+}
+.badge-na-nao {
+  display: inline-block;
+  padding: 3px 8px;
+  font-weight: 600;
+  font-size: 0.72rem;
+  border-radius: 4px;
+  background: #cbd5e0;
+  color: #4a5568;
+}
+
+/* Badges Status PMOC/ART Fiel à Planilha */
+.td-pmoc-status {
+  padding: 6px 4px !important;
+  text-align: center;
+}
+.pmoc-badge {
+  display: inline-block;
+  width: 100%;
+  max-width: 215px;
+  padding: 4px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.25;
+  border-radius: 4px;
+  text-align: center;
   cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.pmoc-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.pmoc-badge-red {
+  background-color: #e53e3e;
+  color: #ffffff;
+}
+.pmoc-badge-green {
+  background-color: #48bb78;
+  color: #ffffff;
+}
+.pmoc-badge-orange {
+  background-color: #dd6b20;
+  color: #ffffff;
+}
+.pmoc-badge-gray {
+  background-color: #a0aec0;
+  color: #ffffff;
+}
+
+/* Células de Mês - REGRA ESTÁTICA */
+.td-month {
   user-select: none;
   position: relative;
+  padding: 4px !important;
+}
+
+/* Células em branco: ESTRITAMENTE ESTÁTICAS E INALTERÁVEIS */
+.td-month-static-empty {
+  pointer-events: none !important;
+  cursor: default !important;
+  user-select: none !important;
+  background: #ffffff !important;
+}
+
+/* Células marcadas: Interativas com clique para detalhes e documentos */
+.td-month-interactive {
+  cursor: pointer !important;
   transition: background-color var(--transition-fast);
 }
-
-.td-month:hover {
-  background-color: rgba(232, 152, 94, 0.12);
+.td-month-interactive:hover {
+  background-color: rgba(232, 152, 94, 0.15);
 }
 
-/* Ícones de Status das Células */
-.status-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+/* Caixas dos Meses Marcados */
+.month-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform var(--transition-fast);
+  position: relative;
+  margin: 0 auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.month-box:hover {
+  transform: scale(1.18);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
 }
 
-.status-icon:hover {
-  transform: scale(1.15);
+.month-box-done {
+  background-color: #48bb78;
+  color: #ffffff;
+}
+.month-box-scheduled {
+  background-color: #0c4a6e;
+  color: #ffffff;
+}
+.month-box-unrealized {
+  background-color: #e53e3e;
+  color: #ffffff;
+}
+.month-box-attention {
+  background-color: #dd6b20;
+  color: #ffffff;
 }
 
-.icon-done {
-  background: #10b981;
-  color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+.month-triangle-icon {
+  font-size: 11px;
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
-.icon-attention {
-  background: #0284c7;
-  color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+/* Indicador de documento anexado na célula do mês */
+.month-doc-indicator {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ffffff;
+  border: 1.5px solid #1a202c;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  z-index: 2;
 }
 
-.icon-scheduled {
-  background: transparent;
-  color: var(--bsfs-peach);
+/* ==========================================================================
+   Seção de Documentos Técnicos no Modal de Mês
+   ========================================================================== */
+.month-docs-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
 }
 
-.icon-unrealized {
-  background: #ef4444;
-  color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+.section-docs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.icon-empty {
-  color: var(--text-muted);
+.section-docs-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.badge-docs-count {
+  background: var(--bsfs-marsala);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.month-doc-dropzone {
+  border: 2px dashed rgba(140, 71, 72, 0.4);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(250, 243, 235, 0.6);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  margin-bottom: 14px;
+}
+.month-doc-dropzone:hover {
+  border-color: var(--bsfs-marsala);
+  background: rgba(250, 243, 235, 1);
+  transform: translateY(-1px);
+}
+
+.upload-icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.month-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.month-doc-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  gap: 10px;
+  transition: border-color var(--transition-fast);
+}
+.month-doc-card:hover {
+  border-color: var(--bsfs-peach);
+}
+
+.month-doc-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.month-doc-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background: rgba(140, 71, 72, 0.12);
+  color: var(--bsfs-marsala);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.month-doc-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.month-doc-name {
   font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 260px;
+}
+
+.month-doc-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.month-doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-doc-action {
+  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+.btn-doc-action:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--bsfs-marsala);
+  color: var(--bsfs-marsala);
+}
+
+.btn-doc-delete {
+  color: #e53e3e;
+  border-color: rgba(229, 62, 62, 0.3);
+}
+.btn-doc-delete:hover {
+  background: #fee2e2;
+  border-color: #e53e3e;
+  color: #b91c1c;
+}
+
+.empty-docs-notice {
+  padding: 14px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+  background: rgba(0,0,0,0.02);
+  border-radius: 6px;
 }
 
 /* ==========================================================================

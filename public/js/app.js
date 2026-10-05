@@ -26,6 +26,7 @@ class BoulevardMaintenanceApp {
     this.currentYear = '2026';
     this.activeSystemId = null;
     this.activeMonthIndex = null;
+    this.currentMonthDocs = []; // Documentos em edição no modal do mês
     this.pendingAuthAction = null; // Armazena a ação aguardando aprovação do SYSADMIN
 
     this.filters = {
@@ -335,6 +336,9 @@ class BoulevardMaintenanceApp {
       });
     }
 
+    // Eventos de Upload de Documentos no Modal de Mês
+    this.bindMonthDocUploadEvents();
+
     // Formulário Novo Sistema
     const formNewSys = document.getElementById('form-new-system');
     if (formNewSys) {
@@ -632,8 +636,8 @@ class BoulevardMaintenanceApp {
 
   updateKPIs() {
     const totalSystems = this.systems.length;
-    const pmocOk = this.systems.filter(s => s.pmoc && s.pmoc.attached).length;
-    const pmocPending = totalSystems - pmocOk;
+    const pmocOk = this.systems.filter(s => s.pmocStatus === 'REQUIRED_ATTACHED' || (s.pmoc && s.pmoc.attached)).length;
+    const pmocPending = this.systems.filter(s => s.pmocStatus === 'REQUIRED_NOT_INSERTED' || s.pmocStatus === 'REQUIRED_EXPIRED').length;
     const pmocPercent = totalSystems > 0 ? Math.round((pmocOk / totalSystems) * 100) : 0;
 
     const elPmocPercent = document.getElementById('kpi-pmoc-percent');
@@ -696,16 +700,22 @@ class BoulevardMaintenanceApp {
     if (categoryChipsContainer) {
       const counts = {};
       this.systems.forEach(s => {
-        counts[s.category] = (counts[s.category] || 0) + 1;
+        const cat = s.category || 'GERAL';
+        counts[cat] = (counts[cat] || 0) + 1;
       });
 
       const catNames = {
+        AR_CONDICIONADO: 'Ar Condicionado',
+        ELÉTRICO: 'Elétrico',
         ELETRICA: 'Elétrica',
-        HIDRAULICO: 'Hidráulica',
-        ELEVADORES: 'Elevadores',
+        PREVENÇÃO_CONTRA_INCÊNDIO: 'Incêndio',
+        INCENDIO: 'Incêndio',
+        GÁS: 'Gás',
         GAS: 'Gás',
         ESTRUTURAL: 'Estrutural',
-        INCENDIO: 'Incêndio'
+        HIDRÁULICO: 'Hidráulica',
+        HIDRAULICO: 'Hidráulica',
+        ELEVADORES: 'Elevadores'
       };
 
       categoryChipsContainer.innerHTML = Object.entries(counts).map(([catKey, cnt]) => `
@@ -718,27 +728,35 @@ class BoulevardMaintenanceApp {
     if (!Array.isArray(this.systems)) return [];
     return this.systems.filter(item => {
       if (!item) return false;
+
       if (this.filters.search) {
         const query = this.filters.search;
         const matchesName = (item.name || '').toLowerCase().includes(query);
         const matchesCat = (item.categoryName || item.category || '').toLowerCase().includes(query);
+        const matchesResp = (item.respTecnico || '').toLowerCase().includes(query);
         const matchesPeriod = (item.periodicity || '').toLowerCase().includes(query);
-        const matchesDesc = (item.description || '').toLowerCase().includes(query);
-        const matchesStd = (item.standards || '').toLowerCase().includes(query);
-        if (!matchesName && !matchesCat && !matchesPeriod && !matchesDesc && !matchesStd) {
+        const matchesPmoc = (item.pmocStatusLabel || '').toLowerCase().includes(query);
+        const matchesShopping = (item.shopping || '').toLowerCase().includes(query);
+        if (!matchesName && !matchesCat && !matchesResp && !matchesPeriod && !matchesPmoc && !matchesShopping) {
           return false;
         }
       }
 
-      if (this.filters.category !== 'ALL' && item.category !== this.filters.category) {
-        return false;
+      if (this.filters.category !== 'ALL') {
+        const itemCat = item.category || '';
+        const itemCatName = item.categoryName || '';
+        if (itemCat !== this.filters.category && itemCatName !== this.filters.category) {
+          return false;
+        }
       }
 
-      if (this.filters.pmocStatus === 'ATTACHED' && (!item.pmoc || !item.pmoc.attached)) {
-        return false;
-      }
-      if (this.filters.pmocStatus === 'PENDING' && (item.pmoc && item.pmoc.attached)) {
-        return false;
+      if (this.filters.pmocStatus !== 'ALL') {
+        if (item.pmocStatus !== this.filters.pmocStatus) {
+          // Compatibilidade reversa
+          if (this.filters.pmocStatus === 'ATTACHED' && item.pmocStatus === 'REQUIRED_ATTACHED') return true;
+          if (this.filters.pmocStatus === 'PENDING' && (item.pmocStatus === 'REQUIRED_NOT_INSERTED' || item.pmocStatus === 'REQUIRED_EXPIRED')) return true;
+          return false;
+        }
       }
 
       if (this.filters.periodicity !== 'ALL' && item.periodicity !== this.filters.periodicity) {
@@ -762,7 +780,7 @@ class BoulevardMaintenanceApp {
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="18" style="padding: 40px; text-align: center; color: var(--text-muted);">
+          <td colspan="21" style="padding: 40px; text-align: center; color: var(--text-muted);">
             Nenhum sistema de manutenção encontrado para os filtros selecionados.
           </td>
         </tr>
@@ -770,159 +788,126 @@ class BoulevardMaintenanceApp {
       return;
     }
 
-    const grouped = {};
-    filtered.forEach(sys => {
-      if (!grouped[sys.category]) {
-        grouped[sys.category] = {
-          name: sys.categoryName,
-          items: []
-        };
-      }
-      grouped[sys.category].items.push(sys);
-    });
-
+    const isSysAdmin = this.auth.canDirectDelete();
     let html = '';
 
-    const categoryIcons = {
-      ELETRICA: '⚡',
-      HIDRAULICO: '💧',
-      ELEVADORES: '🛗',
-      GAS: '🔥',
-      ESTRUTURAL: '🏗️',
-      INCENDIO: '🧯'
-    };
+    filtered.forEach(system => {
+      const isNa = Boolean(system.na);
 
-    const isSysAdmin = this.auth.canDirectDelete();
+      // Badge PMOC/ART da planilha
+      let pmocBadgeHtml = '';
+      if (system.pmocStatus === 'REQUIRED_NOT_INSERTED') {
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação obrigatória não inserida - Clique para anexar">${system.pmocStatusLabel || 'Documentação obrigatória não inserida'}</button>`;
+      } else if (system.pmocStatus === 'REQUIRED_ATTACHED') {
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação inserida sem pendência - Clique para visualizar">${system.pmocStatusLabel || 'Documentação obrigatória inserida sem pendência'}</button>`;
+      } else if (system.pmocStatus === 'REQUIRED_EXPIRED') {
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-orange" data-action="open-pmoc" data-sys-id="${system.id}" title="Validade vencida - Clique para atualizar">${system.pmocStatusLabel || 'Documentação obrigatória inserida com data de validade vencida'}</button>`;
+      } else if (system.pmocStatus === 'NOT_REQUIRED') {
+        pmocBadgeHtml = system.pmocStatusLabel ? `<span class="pmoc-badge pmoc-badge-gray" data-action="open-pmoc" data-sys-id="${system.id}">${system.pmocStatusLabel}</span>` : '';
+      } else {
+        const attached = system.pmoc && system.pmoc.attached;
+        pmocBadgeHtml = attached
+          ? `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}">Documentação obrigatória inserida sem pendência</button>`
+          : `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}">Documentação obrigatória não inserida</button>`;
+      }
 
-    Object.entries(grouped).forEach(([catKey, group]) => {
-      const icon = categoryIcons[catKey] || '📋';
-      html += `
-        <tr class="category-row">
-          <td colspan="18">
-            <div class="category-row-inner">
-              <span>${icon} ${group.name}</span>
-              <span class="category-badge-count">${group.items.length} ${group.items.length === 1 ? 'sistema' : 'sistemas'}</span>
-            </div>
-          </td>
-        </tr>
-      `;
+      // Renderização estática dos meses
+      let monthsHtml = '';
+      for (let m = 1; m <= 12; m++) {
+        const monthData = system.months ? system.months[m] : null;
+        const isScheduled = Boolean(monthData && monthData.scheduled);
+        const status = monthData ? monthData.status : null;
+        const docs = (monthData && monthData.documents) || [];
+        const hasDocs = docs.length > 0;
 
-      group.items.forEach(system => {
-        const isNa = system.na;
-        const pmocAttached = system.pmoc && system.pmoc.attached;
+        if (isNa || !isScheduled) {
+          // Campo estático: totalmente desabilitado e inalterável
+          monthsHtml += `<td class="td-month td-month-static-empty" aria-disabled="true"></td>`;
+        } else {
+          // Campo marcado: interativo, permite alteração e inserção de documentos
+          const docBadgeHtml = hasDocs ? `<span class="month-doc-indicator" title="${docs.length} documento(s) anexado(s)">📎</span>` : '';
+          let boxHtml = '';
 
-        const pmocBadgeHtml = pmocAttached
-          ? `
-            <div class="pmoc-cell-wrapper">
-              <button type="button" class="doc-badge-btn badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="PMOC e ART Anexados no Banco (Conforme)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <polyline points="9 15 11 17 15 13"></polyline>
-                </svg>
-              </button>
-              <button type="button" class="btn-info-pmoc" data-action="open-pmoc" data-sys-id="${system.id}" title="Ver arquivos anexados">i</button>
-            </div>
-          `
-          : `
-            <div class="pmoc-cell-wrapper">
-              <button type="button" class="doc-badge-btn badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="PMOC/ART Pendente - Clique para anexar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="12" y1="11" x2="12" y2="15"></line>
-                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                </svg>
-              </button>
-              <button type="button" class="btn-info-pmoc" data-action="open-pmoc" data-sys-id="${system.id}" title="Ver pendências">i</button>
-            </div>
-          `;
-
-        let monthsHtml = '';
-        for (let m = 1; m <= 12; m++) {
-          const monthData = system.months ? system.months[m] : null;
-          const status = monthData ? monthData.status : null;
-          let iconHtml = '';
-
-          if (isNa) {
-            iconHtml = '';
-          } else if (status === 'DONE') {
-            iconHtml = `
-              <span class="status-icon icon-done" title="Realizado">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5">
+          if (status === 'DONE') {
+            boxHtml = `
+              <div class="month-box month-box-done" title="Realizado${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-              </span>
-            `;
-          } else if (status === 'ATTENTION') {
-            iconHtml = `
-              <span class="status-icon icon-attention" title="Atenção / Em Execução">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5">
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </span>
+                ${docBadgeHtml}
+              </div>
             `;
           } else if (status === 'SCHEDULED') {
-            iconHtml = `
-              <span class="status-icon icon-scheduled" title="Programado">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M5 22h14"></path>
-                  <path d="M5 2h14"></path>
-                  <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
-                  <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
-                </svg>
-              </span>
+            boxHtml = `
+              <div class="month-box month-box-scheduled" title="Programado${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+                <span class="month-triangle-icon">▲</span>
+                ${docBadgeHtml}
+              </div>
             `;
           } else if (status === 'UNREALIZED') {
-            iconHtml = `
-              <span class="status-icon icon-unrealized" title="Não Realizado / Reprovado">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5">
+            boxHtml = `
+              <div class="month-box month-box-unrealized" title="Não Realizado / Pendência${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
-              </span>
+                ${docBadgeHtml}
+              </div>
+            `;
+          } else if (status === 'ATTENTION') {
+            boxHtml = `
+              <div class="month-box month-box-attention" title="Atenção / Em Execução${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+                <span style="font-weight: 800; font-size: 13px;">!</span>
+                ${docBadgeHtml}
+              </div>
+            `;
+          } else {
+            boxHtml = `
+              <div class="month-box month-box-scheduled" title="Programado">
+                <span class="month-triangle-icon">▲</span>
+                ${docBadgeHtml}
+              </div>
             `;
           }
 
           monthsHtml += `
-            <td class="td-month" data-sys-id="${system.id}" data-month-index="${m}" title="Clique para editar status do mês ${m}">
-              ${iconHtml}
+            <td class="td-month td-month-interactive" data-sys-id="${system.id}" data-month-index="${m}" title="Clique para gerenciar e anexar documentos">
+              ${boxHtml}
             </td>
           `;
         }
+      }
 
-        // Botão de Excluir Sistema (Protegido por Regra do AD)
-        const deleteBtnTitle = isSysAdmin
-          ? 'Excluir sistema (Autorização Direta SYSADMIN)'
-          : 'Excluir sistema (Requer Autorização do BSFS_OPE_SYSADMIN)';
+      const deleteBtnTitle = isSysAdmin
+        ? 'Excluir sistema (Autorização Direta SYSADMIN)'
+        : 'Excluir sistema (Requer Autorização do BSFS_OPE_SYSADMIN)';
 
-        html += `
-          <tr class="${isNa ? 'row-na-active' : ''}" id="row-${system.id}">
-            <td class="td-sistema">
-              <div class="system-title-cell">
-                <span class="system-name-text">${system.name}</span>
-                <button type="button" class="btn-info-system" data-action="open-sys-info" data-sys-id="${system.id}" title="Detalhes técnicos do sistema">i</button>
-              </div>
-            </td>
-            <td class="td-period">${system.periodicity}</td>
-            <td class="td-pendencias">${system.pendencias ? `<span class="badge-pendencia">${system.pendencias}</span>` : ''}</td>
-            <td class="td-na">
-              <input type="checkbox" class="custom-table-checkbox" data-action="toggle-na" data-sys-id="${system.id}" ${isNa ? 'checked' : ''} title="Marcar como Não se Aplica">
-            </td>
-            <td class="td-pmoc">${pmocBadgeHtml}</td>
-            ${monthsHtml}
-            <td class="td-actions">
-              <button type="button" class="btn-delete-row" data-action="delete-system" data-sys-id="${system.id}" title="${deleteBtnTitle}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
+      html += `
+        <tr class="${isNa ? 'row-na-active' : ''}" id="row-${system.id}">
+          <td class="td-shopping"><span class="badge-shopping">${system.shopping || 'BSFS'}</span></td>
+          <td class="td-programacao"><span class="badge-programacao">${system.programacao || 'Finalizada'}</span></td>
+          <td class="td-sistema-name"><span class="system-cat-text">${system.categoryName || system.category}</span></td>
+          <td class="td-manutencao">
+            <div class="system-title-cell">
+              <span class="system-manutencao-text">${system.name}</span>
+              <button type="button" class="btn-info-system" data-action="open-sys-info" data-sys-id="${system.id}" title="Detalhes técnicos do sistema">i</button>
+            </div>
+          </td>
+          <td class="td-resp-tecnico">${system.respTecnico || '-'}</td>
+          <td class="td-period">${system.periodicity}</td>
+          <td class="td-na">${system.na ? '<span class="badge-na-sim">Sim</span>' : '<span class="badge-na-nao">Não</span>'}</td>
+          <td class="td-pmoc-status">${pmocBadgeHtml}</td>
+          ${monthsHtml}
+          <td class="td-actions">
+            <button type="button" class="btn-delete-row" data-action="delete-system" data-sys-id="${system.id}" title="${deleteBtnTitle}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      `;
     });
 
     tbody.innerHTML = html;
@@ -949,14 +934,7 @@ class BoulevardMaintenanceApp {
       });
     });
 
-    tbody.querySelectorAll('[data-action="toggle-na"]').forEach(checkbox => {
-      checkbox.addEventListener('change', () => {
-        const sysId = checkbox.getAttribute('data-sys-id');
-        this.toggleSystemNa(sysId, checkbox.checked);
-      });
-    });
-
-    tbody.querySelectorAll('.td-month').forEach(td => {
+    tbody.querySelectorAll('.td-month-interactive').forEach(td => {
       td.addEventListener('click', () => {
         const sysId = td.getAttribute('data-sys-id');
         const monthIndex = td.getAttribute('data-month-index');
@@ -967,7 +945,6 @@ class BoulevardMaintenanceApp {
       });
     });
 
-    // Exclusão de Sistema com interceptação de regra AD
     tbody.querySelectorAll('[data-action="delete-system"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1259,12 +1236,12 @@ class BoulevardMaintenanceApp {
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
 
-    document.getElementById('month-modal-pretitle').textContent = `${system.categoryName} - BOULEVARD SHOPPING`;
+    document.getElementById('month-modal-pretitle').textContent = `${system.categoryName || system.category} - BOULEVARD SHOPPING`;
     document.getElementById('month-modal-title').textContent = `Manutenção de ${monthNames[monthIndex]} de ${this.currentYear}`;
     document.getElementById('month-modal-system-name').textContent = system.name;
 
     const monthData = system.months ? system.months[monthIndex] : null;
-    const currentStatus = monthData ? monthData.status : 'NONE';
+    const currentStatus = monthData ? monthData.status : 'SCHEDULED';
 
     const radios = document.querySelectorAll('input[name="month_status_radio"]');
     radios.forEach(r => {
@@ -1279,6 +1256,12 @@ class BoulevardMaintenanceApp {
     if (osInput) osInput.value = (monthData && monthData.os) || '';
     if (notesInput) notesInput.value = (monthData && monthData.notes) || '';
 
+    // Carrega documentos anexados deste mês
+    this.currentMonthDocs = (monthData && Array.isArray(monthData.documents)) 
+      ? JSON.parse(JSON.stringify(monthData.documents))
+      : [];
+
+    this.renderMonthDocsList();
     modal.classList.add('is-active');
   }
 
@@ -1287,7 +1270,7 @@ class BoulevardMaintenanceApp {
     if (!system) return;
 
     const selectedRadio = document.querySelector('input[name="month_status_radio"]:checked');
-    const newStatus = selectedRadio ? selectedRadio.value : 'NONE';
+    const newStatus = selectedRadio ? selectedRadio.value : 'SCHEDULED';
 
     const dateVal = document.getElementById('month-exec-date').value;
     const osVal = document.getElementById('month-os-number').value.trim();
@@ -1295,23 +1278,23 @@ class BoulevardMaintenanceApp {
 
     if (!system.months) system.months = {};
 
-    if (newStatus === 'NONE') {
-      delete system.months[this.activeMonthIndex];
-    } else {
-      system.months[this.activeMonthIndex] = {
-        status: newStatus,
-        date: dateVal,
-        os: osVal,
-        notes: notesVal
-      };
-    }
+    const prevMonthData = system.months[this.activeMonthIndex] || {};
+    system.months[this.activeMonthIndex] = {
+      ...prevMonthData,
+      scheduled: true,
+      status: newStatus,
+      date: dateVal,
+      os: osVal,
+      notes: notesVal,
+      documents: this.currentMonthDocs || []
+    };
 
     this.db.saveSystems(this.systems);
 
     this.db.logOperation(
       'ATUALIZAR_MES',
       'update',
-      `Status do mês ${this.activeMonthIndex}/${this.currentYear} atualizado para ${newStatus} no sistema "${system.name}".`,
+      `Status do mês ${this.activeMonthIndex}/${this.currentYear} atualizado para ${newStatus} com ${(this.currentMonthDocs || []).length} documento(s) no sistema "${system.name}".`,
       this.auth.getCurrentUser()
     );
 
@@ -1321,7 +1304,237 @@ class BoulevardMaintenanceApp {
     const modal = document.getElementById('modal-month-status');
     if (modal) modal.classList.remove('is-active');
 
-    this.showToast('Status do mês gravado no banco de dados com sucesso.', 'success');
+    this.showToast('Manutenção e documentos gravados com sucesso no banco de dados.', 'success');
+  }
+
+  bindMonthDocUploadEvents() {
+    const dropzone = document.getElementById('month-doc-dropzone');
+    const fileInput = document.getElementById('month-doc-file-input');
+    const triggerBtn = document.getElementById('btn-trigger-month-upload');
+
+    if (triggerBtn && fileInput) {
+      triggerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.click();
+      });
+    }
+
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+        this.handleProcessMonthFiles(files);
+        fileInput.value = '';
+      });
+    }
+
+    if (dropzone) {
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--bsfs-marsala)';
+          dropzone.style.backgroundColor = 'rgba(250, 243, 235, 1)';
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = '';
+          dropzone.style.backgroundColor = '';
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt ? Array.from(dt.files) : [];
+        if (files.length > 0) {
+          this.handleProcessMonthFiles(files);
+        }
+      });
+    }
+  }
+
+  handleProcessMonthFiles(files) {
+    if (!this.currentMonthDocs) this.currentMonthDocs = [];
+    let loadedCount = 0;
+
+    files.forEach(file => {
+      // Limite individual de 15MB
+      if (file.size > 15 * 1024 * 1024) {
+        this.showToast(`Arquivo "${file.name}" ultrapassa 15MB e foi ignorado.`, 'warning');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const user = this.auth.getCurrentUser() || { name: 'Operador' };
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        const docItem = {
+          id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+          name: file.name,
+          size: file.size,
+          type: file.type || 'application/octet-stream',
+          uploadedAt: dateStr,
+          uploadedBy: user.name,
+          dataUrl: event.target.result
+        };
+
+        this.currentMonthDocs.push(docItem);
+        loadedCount++;
+
+        if (loadedCount === files.length) {
+          this.renderMonthDocsList();
+          this.showToast(`${loadedCount} documento(s) inserido(s). Clique em Salvar para gravar no banco.`, 'success');
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  renderMonthDocsList() {
+    const container = document.getElementById('month-docs-list');
+    const counter = document.getElementById('month-docs-counter');
+    if (!container) return;
+
+    const docs = this.currentMonthDocs || [];
+    if (counter) {
+      counter.textContent = `${docs.length} ${docs.length === 1 ? 'arquivo' : 'arquivos'}`;
+    }
+
+    if (docs.length === 0) {
+      container.innerHTML = `
+        <div class="empty-docs-notice">
+          Nenhum documento anexado para este mês ainda. Utilize a área acima para inserir laudos, ordens de serviço ou relatórios.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = docs.map(doc => {
+      const sizeFormatted = doc.size ? (doc.size > 1024 * 1024 ? `${(doc.size / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(doc.size / 1024)} KB`) : '';
+      const isPdf = doc.name.toLowerCase().endsWith('.pdf') || (doc.type && doc.type.includes('pdf'));
+      const isImg = doc.name.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/) || (doc.type && doc.type.includes('image'));
+      const isDoc = doc.name.toLowerCase().match(/\.(doc|docx)$/);
+      const isXls = doc.name.toLowerCase().match(/\.(xls|xlsx)$/);
+      const typeLabel = isPdf ? 'PDF' : (isImg ? 'IMG' : (isDoc ? 'DOC' : (isXls ? 'XLS' : 'ARQ')));
+
+      return `
+        <div class="month-doc-card" id="card-doc-${doc.id}">
+          <div class="month-doc-left">
+            <div class="month-doc-icon">${typeLabel}</div>
+            <div class="month-doc-meta">
+              <span class="month-doc-name" title="${doc.name}">${doc.name}</span>
+              <span class="month-doc-sub">${sizeFormatted} &bull; Anexado em ${doc.uploadedAt || ''} por ${doc.uploadedBy || 'Operador'}</span>
+            </div>
+          </div>
+          <div class="month-doc-actions">
+            <button type="button" class="btn-doc-action" data-action="view-month-doc" data-doc-id="${doc.id}" title="Visualizar">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Ver</span>
+            </button>
+            <button type="button" class="btn-doc-action" data-action="download-month-doc" data-doc-id="${doc.id}" title="Baixar">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="15"></line>
+              </svg>
+              <span>Baixar</span>
+            </button>
+            <button type="button" class="btn-doc-action btn-doc-delete" data-action="delete-month-doc" data-doc-id="${doc.id}" title="Excluir documento">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('[data-action="view-month-doc"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const docId = btn.getAttribute('data-doc-id');
+        this.viewMonthDocument(docId);
+      });
+    });
+
+    container.querySelectorAll('[data-action="download-month-doc"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const docId = btn.getAttribute('data-doc-id');
+        this.downloadMonthDocument(docId);
+      });
+    });
+
+    container.querySelectorAll('[data-action="delete-month-doc"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const docId = btn.getAttribute('data-doc-id');
+        this.deleteMonthDocument(docId);
+      });
+    });
+  }
+
+  viewMonthDocument(docId) {
+    const doc = (this.currentMonthDocs || []).find(d => d.id === docId);
+    if (!doc || !doc.dataUrl) return;
+
+    const isImg = doc.dataUrl.startsWith('data:image/');
+    const isPdf = doc.dataUrl.startsWith('data:application/pdf');
+
+    if (isImg || isPdf) {
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <title>${doc.name} - Boulevard Shopping</title>
+              <style>
+                body { margin: 0; background: #0f172a; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
+                img { max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+                iframe { width: 100vw; height: 100vh; border: none; }
+              </style>
+            </head>
+            <body>
+              ${isImg ? `<img src="${doc.dataUrl}" alt="${doc.name}">` : `<iframe src="${doc.dataUrl}"></iframe>`}
+            </body>
+          </html>
+        `);
+        return;
+      }
+    }
+
+    this.downloadMonthDocument(docId);
+  }
+
+  downloadMonthDocument(docId) {
+    const doc = (this.currentMonthDocs || []).find(d => d.id === docId);
+    if (!doc || !doc.dataUrl) return;
+
+    const a = document.createElement('a');
+    a.href = doc.dataUrl;
+    a.download = doc.name || 'documento-manutencao.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  deleteMonthDocument(docId) {
+    if (!confirm('Deseja realmente remover este documento anexado desta manutenção?')) return;
+    this.currentMonthDocs = (this.currentMonthDocs || []).filter(d => d.id !== docId);
+    this.renderMonthDocsList();
+    this.showToast('Documento removido da lista. Clique em Salvar para consolidar.', 'info');
   }
 
   toggleSystemNa(systemId, isChecked) {

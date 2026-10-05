@@ -1,1816 +1,1334 @@
 const INITIAL_SYSTEMS_DATA = [
   {
     "id": "sys-1",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Chiller/Centrifugas Anual",
-    "periodicity": "Anual",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-2",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Dutos de refrigeração / ventilação",
-    "periodicity": "Anual",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-3",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
     "name": "Cabine primária / SE",
-    "periodicity": "Anual",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-4",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
-    "name": "Painel de QGBT/QTA e Banco de capacitores (externo)",
-    "periodicity": "Anual",
+    "name": "Painel de QGBT/QTA e Banco de capacitores (externo)",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-5",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
-    "name": "Busway  ",
-    "periodicity": "Anual",
+    "name": "Busway",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-6",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
-    "name": "SPDA  ",
-    "periodicity": "Anual",
+    "name": "SPDA",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-7",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
     "name": "Teste de nobreaks",
-    "periodicity": "Anual",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-8",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Aferição dos manômetros",
-    "periodicity": "Anual",
     "respTecnico": "Renato Santos",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-9",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Pressurização de escadas e extração de fumaça",
-    "periodicity": "Anual",
     "respTecnico": "Renato Santos",
+    "periodicity": "Anual",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-10",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Teste de hidrantes (com água)",
-    "periodicity": "Anual",
     "respTecnico": "Renato Santos",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-11",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Teste hidrostático em mangueiras de incêndio",
-    "periodicity": "Anual",
     "respTecnico": "Renato Santos",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_EXPIRED",
+    "pmocStatusLabel": "Documentação obrigatória inserida com data de validade vencida",
     "months": {
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-12",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Certificado de Recarga de Extintores",
-    "periodicity": "Anual",
     "respTecnico": "Renato Santos",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-13",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "GÁS",
     "categoryName": "GÁS",
     "name": "Teste de Estanqueidade de Gás",
-    "periodicity": "Anual",
     "respTecnico": "Renato Santos",
+    "periodicity": "Anual",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-14",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
-    "name": "Paineis elétricos - Sistema Críticos",
-    "periodicity": "Bimestral",
+    "name": "Painéis elétricos - Sistema Críticos",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Bimestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-15",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Pressurização de escadas e extração de fumaça",
-    "periodicity": "Bimestral",
     "respTecnico": "Renato Santos",
+    "periodicity": "Bimestral",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-16",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Chiller/Centrifugas Conforme Instrutivo",
-    "periodicity": "Conforme Instrutivo",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Conforme Instrutivo",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
-      "3": {
+      "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
+      },
+      "4": {
+        "scheduled": true,
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
-      "9": {
+      "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
+      },
+      "10": {
+        "scheduled": true,
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-17",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ESTRUTURAL",
     "categoryName": "ESTRUTURAL",
     "name": "Talude",
-    "periodicity": "Conforme Instrutivo",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Conforme Instrutivo",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "UNREALIZED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-18",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Tratamento de AG e AC",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-19",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
-    "name": "Fan coils/UTA/Ventiladores/ Exaustores/Selfs/Roof top/Split",
-    "periodicity": "Mensal",
+    "name": "Fan coils/UTA/Ventiladores/Exaustores/Selfs/Roof top/Split",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-20",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Limpeza dos filtros de linha de AG e AC",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-21",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
-    "name": "Gerador de emergência e ponta (teste)",
-    "periodicity": "Mensal",
+    "name": "Gerador de emergência e ponta (teste)",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-22",
-    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "HIDRÁULICO",
     "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
     "name": "Bombas de recalque (Esgoto / Pluvial)",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-23",
-    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "HIDRÁULICO",
     "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
     "name": "Manutenção ETE/ETAR",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-24",
-    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "HIDRÁULICO",
     "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
     "name": "Manutenção ETA",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-25",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Bombas de SPK e Hidrantes",
-    "periodicity": "Mensal",
     "respTecnico": "Renato Santos",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-26",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Detecção de fumaça",
-    "periodicity": "Mensal",
     "respTecnico": "Renato Santos",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-27",
-    "category": "ELEVADORES_E_ESCADAS_ROLANTES",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "ELEVADORES",
     "categoryName": "ELEVADORES E ESCADAS ROLANTES",
     "name": "Elevadores",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "6": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "9": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "12": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-28",
-    "category": "ELEVADORES_E_ESCADAS_ROLANTES",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "ELEVADORES",
     "categoryName": "ELEVADORES E ESCADAS ROLANTES",
     "name": "Escadas Rolantes",
-    "periodicity": "Mensal",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Mensal",
     "na": true,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "",
     "months": {}
   },
   {
     "id": "sys-29",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
-    "name": "Gerador de emergência e ponta (manutenção)",
-    "periodicity": "Quadrimestral",
+    "name": "Gerador de emergência e ponta (manutenção)",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Quadrimestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "3": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-30",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Torre de resfriamento",
-    "periodicity": "Semestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-31",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
     "name": "Bombas de AG e AC",
-    "periodicity": "Semestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-32",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "AR_CONDICIONADO",
     "categoryName": "AR CONDICIONADO",
-    "name": "Teste de Qualidade do Ar",
-    "periodicity": "Semestral",
+    "name": "Teste de Qualidade de Ar",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
-      "8": {
+      "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-33",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
     "name": "Termografia (BT/MT)",
-    "periodicity": "Semestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
-      "8": {
+      "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-34",
-    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "HIDRÁULICO",
     "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
     "name": "Bombas de pressurização - Análise de Vibração",
-    "periodicity": "Semestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-35",
-    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
+    "category": "HIDRÁULICO",
     "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
     "name": "Limpeza dos Reservatórios",
-    "periodicity": "Semestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_NOT_INSERTED",
+    "pmocStatusLabel": "Documentação obrigatória não inserida",
     "months": {
       "1": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "7": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-36",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Aferição dos pressostatos",
-    "periodicity": "Semestral",
     "respTecnico": "Renato Santos",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-37",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Bombas de SPK e Hidrantes – Análise de Vibração  ",
-    "periodicity": "Semestral",
+    "name": "Bombas de SPK e Hidrantes - Análise de Vibração",
     "respTecnico": "Renato Santos",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "REQUIRED_ATTACHED",
+    "pmocStatusLabel": "Documentação obrigatória inserida sem pendência",
     "months": {
       "4": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "10": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-38",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ESTRUTURAL",
     "categoryName": "ESTRUTURAL",
     "name": "Cobertura",
-    "periodicity": "Semestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Semestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-39",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "ELÉTRICO",
     "categoryName": "ELÉTRICO",
     "name": "Teste de baterias",
-    "periodicity": "Trimestral",
     "respTecnico": "Pedro Lucas",
+    "periodicity": "Trimestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
-      "3": {
+      "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
-      "6": {
+      "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
-      "9": {
+      "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
-      "12": {
+      "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   },
   {
     "id": "sys-40",
+    "shopping": "BSFS",
+    "programacao": "Finalizada",
     "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Verificação dos registro de SPK (lojas)",
-    "periodicity": "Trimestral",
     "respTecnico": "Renato Santos",
+    "periodicity": "Trimestral",
     "na": false,
-    "standards": "SLA Boulevard",
-    "description": "",
-    "pmoc": {
-      "attached": false
-    },
-    "equipamentoParado": {
-      "isParado": false,
-      "dataParada": null
-    },
+    "pmocStatus": "NOT_REQUIRED",
+    "pmocStatusLabel": "Não exigido",
     "months": {
       "2": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "5": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "DONE",
+        "documents": []
       },
       "8": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       },
       "11": {
         "scheduled": true,
-        "status": "PENDING",
-        "executedDate": null,
-        "executionReport": null,
-        "justification": null
+        "status": "SCHEDULED",
+        "documents": []
       }
     }
   }

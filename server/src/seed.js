@@ -10,12 +10,17 @@ export async function checkAndSeedDatabase() {
   const pool = getPool();
   try {
     const [rows] = await pool.query('SELECT COUNT(*) as count FROM systems');
-    if (rows[0].count > 0) {
+    if (rows[0].count >= 40) {
       console.log(`[MariaDB] Base já contém ${rows[0].count} sistemas cadastrados. Pulando seed.`);
       return;
     }
 
-    console.log('[MariaDB] Tabela "systems" vazia. Iniciando carga inicial de sistemas...');
+    if (rows[0].count > 0 && rows[0].count < 40) {
+      console.log(`[MariaDB] Base contém ${rows[0].count} sistemas (desatualizado). Sincronizando com os 40 sistemas da planilha mestre...`);
+      await pool.query('DELETE FROM systems');
+    }
+
+    console.log('[MariaDB] Iniciando carga inicial dos 40 sistemas da planilha mestre...');
     const possiblePaths = [
       path.resolve(__dirname, '../../public/js/data/initialData.js'),
       path.resolve(__dirname, '../public/js/data/initialData.js'),
@@ -37,16 +42,20 @@ export async function checkAndSeedDatabase() {
     for (const sys of systems) {
       await pool.query(
         `INSERT INTO systems 
-         (id, category, category_name, name, periodicity, resp_tecnico, na, standards, description, pmoc_data, equipamento_parado, months_data)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, shopping, programacao, category, category_name, name, periodicity, resp_tecnico, na, pmoc_status, pmoc_status_label, standards, description, pmoc_data, equipamento_parado, months_data)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           sys.id,
+          sys.shopping || 'BSFS',
+          sys.programacao || 'Finalizada',
           sys.category || 'GERAL',
           sys.categoryName || sys.category || 'GERAL',
           sys.name,
           sys.periodicity || 'Mensal',
           sys.respTecnico || '',
           Boolean(sys.na),
+          sys.pmocStatus || 'NOT_REQUIRED',
+          sys.pmocStatusLabel || '',
           sys.standards || '',
           sys.description || '',
           JSON.stringify(sys.pmoc || { attached: false }),

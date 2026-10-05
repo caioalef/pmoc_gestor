@@ -13,7 +13,8 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'pmoc_secret_boulevard_2026';
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Middleware de Autenticação JWT opcional
 function authenticateToken(req, res, next) {
@@ -76,12 +77,16 @@ app.get('/api/systems', async (req, res) => {
 
     const formatted = rows.map(r => ({
       id: r.id,
+      shopping: r.shopping || 'BSFS',
+      programacao: r.programacao || 'Finalizada',
       category: r.category,
       categoryName: r.category_name,
       name: r.name,
       periodicity: r.periodicity,
       respTecnico: r.resp_tecnico,
       na: Boolean(r.na),
+      pmocStatus: r.pmoc_status || 'NOT_REQUIRED',
+      pmocStatusLabel: r.pmoc_status_label || '',
       standards: r.standards,
       description: r.description,
       pmoc: typeof r.pmoc_data === 'string' ? JSON.parse(r.pmoc_data) : (r.pmoc_data || { attached: false }),
@@ -111,15 +116,19 @@ app.put('/api/systems', async (req, res) => {
     for (const sys of systems) {
       await conn.query(
         `INSERT INTO systems 
-         (id, category, category_name, name, periodicity, resp_tecnico, na, standards, description, pmoc_data, equipamento_parado, months_data)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         (id, shopping, programacao, category, category_name, name, periodicity, resp_tecnico, na, pmoc_status, pmoc_status_label, standards, description, pmoc_data, equipamento_parado, months_data)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
+           shopping = VALUES(shopping),
+           programacao = VALUES(programacao),
            category = VALUES(category),
            category_name = VALUES(category_name),
            name = VALUES(name),
            periodicity = VALUES(periodicity),
            resp_tecnico = VALUES(resp_tecnico),
            na = VALUES(na),
+           pmoc_status = VALUES(pmoc_status),
+           pmoc_status_label = VALUES(pmoc_status_label),
            standards = VALUES(standards),
            description = VALUES(description),
            pmoc_data = VALUES(pmoc_data),
@@ -127,12 +136,16 @@ app.put('/api/systems', async (req, res) => {
            months_data = VALUES(months_data)`,
         [
           sys.id,
+          sys.shopping || 'BSFS',
+          sys.programacao || 'Finalizada',
           sys.category || 'GERAL',
           sys.categoryName || sys.category || 'GERAL',
           sys.name,
           sys.periodicity || 'Mensal',
           sys.respTecnico || '',
           Boolean(sys.na),
+          sys.pmocStatus || 'NOT_REQUIRED',
+          sys.pmocStatusLabel || '',
           sys.standards || '',
           sys.description || '',
           JSON.stringify(sys.pmoc || { attached: false }),
