@@ -69,12 +69,16 @@ class BoulevardMaintenanceApp {
           overlay.classList.add('hidden');
           errorMsg.style.display = 'none';
           this.updateAuthWidget();
-          const fresh = await this.db.fetchSystemsFromAPI();
-          if (fresh && fresh.length > 0) {
-            this.systems = fresh;
+          this.checkAccessAndRender();
+          try {
+            const fresh = await this.db.fetchSystemsFromAPI();
+            if (fresh && fresh.length > 0) {
+              this.systems = fresh;
+              this.render();
+            }
+          } catch (fetchErr) {
+            console.warn('Erro ao atualizar dados do MariaDB:', fetchErr);
           }
-          this.renderTable();
-          this.updateKPIs();
         } else {
           errorMsg.textContent = (result && result.error) || 'Usuário ou senha incorretos.';
           errorMsg.style.display = 'block';
@@ -126,8 +130,7 @@ class BoulevardMaintenanceApp {
         const fresh = await this.db.fetchSystemsFromAPI();
         if (fresh && fresh.length > 0) {
           this.systems = fresh;
-          this.renderTable();
-          this.updateKPIs();
+          this.render();
         }
       } catch (e) {
         console.warn('Sincronização com MariaDB falhou:', e);
@@ -611,6 +614,10 @@ class BoulevardMaintenanceApp {
     this.renderTableOnly();
   }
 
+  renderTable() {
+    this.renderTableOnly();
+  }
+
   updateKPIs() {
     const totalSystems = this.systems.length;
     const pmocOk = this.systems.filter(s => s.pmoc && s.pmoc.attached).length;
@@ -696,12 +703,14 @@ class BoulevardMaintenanceApp {
   }
 
   getFilteredSystems() {
+    if (!Array.isArray(this.systems)) return [];
     return this.systems.filter(item => {
+      if (!item) return false;
       if (this.filters.search) {
         const query = this.filters.search;
-        const matchesName = item.name.toLowerCase().includes(query);
-        const matchesCat = item.categoryName.toLowerCase().includes(query);
-        const matchesPeriod = item.periodicity.toLowerCase().includes(query);
+        const matchesName = (item.name || '').toLowerCase().includes(query);
+        const matchesCat = (item.categoryName || item.category || '').toLowerCase().includes(query);
+        const matchesPeriod = (item.periodicity || '').toLowerCase().includes(query);
         const matchesDesc = (item.description || '').toLowerCase().includes(query);
         const matchesStd = (item.standards || '').toLowerCase().includes(query);
         if (!matchesName && !matchesCat && !matchesPeriod && !matchesDesc && !matchesStd) {
