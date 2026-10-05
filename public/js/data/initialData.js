@@ -1,407 +1,1817 @@
 const INITIAL_SYSTEMS_DATA = [
   {
-    "id": "elet-1",
-    "category": "ELETRICA",
-    "categoryName": "ELÉTRICA / SISTEMAS CRÍTICOS",
-    "name": "Paineis elétricos - Sistema Críticos",
-    "periodicity": "Bimestral",
-    "pendencias": "",
+    "id": "sys-1",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Chiller/Centrifugas Anual",
+    "periodicity": "Anual",
+    "respTecnico": "Pedro Lucas",
     "na": false,
-    "standards": "ABNT NBR 5410, NR-10, NR-12",
-    "description": "Inspeção termográfica detalhada, reaperto com torquímetro calibrado, verificação de aquecimento em barramentos e testes de disjuntores de entrada e saídas de cargas prioritárias do shopping.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
-  },
-  {
-    "id": "elet-2",
-    "category": "ELETRICA",
-    "categoryName": "ELÉTRICA / SISTEMAS CRÍTICOS",
-    "name": "Painel de QGBT/QTA e Banco de capacitores (externo)",
-    "periodicity": "Anual",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 5410, IEC 60439",
-    "description": "Manutenção preventiva e corretiva anual do Quadro Geral de Baixa Tensão, Quadro de Transferência Automática rede/gerador e células capacitivas para correção de fator de potência.",
-    "pmoc": {
-      "attached": false
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
-    "months": {}
+    "months": {
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "elet-3",
-    "category": "ELETRICA",
-    "categoryName": "ELÉTRICA / SISTEMAS CRÍTICOS",
-    "name": "Busway",
+    "id": "sys-2",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Dutos de refrigeração / ventilação",
     "periodicity": "Anual",
-    "pendencias": "",
+    "respTecnico": "Pedro Lucas",
     "na": true,
-    "standards": "ABNT NBR IEC 60439-2",
-    "description": "Barramento blindado para distribuição de alta amperagem. Não aplicável para esta instalação específica.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
     "months": {}
   },
   {
-    "id": "elet-4",
-    "category": "ELETRICA",
-    "categoryName": "ELÉTRICA / SISTEMAS CRÍTICOS",
-    "name": "SPDA",
+    "id": "sys-3",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Cabine primária / SE",
     "periodicity": "Anual",
-    "pendencias": "",
+    "respTecnico": "Pedro Lucas",
     "na": false,
-    "standards": "ABNT NBR 5419:2015 Partes 1 a 4",
-    "description": "Sistema de Proteção contra Descargas Atmosféricas e Malha de Aterramento. Medição ôhmica de aterramento, continuidade das descidas, gaiola de Faraday e captores.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-4",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Painel de QGBT/QTA e Banco de capacitores (externo)",
+    "periodicity": "Anual",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-5",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Busway  ",
+    "periodicity": "Anual",
+    "respTecnico": "Pedro Lucas",
+    "na": true,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
     "months": {}
   },
   {
-    "id": "elet-5",
-    "category": "ELETRICA",
-    "categoryName": "ELÉTRICA / SISTEMAS CRÍTICOS",
+    "id": "sys-6",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "SPDA  ",
+    "periodicity": "Anual",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-7",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
     "name": "Teste de nobreaks",
     "periodicity": "Anual",
-    "pendencias": "",
+    "respTecnico": "Pedro Lucas",
     "na": false,
-    "standards": "ABNT NBR 15014, NR-10",
-    "description": "Ensaio com carga real/resistiva de bancos de nobreaks UPS centrais da automação e CFTV, verificação de ripple e baterias.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "elet-6",
-    "category": "ELETRICA",
-    "categoryName": "ELÉTRICA / SISTEMAS CRÍTICOS",
-    "name": "Teste de baterias",
-    "periodicity": "Trimestral",
-    "pendencias": "",
+    "id": "sys-8",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Aferição dos manômetros",
+    "periodicity": "Anual",
+    "respTecnico": "Renato Santos",
     "na": false,
-    "standards": "ABNT NBR 14197, NBR 14198",
-    "description": "Medição da condutância interna, impedância e tensão individual de flutuação dos acumuladores dos grupos geradores e nobreaks.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "hid-1",
-    "category": "HIDRAULICO",
-    "categoryName": "HIDRÁULICO / HIDROSSANITÁRIAS",
-    "name": "Bombas de recalque (Esgoto / Pluvial)",
-    "periodicity": "Mensal",
-    "pendencias": "",
+    "id": "sys-9",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Pressurização de escadas e extração de fumaça",
+    "periodicity": "Anual",
+    "respTecnico": "Renato Santos",
     "na": true,
-    "standards": "ABNT NBR 5626, NBR 8160",
-    "description": "Conjuntos motobombas submersíveis de esgoto e águas pluviais do fosso de recalque.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
     "months": {}
   },
   {
-    "id": "hid-2",
-    "category": "HIDRAULICO",
-    "categoryName": "HIDRÁULICO / HIDROSSANITÁRIAS",
-    "name": "Bombas de pressurização - Análise de Vibração",
-    "periodicity": "Semestral",
-    "pendencias": "",
+    "id": "sys-10",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Teste de hidrantes (com água)",
+    "periodicity": "Anual",
+    "respTecnico": "Renato Santos",
     "na": false,
-    "standards": "ISO 10816-3",
-    "description": "Análise preditiva de vibração espectral nos mancais das motobombas e motores de pressurização de água potável.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "hid-3",
-    "category": "HIDRAULICO",
-    "categoryName": "HIDRÁULICO / HIDROSSANITÁRIAS",
-    "name": "Limpeza dos Reservatórios",
-    "periodicity": "Semestral",
-    "pendencias": "",
+    "id": "sys-11",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Teste hidrostático em mangueiras de incêndio",
+    "periodicity": "Anual",
+    "respTecnico": "Renato Santos",
     "na": false,
-    "standards": "Portaria GM/MS nº 888, CVS-5",
-    "description": "Higienização, desinfecção com cloro ativo e laudo bacteriológico e físico-químico da água das caixas superior e inferior do shopping.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
-  },
-  {
-    "id": "hid-4",
-    "category": "HIDRAULICO",
-    "categoryName": "HIDRÁULICO / HIDROSSANITÁRIAS",
-    "name": "Manutenção ETE/ETAR",
-    "periodicity": "Mensal",
-    "pendencias": "",
-    "na": true,
-    "standards": "Resolução CONAMA nº 430",
-    "description": "Estação de Tratamento de Efluentes Sanitários e Água de Reúso.",
-    "pmoc": {
-      "attached": false
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
-    "months": {}
+    "months": {
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "hid-5",
-    "category": "HIDRAULICO",
-    "categoryName": "HIDRÁULICO / HIDROSSANITÁRIAS",
-    "name": "Manutenção ETA",
-    "periodicity": "Mensal",
-    "pendencias": "",
+    "id": "sys-12",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Certificado de Recarga de Extintores",
+    "periodicity": "Anual",
+    "respTecnico": "Renato Santos",
     "na": false,
-    "standards": "Portaria Ministério da Saúde 888",
-    "description": "Estação de Tratamento de Água (dosagem de produtos químicos e retrolavagem de leitos filtrantes).",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
-  },
-  {
-    "id": "elev-1",
-    "category": "ELEVADORES",
-    "categoryName": "ELEVADORES E ESCADAS ROLANTES",
-    "name": "Elevadores",
-    "periodicity": "Mensal",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR NM 207, NM 313",
-    "description": "Manutenção preventiva mensal obrigatória dos elevadores sociais e de serviço, freios de emergência, portas e cabos de tração.",
-    "pmoc": {
-      "attached": false
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
-    "months": {}
+    "months": {
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "elev-2",
-    "category": "ELEVADORES",
-    "categoryName": "ELEVADORES E ESCADAS ROLANTES",
-    "name": "Escadas Rolantes",
-    "periodicity": "Mensal",
-    "pendencias": "",
-    "na": true,
-    "standards": "ABNT NBR NM 195",
-    "description": "Escadas rolantes e esteiras mecânicas de circulação do público.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "gas-1",
-    "category": "GAS",
+    "id": "sys-13",
+    "category": "GÁS",
     "categoryName": "GÁS",
     "name": "Teste de Estanqueidade de Gás",
     "periodicity": "Anual",
-    "pendencias": "",
+    "respTecnico": "Renato Santos",
     "na": false,
-    "standards": "ABNT NBR 15526, NBR 15358",
-    "description": "Ensaio pneumático com manômetro diferencial calibrado para teste de vazamentos na rede de GLP/GN da praça de alimentação.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-14",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Paineis elétricos - Sistema Críticos",
+    "periodicity": "Bimestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-15",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Pressurização de escadas e extração de fumaça",
+    "periodicity": "Bimestral",
+    "respTecnico": "Renato Santos",
+    "na": true,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
     "months": {}
   },
   {
-    "id": "est-1",
+    "id": "sys-16",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Chiller/Centrifugas Conforme Instrutivo",
+    "periodicity": "Conforme Instrutivo",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-17",
     "category": "ESTRUTURAL",
     "categoryName": "ESTRUTURAL",
     "name": "Talude",
     "periodicity": "Conforme Instrutivo",
-    "pendencias": "",
+    "respTecnico": "Pedro Lucas",
     "na": false,
-    "standards": "ABNT NBR 11682",
-    "description": "Vistoria geotécnica periódica de encostas e contenção do estacionamento externo.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-18",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Tratamento de AG e AC",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-19",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Fan coils/UTA/Ventiladores/ Exaustores/Selfs/Roof top/Split",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-20",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Limpeza dos filtros de linha de AG e AC",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-21",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Gerador de emergência e ponta (teste)",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-22",
+    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "name": "Bombas de recalque (Esgoto / Pluvial)",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": true,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
     "months": {}
   },
   {
-    "id": "est-2",
+    "id": "sys-23",
+    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "name": "Manutenção ETE/ETAR",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": true,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {}
+  },
+  {
+    "id": "sys-24",
+    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "name": "Manutenção ETA",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-25",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Bombas de SPK e Hidrantes",
+    "periodicity": "Mensal",
+    "respTecnico": "Renato Santos",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-26",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Detecção de fumaça",
+    "periodicity": "Mensal",
+    "respTecnico": "Renato Santos",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-27",
+    "category": "ELEVADORES_E_ESCADAS_ROLANTES",
+    "categoryName": "ELEVADORES E ESCADAS ROLANTES",
+    "name": "Elevadores",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-28",
+    "category": "ELEVADORES_E_ESCADAS_ROLANTES",
+    "categoryName": "ELEVADORES E ESCADAS ROLANTES",
+    "name": "Escadas Rolantes",
+    "periodicity": "Mensal",
+    "respTecnico": "Pedro Lucas",
+    "na": true,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {}
+  },
+  {
+    "id": "sys-29",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Gerador de emergência e ponta (manutenção)",
+    "periodicity": "Quadrimestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-30",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Torre de resfriamento",
+    "periodicity": "Semestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-31",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Bombas de AG e AC",
+    "periodicity": "Semestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-32",
+    "category": "AR_CONDICIONADO",
+    "categoryName": "AR CONDICIONADO",
+    "name": "Teste de Qualidade do Ar",
+    "periodicity": "Semestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-33",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Termografia (BT/MT)",
+    "periodicity": "Semestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-34",
+    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "name": "Bombas de pressurização - Análise de Vibração",
+    "periodicity": "Semestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-35",
+    "category": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "categoryName": "HIDRÁULICO/HIDROSSANITÁRIAS",
+    "name": "Limpeza dos Reservatórios",
+    "periodicity": "Semestral",
+    "respTecnico": "Pedro Lucas",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "1": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "7": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-36",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Aferição dos pressostatos",
+    "periodicity": "Semestral",
+    "respTecnico": "Renato Santos",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-37",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
+    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
+    "name": "Bombas de SPK e Hidrantes – Análise de Vibração  ",
+    "periodicity": "Semestral",
+    "respTecnico": "Renato Santos",
+    "na": false,
+    "standards": "SLA Boulevard",
+    "description": "",
+    "pmoc": {
+      "attached": false
+    },
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "4": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "10": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
+  },
+  {
+    "id": "sys-38",
     "category": "ESTRUTURAL",
     "categoryName": "ESTRUTURAL",
     "name": "Cobertura",
     "periodicity": "Semestral",
-    "pendencias": "",
+    "respTecnico": "Pedro Lucas",
     "na": false,
-    "standards": "ABNT NBR 9575, NBR 9574",
-    "description": "Inspeção minuciosa das mantas impermeabilizantes, telhas metálicas, calhas e rufos contra infiltrações.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "inc-1",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Aferição dos pressostatos",
-    "periodicity": "Semestral",
-    "pendencias": "",
+    "id": "sys-39",
+    "category": "ELÉTRICO",
+    "categoryName": "ELÉTRICO",
+    "name": "Teste de baterias",
+    "periodicity": "Trimestral",
+    "respTecnico": "Pedro Lucas",
     "na": false,
-    "standards": "ABNT NBR 10897, NBR 13714",
-    "description": "Calibração dos pressostatos das bombas Jockey e Principal de combate a incêndio.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
-  },
-  {
-    "id": "inc-2",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Aferição dos manômetros",
-    "periodicity": "Anual",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 14105-1",
-    "description": "Calibração em bancada com padrão RBC dos manômetros dos barriletes de incêndio.",
-    "pmoc": {
-      "attached": false
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
     },
-    "months": {}
+    "months": {
+      "3": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "6": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "9": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "12": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   },
   {
-    "id": "inc-3",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Bombas de SPK e Hidrantes",
-    "periodicity": "Mensal",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 13714, IT-22 CB",
-    "description": "Acionamento semanal e ensaio funcional mensal das motobombas de Sprinklers e Hidrantes.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-4",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Bombas de SPK e Hidrantes - Análise de Vibração",
-    "periodicity": "Semestral",
-    "pendencias": "",
-    "na": false,
-    "standards": "ISO 10816-3",
-    "description": "Análise de vibração preditiva dos mancais das motobombas de incêndio.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-5",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Pressurização de escadas e extração de fumaça",
-    "periodicity": "Bimestral",
-    "pendencias": "",
-    "na": true,
-    "standards": "ABNT NBR 14880, IT-13 CB",
-    "description": "Ventiladores centrífugos de pressurização das rotas de fuga do shopping.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-6",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Pressurização de escadas e extração de fumaça",
-    "periodicity": "Anual",
-    "pendencias": "",
-    "na": true,
-    "standards": "ABNT NBR 14880",
-    "description": "Ensaio de diferencial estático de pressão com portas abertas e fechadas.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-7",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Detecção de fumaça",
-    "periodicity": "Mensal",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 7240, IT-19 CB",
-    "description": "Teste funcional com gás aerossol nos detectores de fumaça e acionadores manuais dos malls e lojas.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-8",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Teste de hidrantes (com água)",
-    "periodicity": "Anual",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 13714",
-    "description": "Ensaio prático com mangueira desenrolada, medição de pressão residual e vazão dinâmica.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-9",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Teste hidrostático em mangueiras de incêndio",
-    "periodicity": "Anual",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 12779",
-    "description": "Ensaio de estanqueidade e pressão de ruptura hidrostática com laudo individual.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-10",
-    "category": "INCENDIO",
-    "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
-    "name": "Certificado de Recarga de Extintores",
-    "periodicity": "Anual",
-    "pendencias": "",
-    "na": false,
-    "standards": "ABNT NBR 12962, Portaria INMETRO",
-    "description": "Inspeção de 1º, 2º e 3º níveis dos extintores portáteis e carretas de PQS, CO2 e Água com selo INMETRO.",
-    "pmoc": {
-      "attached": false
-    },
-    "months": {}
-  },
-  {
-    "id": "inc-11",
-    "category": "INCENDIO",
+    "id": "sys-40",
+    "category": "PREVENÇÃO_CONTRA_INCÊNDIO",
     "categoryName": "PREVENÇÃO CONTRA INCÊNDIO",
     "name": "Verificação dos registro de SPK (lojas)",
     "periodicity": "Trimestral",
-    "pendencias": "",
+    "respTecnico": "Renato Santos",
     "na": false,
-    "standards": "ABNT NBR 10897",
-    "description": "Vistoria e checagem visual das válvulas de governo e registros de gaveta abertos e lacrados dos ramais de sprinkler das lojas.",
+    "standards": "SLA Boulevard",
+    "description": "",
     "pmoc": {
       "attached": false
     },
-    "months": {}
+    "equipamentoParado": {
+      "isParado": false,
+      "dataParada": null
+    },
+    "months": {
+      "2": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "5": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "8": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      },
+      "11": {
+        "scheduled": true,
+        "status": "PENDING",
+        "executedDate": null,
+        "executionReport": null,
+        "justification": null
+      }
+    }
   }
 ];
