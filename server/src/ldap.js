@@ -1,5 +1,41 @@
 import ldap from 'ldapjs';
 
+function parseEntryAttributes(entry) {
+  if (!entry) return null;
+  const result = {};
+
+  // 1. Suporte a ldapjs v2 (caso exista .object)
+  if (entry.object && typeof entry.object === 'object') {
+    Object.assign(result, entry.object);
+  }
+
+  // 2. Suporte nativo a ldapjs v3 (.attributes array)
+  if (Array.isArray(entry.attributes)) {
+    for (const attr of entry.attributes) {
+      const key = attr.type || attr.name;
+      const vals = attr.values || attr.vals || [];
+      if (key) {
+        result[key] = vals.length === 1 ? vals[0] : vals;
+        result[key.toLowerCase()] = result[key];
+      }
+    }
+  }
+
+  // 3. Suporte a ldapjs v3 POJO (.pojo.attributes)
+  if (entry.pojo && Array.isArray(entry.pojo.attributes)) {
+    for (const attr of entry.pojo.attributes) {
+      const key = attr.type || attr.name;
+      const vals = attr.values || attr.vals || [];
+      if (key && !result[key]) {
+        result[key] = vals.length === 1 ? vals[0] : vals;
+        result[key.toLowerCase()] = result[key];
+      }
+    }
+  }
+
+  return result;
+}
+
 export async function authenticateWithAD(username, password) {
   const adHost = process.env.AD_HOST || '10.10.19.2';
   const adPort = parseInt(process.env.AD_PORT || '389', 10);
@@ -82,7 +118,7 @@ export async function authenticateWithAD(username, password) {
     client.bind(upn, password, (bindErr) => {
       if (bindErr) {
         console.warn(`[LDAP] Falha de autenticação para ${upn}:`, bindErr.message);
-        client.unbind(() => {});
+        client.unbind(() => { });
         return resolve({
           success: false,
           error: 'Credenciais inválidas no Active Directory ou conta bloqueada.'
@@ -94,14 +130,14 @@ export async function authenticateWithAD(username, password) {
       // Busca dados do usuário (grupos, nome de exibição, e-mail)
       const searchOptions = {
         scope: 'sub',
-        filter: `(&(objectCategory=person)(objectClass=user)(|(sAMAccountName=${cleanUser})(userPrincipalName=${upn})))`,
+        filter: `(|(sAMAccountName=${cleanUser})(userPrincipalName=${upn})(userPrincipalName=${cleanUser}@*))`,
         attributes: ['sAMAccountName', 'displayName', 'cn', 'mail', 'memberOf']
       };
 
       client.search(adBaseDN, searchOptions, (searchErr, res) => {
         if (searchErr) {
           console.error('[LDAP] Erro na busca de grupos:', searchErr.message);
-          client.unbind(() => {});
+          client.unbind(() => { });
           return resolve({
             success: false,
             error: `Falha ao consultar permissões do usuário no Active Directory: ${searchErr.message}`
@@ -111,30 +147,39 @@ export async function authenticateWithAD(username, password) {
         let userData = null;
 
         res.on('searchEntry', (entry) => {
-          userData = entry.object;
+          userData = parseEntryAttributes(entry);
+        });
+
+        res.on('searchReference', (referral) => {
+          // Ignora referrals do Active Directory (ForestDnsZones, DomainDnsZones)
         });
 
         res.on('error', (err) => {
+          if (err && err.message && err.message.toLowerCase().includes('referral')) {
+            console.log('[LDAP] Referral do AD ignorado:', err.message);
+            return;
+          }
           console.warn('[LDAP Search Stream Error]:', err.message);
         });
 
         res.on('end', () => {
-          client.unbind(() => {});
+          client.unbind(() => { });
 
           if (!userData) {
             console.warn(`[LDAP] Usuário ${cleanUser} autenticou no bind, mas objeto não foi encontrado na base ${adBaseDN}`);
             return resolve({
               success: false,
-              error: `Usuário autenticado, mas suas informações de grupo não foram localizadas no Active Directory (${adBaseDN}).`
+              error: `Usuário autenticado no AD, mas o registro do usuário "${cleanUser}" não foi localizado na árvore (${adBaseDN}).`
             });
           }
 
-          const displayName = userData.displayName || userData.cn || cleanUser;
+          const displayName = userData.displayName || userData.displayname || userData.cn || cleanUser;
           const email = userData.mail || `${cleanUser}@${adDomain.toLowerCase()}`;
-          
+
           let memberOf = [];
-          if (userData && userData.memberOf) {
-            memberOf = Array.isArray(userData.memberOf) ? userData.memberOf : [userData.memberOf];
+          const rawMemberOf = userData.memberOf || userData.memberof;
+          if (rawMemberOf) {
+            memberOf = Array.isArray(rawMemberOf) ? rawMemberOf : [rawMemberOf];
           }
 
           console.log(`[LDAP] Usuário ${cleanUser} - Grupos identificados (${memberOf.length}):`, memberOf);
@@ -151,7 +196,7 @@ export async function authenticateWithAD(username, password) {
             console.warn(`[LDAP] ACESSO NEGADO: ${cleanUser} não pertence aos grupos ${adminGroup} ou ${userGroup}`);
             return resolve({
               success: false,
-              error: `Acesso negado: o usuário "${cleanUser}" não possui permissão de acesso. É obrigatório fazer parte do grupo ${userGroup} ou ${adminGroup} no Active Directory.`
+              error: `Acesso negado: o usuário "${displayName}" autenticou com sucesso, mas não pertence aos grupos autorizados (${userGroup} ou ${adminGroup}) no Active Directory.`
             });
           }
 
