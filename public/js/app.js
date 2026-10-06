@@ -27,13 +27,14 @@ class BoulevardMaintenanceApp {
     this.activeSystemId = null;
     this.activeMonthIndex = null;
     this.currentMonthDocs = []; // Documentos em edição no modal do mês
-    this.pendingAuthAction = null; // Armazena a ação aguardando aprovação do SYSADMIN
+    this.pendingAuthAction = null; // Armazena a ação aguardando aprovação de Administrador
 
     this.filters = {
       search: '',
-      category: 'ALL',
-      pmocStatus: 'ALL',
-      periodicity: 'ALL'
+      categories: [],
+      pmocStatuses: [],
+      periodicities: [],
+      machineStatuses: []
     };
 
     this.init();
@@ -289,43 +290,8 @@ class BoulevardMaintenanceApp {
       });
     }
 
-    const filterCategory = document.getElementById('filter-category');
-    if (filterCategory) {
-      filterCategory.addEventListener('change', (e) => {
-        this.filters.category = e.target.value;
-        this.renderTableOnly();
-      });
-    }
-
-    const filterPmoc = document.getElementById('filter-pmoc');
-    if (filterPmoc) {
-      filterPmoc.addEventListener('change', (e) => {
-        this.filters.pmocStatus = e.target.value;
-        this.renderTableOnly();
-      });
-    }
-
-    const filterPeriodicity = document.getElementById('filter-periodicity');
-    if (filterPeriodicity) {
-      filterPeriodicity.addEventListener('change', (e) => {
-        this.filters.periodicity = e.target.value;
-        this.renderTableOnly();
-      });
-    }
-
-    const btnResetFilters = document.getElementById('btn-reset-filters');
-    if (btnResetFilters) {
-      btnResetFilters.addEventListener('click', () => {
-        if (searchInput) searchInput.value = '';
-        if (filterCategory) filterCategory.value = 'ALL';
-        if (filterPmoc) filterPmoc.value = 'ALL';
-        if (filterPeriodicity) filterPeriodicity.value = 'ALL';
-        this.filters = { search: '', category: 'ALL', pmocStatus: 'ALL', periodicity: 'ALL' };
-        if (btnClearSearch) btnClearSearch.style.display = 'none';
-        this.renderTableOnly();
-        this.showToast('Filtros redefinidos.', 'info');
-      });
-    }
+    // Inicializa Filtros de Múltipla Seleção (Multi-select)
+    this.initMultiSelectFilters();
 
     // Botões do Header
     const btnExportCsv = document.getElementById('btn-export-csv');
@@ -372,7 +338,7 @@ class BoulevardMaintenanceApp {
     this.setupModalDismiss('modal-preview-doc', ['btn-close-preview-modal', 'btn-close-preview-footer']);
     this.setupModalDismiss('modal-admin-auth', ['btn-close-auth-modal', 'btn-cancel-auth']);
     this.setupModalDismiss('modal-audit-logs', ['btn-close-audit-modal', 'btn-close-audit-footer']);
-    this.setupModalDismiss('modal-switch-ad-user', ['btn-close-switch-modal', 'btn-close-switch-footer']);
+    this.setupModalDismiss('modal-maquina-parada', ['btn-close-maquina-modal', 'btn-close-maquina-footer']);
 
     // Formulário PMOC / ART Upload
     const formUpload = document.getElementById('form-upload-pmoc-art');
@@ -392,6 +358,14 @@ class BoulevardMaintenanceApp {
       });
     }
 
+    // Botão de Alternar Agendamento no Modal do Mês
+    const btnToggleMonthSched = document.getElementById('btn-toggle-month-schedule');
+    if (btnToggleMonthSched) {
+      btnToggleMonthSched.addEventListener('click', () => {
+        this.handleToggleMonthSchedule();
+      });
+    }
+
     // Eventos de Upload de Documentos no Modal de Mês
     this.bindMonthDocUploadEvents();
 
@@ -401,6 +375,26 @@ class BoulevardMaintenanceApp {
       formNewSys.addEventListener('submit', (e) => {
         e.preventDefault();
         this.handleCreateNewSystem();
+      });
+    }
+
+    // Presets de Meses no Cadastro de Novo Sistema
+    this.setupNewSystemSchedulePresets();
+
+    // Formulário Máquina Parada
+    const formMaquina = document.getElementById('form-maquina-parada');
+    if (formMaquina) {
+      formMaquina.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleSaveMaquinaStatus();
+      });
+    }
+
+    const cbMaquinaParada = document.getElementById('maquina-is-parada');
+    if (cbMaquinaParada) {
+      cbMaquinaParada.addEventListener('change', (e) => {
+        const details = document.getElementById('maquina-details-fields');
+        if (details) details.style.display = e.target.checked ? 'block' : 'none';
       });
     }
 
@@ -590,9 +584,9 @@ class BoulevardMaintenanceApp {
 
     if (authDesc) {
       authDesc.innerHTML = `
-        O usuário atual está no grupo <code>BSFS_OPE_SYSUSER</code> (${user.name}).
+        Usuário atual: <strong>${user.name}</strong> (${user.roleLabel || 'Operador'}).
         <br><strong>Operação solicitada:</strong> ${actionData.description}
-        <br>Para prosseguir, insira o PIN ou credencial de um membro do grupo <code>BSFS_OPE_SYSADMIN</code>.
+        <br>Para prosseguir, informe as credenciais de um administrador do sistema.
       `;
     }
 
@@ -606,22 +600,22 @@ class BoulevardMaintenanceApp {
 
   handleProcessAdminAuth() {
     const pinInput = document.getElementById('admin-auth-pin');
-    const adminSelect = document.getElementById('admin-auth-user');
+    const adminUserInput = document.getElementById('admin-auth-user');
     const reasonInput = document.getElementById('admin-auth-reason');
 
     const pin = pinInput ? pinInput.value : '';
-    const adminEmail = adminSelect ? adminSelect.value : 'emily.farias@boulevardfs.com.br';
+    const adminUser = adminUserInput ? adminUserInput.value.trim() : '';
     const reason = reasonInput ? reasonInput.value.trim() : 'Exclusão autorizada';
 
     if (!this.auth.validateAdminAuthorization(pin)) {
-      this.showToast('❌ PIN de autorização de SYSADMIN inválido! (Dica de teste: ADMIN123)', 'danger');
+      this.showToast('❌ Senha de autorização de administrador inválida!', 'danger');
       return;
     }
 
     // Autorização concedida!
     const authorizer = {
-      email: adminEmail,
-      group: 'BSFS_OPE_SYSADMIN',
+      email: adminUser || (this.auth.getCurrentUser() && this.auth.getCurrentUser().email) || 'administrador@boulevardfs.com.br',
+      group: 'Administrador',
       reason: reason
     };
 
@@ -783,6 +777,31 @@ class BoulevardMaintenanceApp {
     if (elUnr) elUnr.textContent = unrealizedCount;
     if (elTotSys) elTotSys.textContent = this.systems.length;
 
+    // Cálculo e KPI de Máquinas Paradas / Status Operacional
+    const stoppedSystems = this.systems.filter(s => s.equipamentoParado && s.equipamentoParado.isParado);
+    const stoppedCount = stoppedSystems.length;
+    const operationalCount = Math.max(0, this.systems.length - stoppedCount);
+
+    const elMaqCount = document.getElementById('kpi-maquinas-paradas-count');
+    const elMaqSysParados = document.getElementById('kpi-sistemas-parados-count');
+    const elMaqSysOp = document.getElementById('kpi-sistemas-operacionais-count');
+    const elMaqTag = document.getElementById('kpi-maquinas-tag');
+
+    if (elMaqCount) elMaqCount.textContent = stoppedCount;
+    if (elMaqSysParados) elMaqSysParados.textContent = stoppedCount;
+    if (elMaqSysOp) elMaqSysOp.textContent = operationalCount;
+    if (elMaqTag) {
+      if (stoppedCount === 0) {
+        elMaqTag.textContent = '100% Ativo';
+        elMaqTag.style.background = 'rgba(16, 185, 129, 0.16)';
+        elMaqTag.style.color = '#10b981';
+      } else {
+        elMaqTag.textContent = `${stoppedCount} Parada(s)`;
+        elMaqTag.style.background = 'rgba(239, 68, 68, 0.16)';
+        elMaqTag.style.color = '#ef4444';
+      }
+    }
+
     const categoryChipsContainer = document.getElementById('category-breakdown-chips');
     if (categoryChipsContainer) {
       const counts = {};
@@ -816,6 +835,7 @@ class BoulevardMaintenanceApp {
     return this.systems.filter(item => {
       if (!item) return false;
 
+      // 1. Busca textual rápida
       if (this.filters.search) {
         const query = this.filters.search;
         const matchesName = (item.name || '').toLowerCase().includes(query);
@@ -824,30 +844,50 @@ class BoulevardMaintenanceApp {
         const matchesPeriod = (item.periodicity || '').toLowerCase().includes(query);
         const matchesPmoc = (item.pmocStatusLabel || '').toLowerCase().includes(query);
         const matchesShopping = (item.shopping || '').toLowerCase().includes(query);
-        if (!matchesName && !matchesCat && !matchesResp && !matchesPeriod && !matchesPmoc && !matchesShopping) {
+        const matchesMaquina = item.equipamentoParado && (
+          (item.equipamentoParado.maquina || '').toLowerCase().includes(query) ||
+          (item.equipamentoParado.motivo || '').toLowerCase().includes(query)
+        );
+        if (!matchesName && !matchesCat && !matchesResp && !matchesPeriod && !matchesPmoc && !matchesShopping && !matchesMaquina) {
           return false;
         }
       }
 
-      if (this.filters.category !== 'ALL') {
-        const itemCat = item.category || '';
-        const itemCatName = item.categoryName || '';
-        if (itemCat !== this.filters.category && itemCatName !== this.filters.category) {
+      // 2. Filtro Multi-select de Categoria / Setor
+      if (Array.isArray(this.filters.categories) && this.filters.categories.length > 0) {
+        const itemCat = String(item.category || '').toUpperCase();
+        const itemCatName = String(item.categoryName || '').toUpperCase();
+        const matches = this.filters.categories.some(c => {
+          const cUpper = String(c).toUpperCase();
+          return itemCat === cUpper || itemCatName === cUpper || itemCat.includes(cUpper) || cUpper.includes(itemCat);
+        });
+        if (!matches) return false;
+      }
+
+      // 3. Filtro Multi-select de Status PMOC/ART
+      if (Array.isArray(this.filters.pmocStatuses) && this.filters.pmocStatuses.length > 0) {
+        const itemStatus = item.pmocStatus || 'NOT_REQUIRED';
+        if (!this.filters.pmocStatuses.includes(itemStatus)) {
           return false;
         }
       }
 
-      if (this.filters.pmocStatus !== 'ALL') {
-        if (item.pmocStatus !== this.filters.pmocStatus) {
-          // Compatibilidade reversa
-          if (this.filters.pmocStatus === 'ATTACHED' && item.pmocStatus === 'REQUIRED_ATTACHED') return true;
-          if (this.filters.pmocStatus === 'PENDING' && (item.pmocStatus === 'REQUIRED_NOT_INSERTED' || item.pmocStatus === 'REQUIRED_EXPIRED')) return true;
+      // 4. Filtro Multi-select de Periodicidade
+      if (Array.isArray(this.filters.periodicities) && this.filters.periodicities.length > 0) {
+        const itemPeriod = item.periodicity || 'Mensal';
+        if (!this.filters.periodicities.includes(itemPeriod)) {
           return false;
         }
       }
 
-      if (this.filters.periodicity !== 'ALL' && item.periodicity !== this.filters.periodicity) {
-        return false;
+      // 5. Filtro Multi-select de Status Operacional (Máquina Parada)
+      if (Array.isArray(this.filters.machineStatuses) && this.filters.machineStatuses.length > 0) {
+        const isParado = Boolean(item.equipamentoParado && item.equipamentoParado.isParado);
+        const matchesStopped = this.filters.machineStatuses.includes('STOPPED') && isParado;
+        const matchesOperational = this.filters.machineStatuses.includes('OPERATIONAL') && !isParado;
+        if (!matchesStopped && !matchesOperational) {
+          return false;
+        }
       }
 
       return true;
@@ -898,7 +938,13 @@ class BoulevardMaintenanceApp {
           : `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}">Documentação obrigatória não inserida</button>`;
       }
 
-      // Renderização estática dos meses
+      // Badge de Máquina Parada / Status Operacional
+      const isParado = Boolean(system.equipamentoParado && system.equipamentoParado.isParado);
+      const maquinaBadgeHtml = isParado
+        ? `<button type="button" class="badge-maquina-parada" data-action="open-maquina" data-sys-id="${system.id}" title="Máquina Parada: ${system.equipamentoParado.maquina || 'Equipamento'} (Clique para gerenciar)">🔴 Parada: ${system.equipamentoParado.maquina || 'Equip.'}</button>`
+        : `<button type="button" class="badge-maquina-ok" data-action="open-maquina" data-sys-id="${system.id}" title="Operação normal - Clique para informar máquina parada">🟢 Operacional</button>`;
+
+      // Renderização dos meses (inclui agendamento dinâmico em meses não agendados)
       let monthsHtml = '';
       const systemMonths = this.getSystemMonths(system, this.currentYear);
       for (let m = 1; m <= 12; m++) {
@@ -908,11 +954,18 @@ class BoulevardMaintenanceApp {
         const docs = (monthData && monthData.documents) || [];
         const hasDocs = docs.length > 0;
 
-        if (isNa || !isScheduled) {
-          // Campo estático: totalmente desabilitado e inalterável
+        if (isNa) {
+          // Campo estático para sistema NA
           monthsHtml += `<td class="td-month td-month-static-empty" aria-disabled="true"></td>`;
+        } else if (!isScheduled) {
+          // Campo vazio com opção de inclusão dinâmica de manutenção
+          monthsHtml += `
+            <td class="td-month td-month-slot-empty" data-sys-id="${system.id}" data-month-index="${m}" title="Mês sem manutenção agendada - Clique para agendar manutenção neste mês">
+              <span class="empty-slot-plus">+</span>
+            </td>
+          `;
         } else {
-          // Campo marcado: interativo, permite alteração e inserção de documentos
+          // Campo agendado: interativo, permite alteração e inserção de documentos
           const docBadgeHtml = hasDocs ? `<span class="month-doc-indicator" title="${docs.length} documento(s) anexado(s)">📎</span>` : '';
           let boxHtml = '';
 
@@ -967,8 +1020,8 @@ class BoulevardMaintenanceApp {
       }
 
       const deleteBtnTitle = isSysAdmin
-        ? 'Excluir sistema (Autorização Direta SYSADMIN)'
-        : 'Excluir sistema (Requer Autorização do BSFS_OPE_SYSADMIN)';
+        ? 'Excluir sistema (Autorização Direta de Administrador)'
+        : 'Excluir sistema (Requer Autorização de Administrador)';
 
       html += `
         <tr class="${isNa ? 'row-na-active' : ''}" id="row-${system.id}">
@@ -978,6 +1031,7 @@ class BoulevardMaintenanceApp {
           <td class="td-manutencao">
             <div class="system-title-cell">
               <span class="system-manutencao-text">${system.name}</span>
+              ${maquinaBadgeHtml}
               <button type="button" class="btn-info-system" data-action="open-sys-info" data-sys-id="${system.id}" title="Detalhes técnicos do sistema">i</button>
             </div>
           </td>
@@ -1022,7 +1076,26 @@ class BoulevardMaintenanceApp {
       });
     });
 
+    tbody.querySelectorAll('[data-action="open-maquina"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sysId = btn.getAttribute('data-sys-id');
+        this.openMaquinaModal(sysId);
+      });
+    });
+
     tbody.querySelectorAll('.td-month-interactive').forEach(td => {
+      td.addEventListener('click', () => {
+        const sysId = td.getAttribute('data-sys-id');
+        const monthIndex = td.getAttribute('data-month-index');
+        const system = this.systems.find(s => s.id === sysId);
+        if (system && !system.na) {
+          this.openMonthStatusModal(sysId, parseInt(monthIndex, 10));
+        }
+      });
+    });
+
+    tbody.querySelectorAll('.td-month-slot-empty').forEach(td => {
       td.addEventListener('click', () => {
         const sysId = td.getAttribute('data-sys-id');
         const monthIndex = td.getAttribute('data-month-index');
@@ -1367,8 +1440,73 @@ class BoulevardMaintenanceApp {
       ? JSON.parse(JSON.stringify(monthData.documents))
       : [];
 
+    // Botão de alternar agendamento (Desmarcar ou Incluir agendamento dinamicamente)
+    const isScheduled = Boolean(monthData && monthData.scheduled);
+    const btnToggleSchedule = document.getElementById('btn-toggle-month-schedule');
+    if (btnToggleSchedule) {
+      btnToggleSchedule.style.display = 'inline-block';
+      if (isScheduled) {
+        btnToggleSchedule.textContent = 'Desmarcar Agendamento deste Mês';
+        btnToggleSchedule.style.color = '#ef4444';
+      } else {
+        btnToggleSchedule.textContent = '➕ Agendar Manutenção para este Mês';
+        btnToggleSchedule.style.color = '#10b981';
+      }
+    }
+
     this.renderMonthDocsList();
     modal.classList.add('is-active');
+  }
+
+  async handleToggleMonthSchedule() {
+    const system = this.systems.find(s => s.id === this.activeSystemId);
+    if (!system) return;
+
+    const yr = String(this.currentYear || '2026');
+    if (!system.years) system.years = {};
+    if (!system.years[yr]) {
+      system.years[yr] = { months: this.getSystemMonths(system, yr) };
+    }
+    if (!system.years[yr].months) system.years[yr].months = {};
+
+    const monthData = system.years[yr].months[this.activeMonthIndex] || {};
+    const currentlyScheduled = Boolean(monthData.scheduled);
+
+    if (currentlyScheduled) {
+      if (!confirm(`Deseja realmente desmarcar o agendamento de manutenção do mês ${this.activeMonthIndex}/${yr} para o sistema "${system.name}"?`)) {
+        return;
+      }
+      monthData.scheduled = false;
+    } else {
+      monthData.scheduled = true;
+      if (!monthData.status) monthData.status = 'SCHEDULED';
+    }
+
+    system.years[yr].months[this.activeMonthIndex] = monthData;
+    if (yr === '2026') {
+      if (!system.months) system.months = {};
+      system.months[this.activeMonthIndex] = monthData;
+    }
+
+    try {
+      await this.db.saveSingleSystem(system);
+      this.db.logOperation(
+        'ALTERAR_AGENDAMENTO_MES',
+        'update',
+        `${currentlyScheduled ? 'Desmarcado agendamento' : 'Agendada nova manutenção'} para o mês ${this.activeMonthIndex}/${yr} no sistema "${system.name}".`,
+        this.auth.getCurrentUser()
+      );
+
+      this.updateKPIs();
+      this.renderTableOnly();
+
+      const modal = document.getElementById('modal-month-status');
+      if (modal) modal.classList.remove('is-active');
+
+      this.showToast(`Mês ${this.activeMonthIndex}/${yr} ${currentlyScheduled ? 'desmarcado' : 'agendado'} com sucesso!`, 'success');
+    } catch (err) {
+      this.showToast('Erro ao atualizar agendamento no banco: ' + err.message, 'danger');
+    }
   }
 
   async handleSaveMonthStatus() {
@@ -1714,6 +1852,15 @@ class BoulevardMaintenanceApp {
     const modal = document.getElementById('modal-new-system');
     const form = document.getElementById('form-new-system');
     if (form) form.reset();
+
+    // Seleciona todos os meses por padrão
+    const gridCheckboxes = document.querySelectorAll('#new-sys-months-grid input[type="checkbox"]');
+    gridCheckboxes.forEach(cb => {
+      cb.checked = true;
+      const card = cb.closest('.month-checkbox-card');
+      if (card) card.classList.add('is-selected');
+    });
+
     if (modal) modal.classList.add('is-active');
   }
 
@@ -1736,6 +1883,28 @@ class BoulevardMaintenanceApp {
       INCENDIO: 'PREVENÇÃO CONTRA INCÊNDIO'
     };
 
+    // Lê os meses marcados no grid de agendamento do cadastro
+    const monthsObj = {};
+    const gridCheckboxes = document.querySelectorAll('#new-sys-months-grid input[type="checkbox"]');
+    if (gridCheckboxes.length > 0) {
+      gridCheckboxes.forEach(cb => {
+        const m = parseInt(cb.value, 10);
+        if (cb.checked) {
+          monthsObj[m] = {
+            scheduled: true,
+            status: 'SCHEDULED',
+            documents: []
+          };
+        }
+      });
+    } else {
+      // Fallback: todos os 12 meses agendados
+      for (let m = 1; m <= 12; m++) {
+        monthsObj[m] = { scheduled: true, status: 'SCHEDULED', documents: [] };
+      }
+    }
+
+    const yr = String(this.currentYear || '2026');
     const newSys = {
       id: `sys-${Date.now()}`,
       category: cat,
@@ -1747,7 +1916,11 @@ class BoulevardMaintenanceApp {
       standards: 'Normas ABNT aplicáveis e diretrizes do Boulevard Shopping',
       description: desc || 'Rotinas preventivas do sistema.',
       pmoc: { attached: false },
-      months: {}
+      equipamentoParado: { isParado: false, maquina: '', motivo: '', dataParada: '', previsaoRetorno: '', observacao: '' },
+      months: monthsObj,
+      years: {
+        [yr]: { months: monthsObj }
+      }
     };
 
     try {
@@ -1758,7 +1931,7 @@ class BoulevardMaintenanceApp {
       this.db.logOperation(
         'CRIAR_SISTEMA',
         'create',
-        `Novo sistema "${name}" (${period}) cadastrado no setor ${catNames[cat] || cat}.`,
+        `Novo sistema "${name}" (${period}) cadastrado no setor ${catNames[cat] || cat} com manutenção agendada para ${Object.keys(monthsObj).length} mês(es).`,
         this.auth.getCurrentUser()
       );
 
@@ -1884,6 +2057,347 @@ class BoulevardMaintenanceApp {
   isAnyModalOpen() {
     const modals = document.querySelectorAll('.modal.is-active, .modal-custom.is-active');
     return modals.length > 0;
+  }
+
+  /* ==========================================================================
+     10. Presets de Agendamento, Máquina Parada & Filtros Multi-Select
+     ========================================================================== */
+  setupNewSystemSchedulePresets() {
+    const grid = document.getElementById('new-sys-months-grid');
+    if (!grid) return;
+
+    // Alterna visual dos cards ao marcar/desmarcar
+    grid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const card = cb.closest('.month-checkbox-card');
+        if (card) {
+          if (cb.checked) card.classList.add('is-selected');
+          else card.classList.remove('is-selected');
+        }
+      });
+    });
+
+    const setMonths = (predicate) => {
+      grid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        const m = parseInt(cb.value, 10);
+        cb.checked = predicate(m);
+        const card = cb.closest('.month-checkbox-card');
+        if (card) {
+          if (cb.checked) card.classList.add('is-selected');
+          else card.classList.remove('is-selected');
+        }
+      });
+    };
+
+    const btnAll = document.getElementById('btn-preset-all-months');
+    const btnBi = document.getElementById('btn-preset-bimestral');
+    const btnTri = document.getElementById('btn-preset-trimestral');
+    const btnSem = document.getElementById('btn-preset-semestral');
+    const btnAnual = document.getElementById('btn-preset-anual');
+    const btnClear = document.getElementById('btn-preset-clear-months');
+
+    if (btnAll) btnAll.addEventListener('click', () => setMonths(() => true));
+    if (btnBi) btnBi.addEventListener('click', () => setMonths(m => m % 2 === 0));
+    if (btnTri) btnTri.addEventListener('click', () => setMonths(m => m % 3 === 0));
+    if (btnSem) btnSem.addEventListener('click', () => setMonths(m => m === 6 || m === 12));
+    if (btnAnual) btnAnual.addEventListener('click', () => setMonths(m => m === 12));
+    if (btnClear) btnClear.addEventListener('click', () => setMonths(() => false));
+  }
+
+  openMaquinaModal(systemId) {
+    const system = this.systems.find(s => s.id === systemId);
+    if (!system) return;
+
+    this.activeSystemId = systemId;
+    const modal = document.getElementById('modal-maquina-parada');
+    if (!modal) return;
+
+    const idInput = document.getElementById('maquina-system-id');
+    const nameEl = document.getElementById('maquina-system-name');
+    const catEl = document.getElementById('maquina-system-category');
+    const cbParada = document.getElementById('maquina-is-parada');
+    const detailsContainer = document.getElementById('maquina-details-fields');
+    const inputNome = document.getElementById('maquina-nome');
+    const inputMotivo = document.getElementById('maquina-motivo');
+    const inputData = document.getElementById('maquina-data-parada');
+    const inputPrevisao = document.getElementById('maquina-previsao-retorno');
+    const inputObs = document.getElementById('maquina-observacao');
+
+    if (idInput) idInput.value = system.id;
+    if (nameEl) nameEl.textContent = system.name;
+    if (catEl) catEl.textContent = system.categoryName || system.category;
+
+    const eq = system.equipamentoParado || {};
+    const isParado = Boolean(eq.isParado);
+
+    if (cbParada) cbParada.checked = isParado;
+    if (detailsContainer) detailsContainer.style.display = isParado ? 'block' : 'none';
+
+    if (inputNome) inputNome.value = eq.maquina || '';
+    if (inputMotivo) inputMotivo.value = eq.motivo || '';
+    if (inputData) inputData.value = eq.dataParada || '';
+    if (inputPrevisao) inputPrevisao.value = eq.previsaoRetorno || '';
+    if (inputObs) inputObs.value = eq.observacao || '';
+
+    modal.classList.add('is-active');
+  }
+
+  async handleSaveMaquinaStatus() {
+    const system = this.systems.find(s => s.id === this.activeSystemId);
+    if (!system) return;
+
+    const cbParada = document.getElementById('maquina-is-parada');
+    const isParado = Boolean(cbParada && cbParada.checked);
+
+    const inputNome = document.getElementById('maquina-nome');
+    const inputMotivo = document.getElementById('maquina-motivo');
+    const inputData = document.getElementById('maquina-data-parada');
+    const inputPrevisao = document.getElementById('maquina-previsao-retorno');
+    const inputObs = document.getElementById('maquina-observacao');
+
+    if (isParado && (!inputNome || !inputNome.value.trim())) {
+      this.showToast('Por favor, informe a identificação da máquina/equipamento parada.', 'warning');
+      if (inputNome) inputNome.focus();
+      return;
+    }
+
+    system.equipamentoParado = {
+      isParado: isParado,
+      maquina: isParado && inputNome ? inputNome.value.trim() : '',
+      motivo: isParado && inputMotivo ? inputMotivo.value.trim() : '',
+      dataParada: isParado && inputData ? inputData.value : '',
+      previsaoRetorno: isParado && inputPrevisao ? inputPrevisao.value : '',
+      observacao: isParado && inputObs ? inputObs.value.trim() : '',
+      updatedAt: new Date().toISOString(),
+      updatedBy: (this.auth.getCurrentUser() && this.auth.getCurrentUser().name) || 'Operador'
+    };
+
+    const saveBtn = document.getElementById('btn-save-maquina');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Salvando no MariaDB...';
+    }
+
+    try {
+      await this.db.saveSingleSystem(system);
+
+      this.db.logOperation(
+        'STATUS_OPERACIONAL',
+        'update',
+        isParado
+          ? `Máquina parada informada no sistema "${system.name}": ${system.equipamentoParado.maquina} (${system.equipamentoParado.motivo || 'Sem motivo'}).`
+          : `Sistema "${system.name}" restabelecido como 100% operacional.`,
+        this.auth.getCurrentUser()
+      );
+
+      this.updateKPIs();
+      this.renderTableOnly();
+
+      const modal = document.getElementById('modal-maquina-parada');
+      if (modal) modal.classList.remove('is-active');
+
+      this.showToast(
+        isParado ? '⚠️ Status de máquina parada registrado com sucesso!' : '✅ Sistema registrado como 100% operacional!',
+        'success'
+      );
+    } catch (err) {
+      this.showToast('Erro ao salvar no MariaDB: ' + err.message, 'danger');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Salvar Status Operacional';
+      }
+    }
+  }
+
+  initMultiSelectFilters() {
+    // 1. Populando opções de Disciplina / Setor
+    const catList = document.getElementById('list-filter-category');
+    if (catList) {
+      const categories = [
+        { id: 'AR_CONDICIONADO', label: 'Ar Condicionado' },
+        { id: 'ELETRICA', label: 'Elétrica / Sistemas Críticos' },
+        { id: 'INCENDIO', label: 'Prevenção Contra Incêndio' },
+        { id: 'ELEVADORES', label: 'Elevadores e Escadas' },
+        { id: 'HIDRAULICO', label: 'Hidráulica' },
+        { id: 'GAS', label: 'Gás' },
+        { id: 'ESTRUTURAL', label: 'Estrutural' }
+      ];
+      catList.innerHTML = categories.map(cat => `
+        <label class="multi-option-item">
+          <input type="checkbox" class="cb-filter-category" value="${cat.id}">
+          <span>${cat.label}</span>
+        </label>
+      `).join('');
+    }
+
+    // 2. Populando opções de Status PMOC
+    const pmocList = document.getElementById('list-filter-pmoc');
+    if (pmocList) {
+      const pmocOptions = [
+        { id: 'REQUIRED_ATTACHED', label: '🟢 Inserido sem Pendência' },
+        { id: 'REQUIRED_NOT_INSERTED', label: '🔴 Documentação Não Inserida' },
+        { id: 'REQUIRED_EXPIRED', label: '🟠 Validade Vencida' },
+        { id: 'NOT_REQUIRED', label: '⚪ Não Aplicável' }
+      ];
+      pmocList.innerHTML = pmocOptions.map(p => `
+        <label class="multi-option-item">
+          <input type="checkbox" class="cb-filter-pmoc" value="${p.id}">
+          <span>${p.label}</span>
+        </label>
+      `).join('');
+    }
+
+    // 3. Populando opções de Periodicidade
+    const periodList = document.getElementById('list-filter-periodicity');
+    if (periodList) {
+      const periods = ['Mensal', 'Bimestral', 'Trimestral', 'Semestral', 'Anual', 'Conforme Demanda'];
+      periodList.innerHTML = periods.map(p => `
+        <label class="multi-option-item">
+          <input type="checkbox" class="cb-filter-periodicity" value="${p}">
+          <span>${p}</span>
+        </label>
+      `).join('');
+    }
+
+    // Dropdown toggle
+    const setupDropdown = (toggleBtnId, menuId) => {
+      const btn = document.getElementById(toggleBtnId);
+      const menu = document.getElementById(menuId);
+      if (!btn || !menu) return;
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = menu.classList.contains('is-open');
+        document.querySelectorAll('.multi-dropdown-menu.is-open').forEach(m => {
+          if (m !== menu) m.classList.remove('is-open');
+        });
+        if (!isOpen) {
+          menu.classList.add('is-open');
+        } else {
+          menu.classList.remove('is-open');
+        }
+      });
+    };
+
+    setupDropdown('btn-toggle-filter-category', 'menu-filter-category');
+    setupDropdown('btn-toggle-filter-pmoc', 'menu-filter-pmoc');
+    setupDropdown('btn-toggle-filter-periodicity', 'menu-filter-periodicity');
+    setupDropdown('btn-toggle-filter-maquina', 'menu-filter-maquina');
+
+    // Fechar dropdowns ao clicar fora
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.multi-select-wrapper')) {
+        document.querySelectorAll('.multi-dropdown-menu.is-open').forEach(m => m.classList.remove('is-open'));
+      }
+    });
+
+    // Sincronização dos Filtros e Labels
+    const updateCategoryFilter = () => {
+      const cbs = document.querySelectorAll('.cb-filter-category:checked');
+      const label = document.getElementById('label-filter-category');
+      this.filters.categories = Array.from(cbs).map(cb => cb.value);
+      if (label) {
+        if (this.filters.categories.length === 0) label.textContent = 'Todas';
+        else if (this.filters.categories.length === 1) label.textContent = cbs[0].nextElementSibling.textContent;
+        else label.textContent = `${this.filters.categories.length} selecionadas`;
+      }
+      this.renderTableOnly();
+    };
+
+    const updatePmocFilter = () => {
+      const cbs = document.querySelectorAll('.cb-filter-pmoc:checked');
+      const label = document.getElementById('label-filter-pmoc');
+      this.filters.pmocStatuses = Array.from(cbs).map(cb => cb.value);
+      if (label) {
+        if (this.filters.pmocStatuses.length === 0) label.textContent = 'Todos';
+        else if (this.filters.pmocStatuses.length === 1) label.textContent = cbs[0].nextElementSibling.textContent.replace(/^[^\w\s]+\s*/, '');
+        else label.textContent = `${this.filters.pmocStatuses.length} selecionados`;
+      }
+      this.renderTableOnly();
+    };
+
+    const updatePeriodFilter = () => {
+      const cbs = document.querySelectorAll('.cb-filter-periodicity:checked');
+      const label = document.getElementById('label-filter-periodicity');
+      this.filters.periodicities = Array.from(cbs).map(cb => cb.value);
+      if (label) {
+        if (this.filters.periodicities.length === 0) label.textContent = 'Todas';
+        else if (this.filters.periodicities.length === 1) label.textContent = cbs[0].nextElementSibling.textContent;
+        else label.textContent = `${this.filters.periodicities.length} selecionadas`;
+      }
+      this.renderTableOnly();
+    };
+
+    const updateMaquinaFilter = () => {
+      const cbs = document.querySelectorAll('.cb-filter-maquina:checked');
+      const label = document.getElementById('label-filter-maquina');
+      const totalCbs = document.querySelectorAll('.cb-filter-maquina').length;
+      if (cbs.length === 0 || cbs.length === totalCbs) {
+        this.filters.machineStatuses = [];
+        if (label) label.textContent = 'Todas';
+      } else {
+        this.filters.machineStatuses = Array.from(cbs).map(cb => cb.value);
+        if (label) {
+          label.textContent = this.filters.machineStatuses.includes('STOPPED') ? '🔴 Paradas' : '🟢 Operacionais';
+        }
+      }
+      this.renderTableOnly();
+    };
+
+    // Listeners nos checkboxes
+    document.querySelectorAll('.cb-filter-category').forEach(cb => cb.addEventListener('change', updateCategoryFilter));
+    document.querySelectorAll('.cb-filter-pmoc').forEach(cb => cb.addEventListener('change', updatePmocFilter));
+    document.querySelectorAll('.cb-filter-periodicity').forEach(cb => cb.addEventListener('change', updatePeriodFilter));
+    document.querySelectorAll('.cb-filter-maquina').forEach(cb => cb.addEventListener('change', updateMaquinaFilter));
+
+    // Ações de Todas / Limpar
+    const setAllCheckboxes = (selector, checked, callback) => {
+      document.querySelectorAll(selector).forEach(cb => cb.checked = checked);
+      callback();
+    };
+
+    const btnAllCat = document.getElementById('btn-all-categories');
+    const btnNoneCat = document.getElementById('btn-none-categories');
+    if (btnAllCat) btnAllCat.addEventListener('click', () => setAllCheckboxes('.cb-filter-category', true, updateCategoryFilter));
+    if (btnNoneCat) btnNoneCat.addEventListener('click', () => setAllCheckboxes('.cb-filter-category', false, updateCategoryFilter));
+
+    const btnAllPmoc = document.getElementById('btn-all-pmoc');
+    const btnNonePmoc = document.getElementById('btn-none-pmoc');
+    if (btnAllPmoc) btnAllPmoc.addEventListener('click', () => setAllCheckboxes('.cb-filter-pmoc', true, updatePmocFilter));
+    if (btnNonePmoc) btnNonePmoc.addEventListener('click', () => setAllCheckboxes('.cb-filter-pmoc', false, updatePmocFilter));
+
+    const btnAllPer = document.getElementById('btn-all-periodicity');
+    const btnNonePer = document.getElementById('btn-none-periodicity');
+    if (btnAllPer) btnAllPer.addEventListener('click', () => setAllCheckboxes('.cb-filter-periodicity', true, updatePeriodFilter));
+    if (btnNonePer) btnNonePer.addEventListener('click', () => setAllCheckboxes('.cb-filter-periodicity', false, updatePeriodFilter));
+
+    // Reset geral de filtros
+    const btnReset = document.getElementById('btn-reset-filters');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        document.querySelectorAll('.cb-filter-category, .cb-filter-pmoc, .cb-filter-periodicity').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.cb-filter-maquina').forEach(cb => cb.checked = true);
+        const searchInput = document.getElementById('filter-search');
+        const btnClear = document.getElementById('btn-clear-search');
+        if (searchInput) searchInput.value = '';
+        if (btnClear) btnClear.style.display = 'none';
+
+        this.filters = { search: '', categories: [], pmocStatuses: [], periodicities: [], machineStatuses: [] };
+
+        const labelCat = document.getElementById('label-filter-category');
+        const labelPmoc = document.getElementById('label-filter-pmoc');
+        const labelPer = document.getElementById('label-filter-periodicity');
+        const labelMaq = document.getElementById('label-filter-maquina');
+
+        if (labelCat) labelCat.textContent = 'Todas';
+        if (labelPmoc) labelPmoc.textContent = 'Todos';
+        if (labelPer) labelPer.textContent = 'Todas';
+        if (labelMaq) labelMaq.textContent = 'Todas';
+
+        this.renderTableOnly();
+      });
+    }
   }
 
   setupSyncListeners() {

@@ -190,17 +190,17 @@ export async function authenticateWithAD(username, password) {
 
           console.log(`[LDAP] Verificação de autorização: isSysAdmin=${isSysAdmin}, isSysUser=${isSysUser}`);
 
-          // BLOQUEIO ESTRITO E INCONDICIONAL: Apenas membros de BSFS_OPE_SYSADMIN ou BSFS_OPE_SYSUSER têm permissão
+          // BLOQUEIO ESTRITO: Apenas membros autorizados têm permissão
           if (!isSysAdmin && !isSysUser) {
-            console.warn(`[LDAP] ACESSO NEGADO ESTRITO: Usuário "${cleanUser}" (${displayName}) não pertence aos grupos autorizados (${adminGroup} ou ${userGroup})`);
+            console.warn(`[LDAP] ACESSO NEGADO: Usuário "${cleanUser}" (${displayName}) não possui autorização nos grupos permitidos.`);
             return resolve({
               success: false,
-              error: `Acesso negado: o usuário "${displayName}" (${cleanUser}) não pertence aos grupos autorizados (${userGroup} ou ${adminGroup}) no Active Directory.`
+              error: `Acesso negado: o usuário "${cleanUser}" não possui autorização para acessar o sistema. Solicite permissão à equipe técnica/administração.`
             });
           }
 
           const role = isSysAdmin ? 'SUPERADMIN' : 'USER';
-          const roleLabel = isSysAdmin ? 'Superadmin (AD)' : 'User (AD)';
+          const roleLabel = isSysAdmin ? 'Administrador' : 'Operador';
           const canDelete = isSysAdmin;
 
           console.log(`[LDAP] Login concluído e autorizado para ${cleanUser} [Perfil: ${role}]`);
@@ -216,8 +216,7 @@ export async function authenticateWithAD(username, password) {
               roleLabel: roleLabel,
               canDelete: canDelete,
               canInsert: true,
-              authSource: 'AD_LDAP',
-              groups: memberOf
+              authSource: 'AD_LDAP'
             }
           });
         });

@@ -17,12 +17,25 @@ class AuthService {
     };
 
     this.users = this.loadUsers();
+    // Exclui qualquer registro legado de mock/teste
+    if (this.users && (this.users['emily.farias'] || this.users['emily'])) {
+      delete this.users['emily.farias'];
+      delete this.users['emily'];
+      this.saveUsers();
+    }
 
     // Carrega usuário salvo da sessão
     const savedUser = localStorage.getItem('auth_current_user');
     if (savedUser) {
       try {
-        this.currentUser = JSON.parse(savedUser);
+        const parsed = JSON.parse(savedUser);
+        if (parsed && (parsed.id === 'emily.farias' || parsed.id === 'emily' || (parsed.name && parsed.name.toLowerCase().includes('emily')))) {
+          this.currentUser = null;
+          localStorage.removeItem('auth_current_user');
+          localStorage.removeItem('auth_token');
+        } else {
+          this.currentUser = parsed;
+        }
       } catch (e) {
         this.currentUser = null;
       }

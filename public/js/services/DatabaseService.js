@@ -168,7 +168,7 @@ class DatabaseService {
         id: `log-${Date.now()}`,
         timestamp: timestamp,
         user: (user && (user.email || user.username || user.name)) || 'sistema@boulevardfs.com.br',
-        group: (user && (user.role || user.primaryRole || user.group)) || 'BSFS_OPE_SYSUSER',
+        group: (user && (user.roleLabel || user.role)) || 'Operador',
         action: action,
         actionType: actionType, // 'create', 'update', 'delete'
         details: detailsFinal

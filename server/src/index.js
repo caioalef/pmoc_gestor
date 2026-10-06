@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { getPool, initDatabase } from './db.js';
 import { authenticateWithAD } from './ldap.js';
 import { checkAndSeedDatabase } from './seed.js';
+import { sendEmail, verifySmtpConnection, sendDeadlineAlert, isEmailConfigured } from './email.js';
 
 dotenv.config();
 
@@ -51,7 +52,7 @@ function requireCanDelete(req, res, next) {
     return res.status(401).json({ error: 'Acesso não autorizado. É necessário estar autenticado no sistema com usuário de rede.' });
   }
   if (!req.user.canDelete && req.user.role !== 'SUPERADMIN') {
-    return res.status(403).json({ error: 'Acesso negado: apenas administradores do grupo BSFS_OPE_SYSADMIN podem excluir informações.' });
+    return res.status(403).json({ error: 'Acesso negado: apenas administradores possuem permissão para excluir informações.' });
   }
   next();
 }
@@ -328,7 +329,7 @@ app.post('/api/audit-logs', requireAuth, async (req, res) => {
         id,
         timestamp,
         log.user || (req.user && req.user.email) || 'anonimo@boulevardfs.com.br',
-        log.group || (req.user && req.user.role) || 'BSFS_OPE_SYSUSER',
+        log.group || (req.user && (req.user.roleLabel || req.user.role)) || 'Operador',
         log.action,
         log.actionType || 'update',
         log.details || ''
@@ -371,13 +372,72 @@ app.get('/api/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     mariaDB: dbStatus,
     activeDirectory: {
-      host: process.env.AD_HOST || '10.10.19.2',
-      port: process.env.AD_PORT || 389,
-      domain: process.env.AD_DOMAIN || 'BSFS.LOCAL',
-      userGroup: process.env.AD_USER_GROUP || 'BSFS_OPE_SYSUSER',
-      adminGroup: process.env.AD_ADMIN_GROUP || 'BSFS_OPE_SYSADMIN'
+      status: process.env.AD_HOST ? 'configured' : 'not_configured'
+    },
+    emailService: {
+      configured: isEmailConfigured()
     }
   });
+});
+
+/* ==========================================================================
+   Rotas do Serviço de Envio de E-mails (Alertas de Prazos e Notificações)
+   ========================================================================== */
+app.get('/api/email/status', async (req, res) => {
+  const result = await verifySmtpConnection();
+  res.json(result);
+});
+
+app.post('/api/email/test', requireAuth, async (req, res) => {
+  const { to } = req.body;
+  const targetEmail = to || (req.user && req.user.email);
+
+  if (!targetEmail) {
+    return res.status(400).json({ error: 'E-mail destinatário não informado.' });
+  }
+
+  try {
+    const info = await sendEmail({
+      to: targetEmail,
+      subject: '[PMOC Gestor 360] Teste de Conexão do Serviço de E-mail',
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
+          <h2 style="color: #9f1239;">PMOC Gestor 360 - Boulevard Shopping</h2>
+          <p>Este é um e-mail de teste para verificar a integração do serviço SMTP.</p>
+          <p><strong>Status:</strong> Serviço de e-mail ativo e operacional!</p>
+          <p style="font-size: 12px; color: #64748b;">Enviado por solicitação de: ${req.user.name || req.user.username}</p>
+        </div>
+      `
+    });
+    res.json({ success: true, message: `E-mail de teste enviado para ${targetEmail}`, messageId: info.messageId });
+  } catch (err) {
+    console.error('[API Email Test Error]:', err.message);
+    res.status(500).json({ error: `Falha ao enviar e-mail: ${err.message}` });
+  }
+});
+
+app.post('/api/email/deadline-alert', requireAuth, async (req, res) => {
+  const { to, systemName, systemCategory, periodicity, dueDate, daysRemaining, observations } = req.body;
+
+  if (!to || !systemName) {
+    return res.status(400).json({ error: 'Parâmetros obrigatórios ausentes (to, systemName).' });
+  }
+
+  try {
+    const info = await sendDeadlineAlert({
+      to,
+      systemName,
+      systemCategory,
+      periodicity,
+      dueDate,
+      daysRemaining,
+      observations
+    });
+    res.json({ success: true, message: `Alerta de prazo enviado com sucesso para ${to}.`, messageId: info.messageId });
+  } catch (err) {
+    console.error('[API Deadline Alert Error]:', err.message);
+    res.status(500).json({ error: `Falha ao enviar alerta de prazo: ${err.message}` });
+  }
 });
 
 /* ==========================================================================

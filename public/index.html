@@ -25,16 +25,16 @@
         <span class="logo-sub-text">Shopping</span>
       </div>
       <h2 class="login-title">Acesso ao Sistema</h2>
-      <p class="login-subtitle">Gestão de Manutenção & PMOC • Domínio BSFS.LOCAL</p>
+      <p class="login-subtitle">Gestão de Manutenção & PMOC • Boulevard Shopping</p>
       
       <form id="login-form">
         <div class="form-group-field">
-          <label for="login-username" class="field-label">Usuário de Rede (AD)</label>
-          <input type="text" id="login-username" class="form-input" placeholder="ex: usuario ou usuario@bsfs.local" required>
+          <label for="login-username" class="field-label">Usuário de Rede</label>
+          <input type="text" id="login-username" class="form-input" placeholder="ex: usuario.rede" required>
         </div>
         <div class="form-group-field">
-          <label for="login-password" class="field-label">Senha de Rede (AD)</label>
-          <input type="password" id="login-password" class="form-input" placeholder="Sua senha do Windows / Domínio" required>
+          <label for="login-password" class="field-label">Senha de Rede</label>
+          <input type="password" id="login-password" class="form-input" placeholder="Sua senha de rede corporativa" required>
         </div>
         <div id="login-error" class="login-error" style="display:none; color: #EF4444; margin-bottom: 15px; font-size: 0.9em;">
           Usuário ou senha incorretos.
@@ -233,10 +233,33 @@
           </div>
         </div>
 
+        <!-- KPI 4: Status Operacional / Máquinas Paradas -->
+        <div class="kpi-card" id="kpi-card-maquinas">
+          <div class="kpi-header">
+            <span class="kpi-title">Status Operacional</span>
+            <span class="kpi-badge" id="kpi-maquinas-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">100% Ativo</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-main-stat">
+              <span class="kpi-value text-emerald" id="kpi-maquinas-paradas-count">0</span>
+              <span class="kpi-sub">Máquinas Paradas</span>
+            </div>
+            <div class="kpi-mini-grid">
+              <div class="mini-stat">
+                <span class="mini-label">Sistemas com Parada:</span>
+                <span class="mini-val text-red" id="kpi-sistemas-parados-count">0</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Sistemas Operacionais:</span>
+                <span class="mini-val text-emerald" id="kpi-sistemas-operacionais-count">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
       </section>
 
-      <!-- Barra de Filtros e Busca Rápida -->
+      <!-- Barra de Filtros e Busca Rápida com Múltipla Seleção -->
       <section class="filters-toolbar" aria-label="Filtros da planilha">
         <div class="search-box">
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -248,46 +271,79 @@
         </div>
 
         <div class="filter-controls-group">
-          <!-- Filtro de Categoria -->
-          <div class="filter-item">
-            <label for="filter-category" class="filter-label">Disciplina / Setor:</label>
-            <select id="filter-category" class="filter-select">
-              <option value="ALL">Todas as Disciplinas</option>
-              <option value="AR_CONDICIONADO">Ar Condicionado</option>
-              <option value="ELÉTRICO">Elétrico</option>
-              <option value="PREVENÇÃO_CONTRA_INCÊNDIO">Prevenção Contra Incêndio</option>
-              <option value="GÁS">Gás</option>
-              <option value="ESTRUTURAL">Estrutural</option>
-              <option value="HIDRÁULICO">Hidráulico / Hidrossanitárias</option>
-              <option value="ELEVADORES">Elevadores e Escadas Rolantes</option>
-            </select>
+          <!-- Multi-select: Disciplina / Setor -->
+          <div class="filter-item multi-select-wrapper" id="wrapper-filter-category">
+            <button type="button" class="multi-select-btn" id="btn-toggle-filter-category">
+              <span class="multi-label">Disciplina:</span>
+              <span class="multi-val" id="label-filter-category">Todas</span>
+              <span class="multi-arrow">▾</span>
+            </button>
+            <div class="multi-dropdown-menu" id="menu-filter-category">
+              <div class="multi-dropdown-actions">
+                <button type="button" class="btn-xs-text" id="btn-all-categories">Todas</button>
+                <button type="button" class="btn-xs-text" id="btn-none-categories">Limpar</button>
+              </div>
+              <div class="multi-dropdown-list" id="list-filter-category">
+                <!-- Checkboxes populados dinamicamente via JS -->
+              </div>
+            </div>
           </div>
 
-          <!-- Filtro de Status PMOC/ART -->
-          <div class="filter-item">
-            <label for="filter-pmoc" class="filter-label">Status PMOC/ART:</label>
-            <select id="filter-pmoc" class="filter-select">
-              <option value="ALL">Todos os Status</option>
-              <option value="REQUIRED_NOT_INSERTED">🟥 Não Inserida (Vermelho)</option>
-              <option value="REQUIRED_ATTACHED">🟩 Inserida sem pendência (Verde)</option>
-              <option value="REQUIRED_EXPIRED">🟧 Validade Vencida (Laranja)</option>
-              <option value="NOT_REQUIRED">⬜ Não exigido (Cinza)</option>
-            </select>
+          <!-- Multi-select: Status PMOC/ART -->
+          <div class="filter-item multi-select-wrapper" id="wrapper-filter-pmoc">
+            <button type="button" class="multi-select-btn" id="btn-toggle-filter-pmoc">
+              <span class="multi-label">Status PMOC:</span>
+              <span class="multi-val" id="label-filter-pmoc">Todos</span>
+              <span class="multi-arrow">▾</span>
+            </button>
+            <div class="multi-dropdown-menu" id="menu-filter-pmoc">
+              <div class="multi-dropdown-actions">
+                <button type="button" class="btn-xs-text" id="btn-all-pmoc">Todos</button>
+                <button type="button" class="btn-xs-text" id="btn-none-pmoc">Limpar</button>
+              </div>
+              <div class="multi-dropdown-list" id="list-filter-pmoc">
+                <!-- Checkboxes populados dinamicamente via JS -->
+              </div>
+            </div>
           </div>
 
-          <!-- Filtro de Periodicidade -->
-          <div class="filter-item">
-            <label for="filter-periodicity" class="filter-label">Periodicidade:</label>
-            <select id="filter-periodicity" class="filter-select">
-              <option value="ALL">Todas</option>
-              <option value="Mensal">Mensal</option>
-              <option value="Bimestral">Bimestral</option>
-              <option value="Trimestral">Trimestral</option>
-              <option value="Quadrimestral">Quadrimestral</option>
-              <option value="Semestral">Semestral</option>
-              <option value="Anual">Anual</option>
-              <option value="Conforme Instrutivo">Conforme Instrutivo</option>
-            </select>
+          <!-- Multi-select: Periodicidade -->
+          <div class="filter-item multi-select-wrapper" id="wrapper-filter-periodicity">
+            <button type="button" class="multi-select-btn" id="btn-toggle-filter-periodicity">
+              <span class="multi-label">Periodicidade:</span>
+              <span class="multi-val" id="label-filter-periodicity">Todas</span>
+              <span class="multi-arrow">▾</span>
+            </button>
+            <div class="multi-dropdown-menu" id="menu-filter-periodicity">
+              <div class="multi-dropdown-actions">
+                <button type="button" class="btn-xs-text" id="btn-all-periodicity">Todas</button>
+                <button type="button" class="btn-xs-text" id="btn-none-periodicity">Limpar</button>
+              </div>
+              <div class="multi-dropdown-list" id="list-filter-periodicity">
+                <!-- Checkboxes populados dinamicamente via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-select: Status Operacional (Máquina Parada) -->
+          <div class="filter-item multi-select-wrapper" id="wrapper-filter-maquina">
+            <button type="button" class="multi-select-btn" id="btn-toggle-filter-maquina">
+              <span class="multi-label">Operação:</span>
+              <span class="multi-val" id="label-filter-maquina">Todas</span>
+              <span class="multi-arrow">▾</span>
+            </button>
+            <div class="multi-dropdown-menu" id="menu-filter-maquina">
+              <div class="multi-dropdown-list" id="list-filter-maquina">
+                <label class="multi-option-item">
+                  <input type="checkbox" class="cb-filter-maquina" value="OPERATIONAL" checked>
+                  <span>🟢 Máquinas Operacionais</span>
+                </label>
+                <label class="multi-option-item">
+                  <input type="checkbox" class="cb-filter-maquina" value="STOPPED" checked>
+                  <span>🔴 Máquinas Paradas</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <!-- Resetar Filtros -->
@@ -580,7 +636,7 @@
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
-                <span>Desanexar Arquivos (Requer BSFS_OPE_SYSADMIN)</span>
+                <span>Desanexar Arquivos (Requer Administrador)</span>
               </button>
             </div>
           </div>
@@ -739,9 +795,9 @@
                 </svg>
               </div>
               <div class="auth-lock-content">
-                <strong>Ação Restrita ao Grupo BSFS_OPE_SYSADMIN</strong>
+                <strong>Ação Restrita a Administradores</strong>
                 <p id="auth-action-description">
-                  O usuário logado possui perfil de inserção (<code>BSFS_OPE_SYSUSER</code>). A exclusão de sistemas ou remoção de comprovações de PMOC/ART afeta a conformidade legal do shopping e requer a aprovação expressa de um administrador de operações.
+                  A exclusão de sistemas ou remoção de comprovações de PMOC/ART afeta a conformidade legal do shopping e requer a aprovação de um administrador de operações.
                 </p>
               </div>
             </div>
@@ -750,20 +806,17 @@
               <span class="auth-admin-badge">🔐 Validação de Credencial Administrativa</span>
               
               <div class="form-group-field">
-                <label for="admin-auth-user" class="field-label">Administrador Autorizador (AD):</label>
-                <select id="admin-auth-user" class="form-select">
-                  <option value="emily.farias@boulevardfs.com.br">Emily Farias (emily.farias@boulevardfs.com.br - BSFS_OPE_SYSADMIN)</option>
-                  <option value="gestor.predial@boulevardfs.com.br">Gestor Predial (gestor.predial@boulevardfs.com.br - BSFS_OPE_SYSADMIN)</option>
-                </select>
+                <label for="admin-auth-user" class="field-label">Usuário Administrador (Login de Rede): *</label>
+                <input type="text" id="admin-auth-user" class="form-input" placeholder="Digite seu usuário de rede" required>
               </div>
 
               <div class="form-group-field">
-                <label for="admin-auth-pin" class="field-label">PIN ou Senha de Autorização do SYSADMIN: *</label>
-                <input type="password" id="admin-auth-pin" class="form-input" placeholder="Digite o PIN (Dica para teste: ADMIN123)" required>
+                <label for="admin-auth-pin" class="field-label">Senha / PIN do Administrador: *</label>
+                <input type="password" id="admin-auth-pin" class="form-input" placeholder="Digite sua senha de rede de administrador" required>
               </div>
 
               <div class="form-group-field">
-                <label for="admin-auth-reason" class="field-label">Justificativa da Exclusão para Log de Auditoria:</label>
+                <label for="admin-auth-reason" class="field-label">Justificativa da Exclusão para Log de Auditoria: *</label>
                 <input type="text" id="admin-auth-reason" class="form-input" placeholder="Ex: Equipamento desativado ou reestruturação de planta" required>
               </div>
             </div>
@@ -781,75 +834,76 @@
   </div>
 
   <!-- ==========================================================================
-       MODAL 3: ALTERNAR USUÁRIO / SESSÃO DO ACTIVE DIRECTORY (Simulador de Teste)
+       MODAL 3: INFORMAR MÁQUINA PARADA / STATUS OPERACIONAL
        ========================================================================== -->
-  <div id="modal-switch-ad-user" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="switch-user-modal-title">
+  <div id="modal-maquina-parada" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="maquina-parada-title">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <div class="modal-header-icon-wrap icon-peach">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          <div class="modal-header-icon-wrap icon-amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
           </div>
           <div class="modal-header-text">
-            <div class="modal-pre-title">ACTIVE DIRECTORY & CONTROLE DE ACESSO</div>
-            <h3 class="modal-title" id="switch-user-modal-title">Alternar Conta do Active Directory</h3>
+            <div class="modal-pre-title">STATUS OPERACIONAL DO ATIVO</div>
+            <h3 class="modal-title" id="maquina-parada-title">Controle de Máquina Parada</h3>
           </div>
-          <button type="button" class="btn-close-modal" id="btn-close-switch-modal" aria-label="Fechar modal">&times;</button>
+          <button type="button" class="btn-close-modal" id="btn-close-maquina-modal" aria-label="Fechar modal">&times;</button>
         </div>
 
-        <div class="modal-body">
-          <p style="font-size: 0.85rem; color: var(--text-secondary);">
-            Selecione uma das contas do domínio <code>boulevardfs.com.br</code> para testar e homologar as regras de acesso e permissões:
-          </p>
+        <form id="form-maquina-parada">
+          <input type="hidden" id="maquina-system-id">
+          <div class="modal-body">
+            <div class="status-system-card" id="maquina-system-banner" style="background: var(--bg-elevated); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+              <h4 id="maquina-system-name" style="margin: 0; font-size: 1rem; color: var(--text-primary);">Nome do Sistema</h4>
+              <p id="maquina-system-category" style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-secondary);">Categoria</p>
+            </div>
 
-          <div class="status-options-grid">
-            <!-- Conta 1: SYSADMIN -->
-            <label class="status-option-card">
-              <input type="radio" name="ad_user_select" value="SYSADMIN" checked>
-              <div class="status-option-content">
-                <div class="ad-user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">EF</div>
-                <div class="status-opt-texts">
-                  <strong>Emily Farias (Administrador)</strong>
-                  <small>Grupo AD: <code class="ad-badge-admin">BSFS_OPE_SYSADMIN</code> &bull; Permissão Total (Inserção e Exclusão)</small>
+            <!-- Toggle de Parada -->
+            <div class="form-check-field" style="background: rgba(239, 68, 68, 0.08); padding: 14px 16px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.25); margin-bottom: 16px;">
+              <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; color: #ef4444;">
+                <input type="checkbox" id="maquina-is-parada" style="width: 18px; height: 18px; accent-color: #ef4444;">
+                <span>🔴 EXISTE MÁQUINA / EQUIPAMENTO PARADO NESTE SISTEMA</span>
+              </label>
+            </div>
+
+            <div id="maquina-details-fields" style="display: none;">
+              <div class="form-group-field">
+                <label for="maquina-nome" class="field-label">Identificação da Máquina / Equipamento: *</label>
+                <input type="text" id="maquina-nome" class="form-input" placeholder="Ex: Chiller 01, Bomba B-02, Fancoil F-12...">
+              </div>
+
+              <div class="form-group-field">
+                <label for="maquina-motivo" class="field-label">Motivo da Parada / Avaria: *</label>
+                <textarea id="maquina-motivo" class="form-textarea" rows="2" placeholder="Descreva a falha ou motivo (ex: queima do motor, vazamento de gás, aguardando peça)..."></textarea>
+              </div>
+
+              <div class="form-grid-two">
+                <div class="form-group-field">
+                  <label for="maquina-data-parada" class="field-label">Data da Parada:</label>
+                  <input type="date" id="maquina-data-parada" class="form-input">
+                </div>
+                <div class="form-group-field">
+                  <label for="maquina-previsao-retorno" class="field-label">Previsão de Retorno à Operação:</label>
+                  <input type="date" id="maquina-previsao-retorno" class="form-input">
                 </div>
               </div>
-            </label>
 
-            <!-- Conta 2: SYSUSER -->
-            <label class="status-option-card">
-              <input type="radio" name="ad_user_select" value="SYSUSER">
-              <div class="status-option-content">
-                <div class="ad-user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem; background: #0284c7;">CO</div>
-                <div class="status-opt-texts">
-                  <strong>Carlos Operações (Operador)</strong>
-                  <small>Grupo AD: <code class="ad-badge-user">BSFS_OPE_SYSUSER</code> &bull; Pode Inserir (Exclusão Requer Aprovação)</small>
-                </div>
+              <div class="form-group-field">
+                <label for="maquina-observacao" class="field-label">Observações e Ações em Andamento:</label>
+                <input type="text" id="maquina-observacao" class="form-input" placeholder="Ex: Peça cotada, equipe de manutenção externa acionada...">
               </div>
-            </label>
-
-            <!-- Conta 3: SEM GRUPO (Acesso Negado) -->
-            <label class="status-option-card">
-              <input type="radio" name="ad_user_select" value="DENIED">
-              <div class="status-option-content">
-                <div class="ad-user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem; background: #64748b;">UE</div>
-                <div class="status-opt-texts">
-                  <strong>Usuário Externo (Sem grupo de Operações)</strong>
-                  <small>Grupo AD: <code class="ad-badge-denied">SEM_GRUPO_OPE</code> &bull; Bloqueia Acesso à Planilha</small>
-                </div>
-              </div>
-            </label>
+            </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline" id="btn-close-switch-footer">Cancelar</button>
-          <button type="button" class="btn btn-primary" id="btn-confirm-switch-user">Aplicar Usuário no Sistema</button>
-        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="btn-close-maquina-footer">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-maquina">Salvar Status Operacional</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -1095,6 +1149,7 @@
           </div>
 
           <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-month-schedule" style="margin-right: auto; display: none;">Desmarcar Agendamento</button>
             <button type="button" class="btn btn-outline" id="btn-close-month-footer">Cancelar</button>
             <button type="submit" class="btn btn-primary">Salvar no Banco de Dados</button>
           </div>
@@ -1159,6 +1214,36 @@
               <div class="form-group-field">
                 <label for="new-sys-pendencias" class="field-label">Pendências do Ano Anterior:</label>
                 <input type="text" id="new-sys-pendencias" class="form-input" placeholder="Ex: Nenhuma ou detalhar">
+              </div>
+            </div>
+
+            <!-- Programação de Meses (Quando a Manutenção deve ser Realizada) -->
+            <div class="form-group-field" style="margin-top: 10px;">
+              <label class="field-label" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Quando a Manutenção deve ser Realizada (Meses): *</span>
+                <span style="font-size: 0.72rem; color: var(--text-secondary);">Marque os meses previstos no ano</span>
+              </label>
+              <div class="schedule-presets-bar">
+                <button type="button" class="btn-xs-tag" id="btn-preset-all-months">Todos (Mensal)</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-bimestral">Bimestral</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-trimestral">Trimestral</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-semestral">Semestral</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-anual">Anual (Dez)</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-clear-months">Limpar</button>
+              </div>
+              <div class="months-checkbox-grid" id="new-sys-months-grid">
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="1" checked>Jan</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="2" checked>Fev</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="3" checked>Mar</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="4" checked>Abr</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="5" checked>Mai</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="6" checked>Jun</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="7" checked>Jul</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="8" checked>Ago</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="9" checked>Set</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="10" checked>Out</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="11" checked>Nov</label>
+                <label class="month-checkbox-card is-selected"><input type="checkbox" value="12" checked>Dez</label>
               </div>
             </div>
 
