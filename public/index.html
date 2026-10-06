@@ -216,19 +216,47 @@
           </div>
         </div>
 
-        <!-- KPI 3: Total de Sistemas Críticos -->
-        <div class="kpi-card">
+        <!-- KPI 3: Gráfico de Pizza Responsivo - Status dos Sistemas -->
+        <div class="kpi-card kpi-card-chart" id="kpi-card-status-chart">
           <div class="kpi-header">
-            <span class="kpi-title">Sistemas Monitorados</span>
-            <span class="kpi-badge">Boulevard Feira</span>
+            <span class="kpi-title">Status dos Sistemas</span>
+            <span class="kpi-badge" id="kpi-pie-total-badge">Boulevard Feira</span>
           </div>
-          <div class="kpi-body">
-            <div class="kpi-main-stat">
-              <span class="kpi-value" id="kpi-total-systems">0</span>
-              <span class="kpi-sub">Itens no Cronograma</span>
+          <div class="kpi-body kpi-chart-body">
+            <div class="pie-chart-wrapper">
+              <svg id="systems-status-pie" class="pie-chart-svg" viewBox="0 0 42 42" aria-label="Gráfico de pizza com distribuição de status dos sistemas">
+                <!-- Slices gerados dinamicamente via JavaScript -->
+              </svg>
+              <div class="pie-chart-center-label">
+                <span class="pie-center-val" id="kpi-total-systems">0</span>
+                <span class="pie-center-text" id="pie-center-text">Total</span>
+              </div>
             </div>
-            <div class="category-breakdown" id="category-breakdown-chips">
-              <!-- Gerado via JavaScript -->
+            <div class="pie-chart-legend" id="systems-status-legend">
+              <div class="legend-row" data-status="REQUIRED_ATTACHED" title="Filtrar por Conforme (Inserido sem pendência)">
+                <span class="legend-dot dot-conforme"></span>
+                <span class="legend-label">Conforme</span>
+                <strong class="legend-val text-emerald" id="legend-count-conforme">0</strong>
+                <span class="legend-pct" id="legend-pct-conforme">(0%)</span>
+              </div>
+              <div class="legend-row" data-status="REQUIRED_NOT_INSERTED" title="Filtrar por Pendente (Documentação não inserida)">
+                <span class="legend-dot dot-pendente"></span>
+                <span class="legend-label">Pendente</span>
+                <strong class="legend-val text-red" id="legend-count-pendente">0</strong>
+                <span class="legend-pct" id="legend-pct-pendente">(0%)</span>
+              </div>
+              <div class="legend-row" data-status="REQUIRED_EXPIRED" title="Filtrar por Vencido (Validade expirada)">
+                <span class="legend-dot dot-vencido"></span>
+                <span class="legend-label">Vencido</span>
+                <strong class="legend-val text-amber" id="legend-count-vencido">0</strong>
+                <span class="legend-pct" id="legend-pct-vencido">(0%)</span>
+              </div>
+              <div class="legend-row" data-status="NOT_REQUIRED" title="Filtrar por Não Aplicável (N/A)">
+                <span class="legend-dot dot-na"></span>
+                <span class="legend-label">N/A</span>
+                <strong class="legend-val text-muted" id="legend-count-na">0</strong>
+                <span class="legend-pct" id="legend-pct-na">(0%)</span>
+              </div>
             </div>
           </div>
         </div>

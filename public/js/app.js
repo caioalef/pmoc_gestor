@@ -796,31 +796,205 @@ class BoulevardMaintenanceApp {
       }
     }
 
-    const categoryChipsContainer = document.getElementById('category-breakdown-chips');
-    if (categoryChipsContainer) {
-      const counts = {};
-      this.systems.forEach(s => {
-        const cat = s.category || 'GERAL';
-        counts[cat] = (counts[cat] || 0) + 1;
+    // Gráfico de Pizza Responsivo - Status dos Sistemas
+    this.renderSystemStatusPieChart();
+  }
+
+  /* ==========================================================================
+     Gráfico de Pizza / Rosca Responsivo: Status dos Sistemas
+     ========================================================================== */
+  renderSystemStatusPieChart() {
+    const pieSvg = document.getElementById('systems-status-pie');
+    const centerCountEl = document.getElementById('kpi-total-systems');
+    const centerTextEl = document.getElementById('pie-center-text');
+    const totalBadgeEl = document.getElementById('kpi-pie-total-badge');
+
+    if (!pieSvg) return;
+
+    let conformeCount = 0;
+    let pendenteCount = 0;
+    let vencidoCount = 0;
+    let naCount = 0;
+
+    this.systems.forEach(s => {
+      if (s.na || s.pmocStatus === 'NOT_REQUIRED') {
+        naCount++;
+      } else if (s.pmocStatus === 'REQUIRED_EXPIRED') {
+        vencidoCount++;
+      } else if (s.pmocStatus === 'REQUIRED_ATTACHED') {
+        conformeCount++;
+      } else if (s.pmocStatus === 'REQUIRED_NOT_INSERTED') {
+        pendenteCount++;
+      } else {
+        if (s.pmoc && s.pmoc.attached) conformeCount++;
+        else pendenteCount++;
+      }
+    });
+
+    const total = this.systems.length;
+
+    if (centerCountEl) centerCountEl.textContent = total;
+    if (centerTextEl) centerTextEl.textContent = 'Total';
+    if (totalBadgeEl) totalBadgeEl.textContent = `${total} sistemas`;
+
+    const pctConforme = total > 0 ? Math.round((conformeCount / total) * 100) : 0;
+    const pctPendente = total > 0 ? Math.round((pendenteCount / total) * 100) : 0;
+    const pctVencido = total > 0 ? Math.round((vencidoCount / total) * 100) : 0;
+    const pctNa = total > 0 ? Math.round((naCount / total) * 100) : 0;
+
+    const elCountConforme = document.getElementById('legend-count-conforme');
+    const elPctConforme = document.getElementById('legend-pct-conforme');
+    const elCountPendente = document.getElementById('legend-count-pendente');
+    const elPctPendente = document.getElementById('legend-pct-pendente');
+    const elCountVencido = document.getElementById('legend-count-vencido');
+    const elPctVencido = document.getElementById('legend-pct-vencido');
+    const elCountNa = document.getElementById('legend-count-na');
+    const elPctNa = document.getElementById('legend-pct-na');
+
+    if (elCountConforme) elCountConforme.textContent = conformeCount;
+    if (elPctConforme) elPctConforme.textContent = `(${pctConforme}%)`;
+    if (elCountPendente) elCountPendente.textContent = pendenteCount;
+    if (elPctPendente) elPctPendente.textContent = `(${pctPendente}%)`;
+    if (elCountVencido) elCountVencido.textContent = vencidoCount;
+    if (elPctVencido) elPctVencido.textContent = `(${pctVencido}%)`;
+    if (elCountNa) elCountNa.textContent = naCount;
+    if (elPctNa) elPctNa.textContent = `(${pctNa}%)`;
+
+    if (total === 0) {
+      pieSvg.innerHTML = `
+        <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--border-subtle)" stroke-width="5.5"></circle>
+      `;
+      return;
+    }
+
+    const slicesData = [
+      { key: 'REQUIRED_ATTACHED', label: 'Conforme', count: conformeCount, color: '#10b981' },
+      { key: 'REQUIRED_NOT_INSERTED', label: 'Pendente', count: pendenteCount, color: '#ef4444' },
+      { key: 'REQUIRED_EXPIRED', label: 'Vencido', count: vencidoCount, color: '#f59e0b' },
+      { key: 'NOT_REQUIRED', label: 'N/A', count: naCount, color: '#94a3b8' }
+    ];
+
+    const activeSlices = slicesData.filter(s => s.count > 0);
+    let svgHtml = '';
+    svgHtml += `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--border-subtle)" stroke-width="5.5" opacity="0.25"></circle>`;
+
+    if (activeSlices.length === 1) {
+      const s = activeSlices[0];
+      svgHtml += `
+        <circle class="pie-slice"
+          data-key="${s.key}"
+          data-label="${s.label}"
+          data-count="${s.count}"
+          cx="21" cy="21" r="15.9155"
+          fill="none"
+          stroke="${s.color}"
+          stroke-width="5.5">
+          <title>${s.label}: ${s.count} (100%)</title>
+        </circle>
+      `;
+    } else {
+      let accumulatedPct = 0;
+      activeSlices.forEach(s => {
+        const rawPct = (s.count / total) * 100;
+        const offset = -accumulatedPct;
+        accumulatedPct += rawPct;
+
+        svgHtml += `
+          <circle class="pie-slice"
+            data-key="${s.key}"
+            data-label="${s.label}"
+            data-count="${s.count}"
+            cx="21" cy="21" r="15.9155"
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="5.5"
+            stroke-dasharray="${rawPct.toFixed(2)} ${(100 - rawPct).toFixed(2)}"
+            stroke-dashoffset="${offset.toFixed(2)}">
+            <title>${s.label}: ${s.count} (${Math.round(rawPct)}%)</title>
+          </circle>
+        `;
       });
+    }
 
-      const catNames = {
-        AR_CONDICIONADO: 'Ar Condicionado',
-        ELÉTRICO: 'Elétrico',
-        ELETRICA: 'Elétrica',
-        PREVENÇÃO_CONTRA_INCÊNDIO: 'Incêndio',
-        INCENDIO: 'Incêndio',
-        GÁS: 'Gás',
-        GAS: 'Gás',
-        ESTRUTURAL: 'Estrutural',
-        HIDRÁULICO: 'Hidráulica',
-        HIDRAULICO: 'Hidráulica',
-        ELEVADORES: 'Elevadores'
+    pieSvg.innerHTML = svgHtml;
+    this.bindPieChartInteractions(total);
+  }
+
+  bindPieChartInteractions(total) {
+    const pieSvg = document.getElementById('systems-status-pie');
+    const centerCountEl = document.getElementById('kpi-total-systems');
+    const centerTextEl = document.getElementById('pie-center-text');
+    if (!pieSvg || !centerCountEl || !centerTextEl) return;
+
+    const resetCenter = () => {
+      centerCountEl.textContent = total;
+      centerTextEl.textContent = 'Total';
+      document.querySelectorAll('.legend-row').forEach(r => r.classList.remove('is-hovered'));
+    };
+
+    pieSvg.querySelectorAll('.pie-slice').forEach(slice => {
+      slice.addEventListener('mouseenter', () => {
+        const count = slice.getAttribute('data-count');
+        const label = slice.getAttribute('data-label');
+        const key = slice.getAttribute('data-key');
+        centerCountEl.textContent = count;
+        centerTextEl.textContent = label;
+        document.querySelectorAll(`.legend-row[data-status="${key}"]`).forEach(r => r.classList.add('is-hovered'));
+      });
+      slice.addEventListener('mouseleave', resetCenter);
+
+      slice.addEventListener('click', () => {
+        const key = slice.getAttribute('data-key');
+        this.filterTableBySingleStatus(key);
+      });
+    });
+
+    document.querySelectorAll('.legend-row').forEach(row => {
+      const statusKey = row.getAttribute('data-status');
+      row.onmouseenter = () => {
+        const slice = pieSvg.querySelector(`.pie-slice[data-key="${statusKey}"]`);
+        if (slice) {
+          centerCountEl.textContent = slice.getAttribute('data-count');
+          centerTextEl.textContent = slice.getAttribute('data-label');
+          slice.style.strokeWidth = '7.2';
+        }
       };
+      row.onmouseleave = () => {
+        const slice = pieSvg.querySelector(`.pie-slice[data-key="${statusKey}"]`);
+        if (slice) slice.style.strokeWidth = '5.5';
+        resetCenter();
+      };
+      row.onclick = () => {
+        this.filterTableBySingleStatus(statusKey);
+      };
+    });
+  }
 
-      categoryChipsContainer.innerHTML = Object.entries(counts).map(([catKey, cnt]) => `
-        <span class="cat-pill">${catNames[catKey] || catKey}: <strong>${cnt}</strong></span>
-      `).join('');
+  filterTableBySingleStatus(statusKey) {
+    const cbs = document.querySelectorAll('.cb-filter-pmoc');
+    if (!cbs || cbs.length === 0) return;
+
+    const isCurrentlyOnly = this.filters.pmocStatuses &&
+      this.filters.pmocStatuses.length === 1 &&
+      this.filters.pmocStatuses[0] === statusKey;
+
+    if (isCurrentlyOnly) {
+      cbs.forEach(cb => {
+        cb.checked = false;
+      });
+      cbs[0].dispatchEvent(new Event('change'));
+      this.showToast('Filtro de status removido (exibindo todos os sistemas).', 'info');
+    } else {
+      let targetLabel = statusKey;
+      cbs.forEach(cb => {
+        cb.checked = (cb.value === statusKey);
+        if (cb.value === statusKey) {
+          const span = cb.nextElementSibling;
+          if (span) targetLabel = span.textContent.trim().replace(/^[^\w\s]+\s*/, '');
+        }
+      });
+      cbs[0].dispatchEvent(new Event('change'));
+      this.showToast(`Filtrado por: ${targetLabel}`, 'info');
     }
   }
 
