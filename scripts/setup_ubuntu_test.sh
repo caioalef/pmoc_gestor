@@ -55,6 +55,23 @@ else
     echo -e "${GREEN}Docker já está instalado: $(docker --version)${NC}"
 fi
 
+# Garantir que o docker compose ou docker-compose esteja disponível
+if ! docker compose version &> /dev/null && ! command -v docker-compose &> /dev/null; then
+    echo -e "${YELLOW}Instalando utilitário Docker Compose...${NC}"
+    $SUDO_CMD apt-get update -y 2>/dev/null || true
+    if $SUDO_CMD apt-get install -y docker-compose-v2 2>/dev/null; then
+        echo -e "${GREEN}docker-compose-v2 instalado via apt!${NC}"
+    else
+        echo -e "Baixando binário oficial do Docker Compose..."
+        $SUDO_CMD curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+        $SUDO_CMD chmod +x /usr/local/bin/docker-compose
+        $SUDO_CMD ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose 2>/dev/null || true
+        $SUDO_CMD mkdir -p /usr/local/lib/docker/cli-plugins 2>/dev/null || true
+        $SUDO_CMD ln -sf /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose 2>/dev/null || true
+        echo -e "${GREEN}Docker Compose instalado com sucesso!${NC}"
+    fi
+fi
+
 # Adicionar usuário atual ao grupo docker para não precisar de sudo no futuro
 if [ -n "$SUDO_USER" ]; then
     $SUDO_CMD usermod -aG docker "$SUDO_USER" 2>/dev/null || true
