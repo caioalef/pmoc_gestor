@@ -135,24 +135,59 @@ class BoulevardMaintenanceApp {
     }
   }
 
+  getSystemMonths(system, year = this.currentYear) {
+    if (!system) return {};
+    const yr = String(year || this.currentYear || '2026');
+
+    // 1. Se já existir registro para este ano específico
+    if (system.years && system.years[yr] && system.years[yr].months) {
+      return system.years[yr].months;
+    }
+    if (system.years && system.years[yr] && typeof system.years[yr] === 'object' && !system.years[yr].months) {
+      return system.years[yr];
+    }
+
+    // 2. Se for o ano 2026 e tiver system.months, usa system.months
+    if (yr === '2026' && system.months && Object.keys(system.months).length > 0) {
+      return system.months;
+    }
+
+    // 3. Se for outro ano (ex: 2025, 2027), cria o cronograma baseado no padrão estático do sistema
+    const yearSchedule = {};
+    const baseMonths = system.months || {};
+    for (let m = 1; m <= 12; m++) {
+      const base = baseMonths[m];
+      if (base && base.scheduled) {
+        yearSchedule[m] = {
+          scheduled: true,
+          status: 'SCHEDULED',
+          date: '',
+          os: '',
+          notes: '',
+          documents: []
+        };
+      }
+    }
+    return yearSchedule;
+  }
+
   async init() {
     this.bindTheme();
     this.bindEventListeners();
-    this.checkAccessAndRender();
 
-    // 1. Validação de sessão do usuário no servidor
-    if (this.auth.getToken()) {
-      const valid = await this.auth.validateSession();
-      if (!valid) {
-        this.checkAccessAndRender();
-        const overlay = document.getElementById('login-overlay');
-        if (overlay) {
-          overlay.style.display = 'flex';
-          overlay.classList.remove('hidden');
-        }
-      } else {
-        this.updateAuthWidget();
+    // 1. Validação mandatória de sessão do usuário no servidor
+    const valid = await this.auth.validateSession();
+    if (!valid) {
+      this.checkAccessAndRender();
+      this.updateAuthWidget();
+      const overlay = document.getElementById('login-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
       }
+    } else {
+      this.updateAuthWidget();
+      this.checkAccessAndRender();
     }
 
     // 2. Busca dados frescos do MariaDB para qualquer acesso
@@ -674,10 +709,22 @@ class BoulevardMaintenanceApp {
   }
 
   updateKPIs() {
-    const totalSystems = this.systems.length;
-    const pmocOk = this.systems.filter(s => s.pmocStatus === 'REQUIRED_ATTACHED' || (s.pmoc && s.pmoc.attached)).length;
-    const pmocPending = this.systems.filter(s => s.pmocStatus === 'REQUIRED_NOT_INSERTED' || s.pmocStatus === 'REQUIRED_EXPIRED').length;
-    const pmocPercent = totalSystems > 0 ? Math.round((pmocOk / totalSystems) * 100) : 0;
+    const applicableSystems = this.systems.filter(s => !s.na && s.pmocStatus !== 'NOT_REQUIRED');
+    const totalApplicable = applicableSystems.length;
+
+    // Conforme: sistema com status anexado, flag PMOC anexada ou documentos anexados no cronograma
+    const pmocOk = applicableSystems.filter(s => {
+      if (s.pmocStatus === 'REQUIRED_ATTACHED') return true;
+      if (s.pmoc && s.pmoc.attached) return true;
+      const yrMonths = this.getSystemMonths(s, this.currentYear);
+      const hasYrDocs = Object.values(yrMonths).some(m => m && Array.isArray(m.documents) && m.documents.length > 0);
+      if (hasYrDocs) return true;
+      if (s.months && Object.values(s.months).some(m => m && Array.isArray(m.documents) && m.documents.length > 0)) return true;
+      return false;
+    }).length;
+
+    const pmocPending = Math.max(0, totalApplicable - pmocOk);
+    const pmocPercent = totalApplicable > 0 ? Math.round((pmocOk / totalApplicable) * 100) : 0;
 
     const elPmocPercent = document.getElementById('kpi-pmoc-percent');
     const elPmocBar = document.getElementById('kpi-pmoc-bar');
@@ -697,10 +744,10 @@ class BoulevardMaintenanceApp {
         elComplianceTag.style.color = '#10b981';
       } else if (pmocPercent >= 50) {
         elComplianceTag.textContent = 'Regular';
-        elComplianceTag.style.background = 'rgba(232, 152, 94, 0.16)';
-        elComplianceTag.style.color = '#E8985E';
+        elComplianceTag.style.background = 'rgba(245, 158, 11, 0.16)';
+        elComplianceTag.style.color = '#F59E0B';
       } else {
-        elComplianceTag.textContent = 'Crítico';
+        elComplianceTag.textContent = 'Atenção';
         elComplianceTag.style.background = 'rgba(239, 68, 68, 0.16)';
         elComplianceTag.style.color = '#ef4444';
       }
@@ -713,8 +760,9 @@ class BoulevardMaintenanceApp {
 
     this.systems.forEach(sys => {
       if (sys.na) return;
-      if (!sys.months) return;
-      Object.values(sys.months).forEach(m => {
+      const months = this.getSystemMonths(sys, this.currentYear);
+      if (!months) return;
+      Object.values(months).forEach(m => {
         if (!m || !m.status) return;
         if (m.status === 'DONE') doneCount++;
         else if (m.status === 'SCHEDULED') scheduledCount++;
@@ -733,7 +781,7 @@ class BoulevardMaintenanceApp {
     if (elSched) elSched.textContent = scheduledCount;
     if (elAtt) elAtt.textContent = attentionCount;
     if (elUnr) elUnr.textContent = unrealizedCount;
-    if (elTotSys) elTotSys.textContent = totalSystems;
+    if (elTotSys) elTotSys.textContent = this.systems.length;
 
     const categoryChipsContainer = document.getElementById('category-breakdown-chips');
     if (categoryChipsContainer) {
@@ -852,8 +900,9 @@ class BoulevardMaintenanceApp {
 
       // Renderização estática dos meses
       let monthsHtml = '';
+      const systemMonths = this.getSystemMonths(system, this.currentYear);
       for (let m = 1; m <= 12; m++) {
-        const monthData = system.months ? system.months[m] : null;
+        const monthData = systemMonths ? systemMonths[m] : null;
         const isScheduled = Boolean(monthData && monthData.scheduled);
         const status = monthData ? monthData.status : null;
         const docs = (monthData && monthData.documents) || [];
@@ -1296,7 +1345,8 @@ class BoulevardMaintenanceApp {
     document.getElementById('month-modal-title').textContent = `Manutenção de ${monthNames[monthIndex]} de ${this.currentYear}`;
     document.getElementById('month-modal-system-name').textContent = system.name;
 
-    const monthData = system.months ? system.months[monthIndex] : null;
+    const systemMonths = this.getSystemMonths(system, this.currentYear);
+    const monthData = systemMonths ? systemMonths[monthIndex] : null;
     const currentStatus = monthData ? monthData.status : 'SCHEDULED';
 
     const radios = document.querySelectorAll('input[name="month_status_radio"]');
@@ -1332,10 +1382,18 @@ class BoulevardMaintenanceApp {
     const osVal = document.getElementById('month-os-number').value.trim();
     const notesVal = document.getElementById('month-notes').value.trim();
 
-    if (!system.months) system.months = {};
+    // Inicializa estrutura de anos
+    const yr = String(this.currentYear || '2026');
+    if (!system.years) system.years = {};
+    if (!system.years[yr]) {
+      system.years[yr] = { months: this.getSystemMonths(system, yr) };
+    }
+    if (!system.years[yr].months) {
+      system.years[yr].months = {};
+    }
 
-    const prevMonthData = system.months[this.activeMonthIndex] || {};
-    system.months[this.activeMonthIndex] = {
+    const prevMonthData = system.years[yr].months[this.activeMonthIndex] || {};
+    const updatedMonth = {
       ...prevMonthData,
       scheduled: true,
       status: newStatus,
@@ -1344,6 +1402,27 @@ class BoulevardMaintenanceApp {
       notes: notesVal,
       documents: this.currentMonthDocs || []
     };
+
+    system.years[yr].months[this.activeMonthIndex] = updatedMonth;
+
+    // Compatibilidade reversa: se for 2026, espelha no system.months
+    if (yr === '2026') {
+      if (!system.months) system.months = {};
+      system.months[this.activeMonthIndex] = updatedMonth;
+    }
+
+    // Se foram anexados arquivos neste card mensal e a documentação PMOC estiver pendente,
+    // atualiza o status do sistema para CONFORME/ANEXADO
+    if (this.currentMonthDocs && this.currentMonthDocs.length > 0) {
+      if (!system.pmoc || !system.pmoc.attached) {
+        system.pmoc = system.pmoc || {};
+        system.pmoc.attached = true;
+        system.pmoc.pmocFile = this.currentMonthDocs[0].name;
+        system.pmoc.pmocDate = new Date().toLocaleDateString('pt-BR');
+        system.pmocStatus = 'REQUIRED_ATTACHED';
+        system.pmocStatusLabel = 'Documentação obrigatória inserida sem pendência';
+      }
+    }
 
     const saveBtn = document.getElementById('btn-save-month-status');
     if (saveBtn) {

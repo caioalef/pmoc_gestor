@@ -190,13 +190,12 @@ export async function authenticateWithAD(username, password) {
 
           console.log(`[LDAP] Verificação de autorização: isSysAdmin=${isSysAdmin}, isSysUser=${isSysUser}`);
 
-          // BLOQUEIO ESTRITO: Apenas membros de BSFS_OPE_SYSADMIN ou BSFS_OPE_SYSUSER têm permissão
-          const requireGroup = process.env.AD_REQUIRE_GROUP !== 'false';
-          if (requireGroup && !isSysAdmin && !isSysUser) {
-            console.warn(`[LDAP] ACESSO NEGADO: ${cleanUser} não pertence aos grupos ${adminGroup} ou ${userGroup}`);
+          // BLOQUEIO ESTRITO E INCONDICIONAL: Apenas membros de BSFS_OPE_SYSADMIN ou BSFS_OPE_SYSUSER têm permissão
+          if (!isSysAdmin && !isSysUser) {
+            console.warn(`[LDAP] ACESSO NEGADO ESTRITO: Usuário "${cleanUser}" (${displayName}) não pertence aos grupos autorizados (${adminGroup} ou ${userGroup})`);
             return resolve({
               success: false,
-              error: `Acesso negado: o usuário "${displayName}" autenticou com sucesso, mas não pertence aos grupos autorizados (${userGroup} ou ${adminGroup}) no Active Directory.`
+              error: `Acesso negado: o usuário "${displayName}" (${cleanUser}) não pertence aos grupos autorizados (${userGroup} ou ${adminGroup}) no Active Directory.`
             });
           }
 

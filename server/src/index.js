@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'pmoc_secret_boulevard_2026';
+const JWT_SECRET = (process.env.JWT_SECRET || 'pmoc_secret_boulevard_2026') + '_v2_strict_ad';
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -104,24 +104,38 @@ app.get('/api/systems', async (req, res) => {
     // Ordenação numérica pelo ID para manter a ordem estrita da planilha mestre (1 a 40)
     const [rows] = await pool.query('SELECT * FROM systems ORDER BY CAST(SUBSTRING(id, 5) AS UNSIGNED), id ASC');
 
-    const formatted = rows.map(r => ({
-      id: r.id,
-      shopping: r.shopping || 'BSFS',
-      programacao: r.programacao || 'Finalizada',
-      category: r.category,
-      categoryName: r.category_name,
-      name: r.name,
-      periodicity: r.periodicity,
-      respTecnico: r.resp_tecnico,
-      na: Boolean(r.na),
-      pmocStatus: r.pmoc_status || 'NOT_REQUIRED',
-      pmocStatusLabel: r.pmoc_status_label || '',
-      standards: r.standards,
-      description: r.description,
-      pmoc: typeof r.pmoc_data === 'string' ? JSON.parse(r.pmoc_data) : (r.pmoc_data || { attached: false }),
-      equipamentoParado: typeof r.equipamento_parado === 'string' ? JSON.parse(r.equipamento_parado) : (r.equipamento_parado || { isParado: false, dataParada: null }),
-      months: typeof r.months_data === 'string' ? JSON.parse(r.months_data) : (r.months_data || {})
-    }));
+    const formatted = rows.map(r => {
+      let monthsData = {};
+      try {
+        monthsData = typeof r.months_data === 'string' ? JSON.parse(r.months_data) : (r.months_data || {});
+      } catch (e) {
+        monthsData = {};
+      }
+      const yearsData = monthsData._years || monthsData.years || null;
+      const cleanMonths = { ...monthsData };
+      delete cleanMonths._years;
+      delete cleanMonths.years;
+
+      return {
+        id: r.id,
+        shopping: r.shopping || 'BSFS',
+        programacao: r.programacao || 'Finalizada',
+        category: r.category,
+        categoryName: r.category_name,
+        name: r.name,
+        periodicity: r.periodicity,
+        respTecnico: r.resp_tecnico,
+        na: Boolean(r.na),
+        pmocStatus: r.pmoc_status || 'NOT_REQUIRED',
+        pmocStatusLabel: r.pmoc_status_label || '',
+        standards: r.standards,
+        description: r.description,
+        pmoc: typeof r.pmoc_data === 'string' ? JSON.parse(r.pmoc_data) : (r.pmoc_data || { attached: false }),
+        equipamentoParado: typeof r.equipamento_parado === 'string' ? JSON.parse(r.equipamento_parado) : (r.equipamento_parado || { isParado: false, dataParada: null }),
+        months: cleanMonths,
+        years: yearsData || { '2026': { months: cleanMonths } }
+      };
+    });
 
     res.json(formatted);
   } catch (err) {
@@ -180,7 +194,10 @@ app.put('/api/systems', requireCanInsert, async (req, res) => {
           sys.description || '',
           typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
           typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
-          typeof sys.months === 'string' ? sys.months : JSON.stringify(sys.months || {})
+          JSON.stringify({
+            ...(typeof sys.months === 'object' && sys.months !== null ? sys.months : {}),
+            _years: sys.years || (typeof sys.months === 'object' && sys.months ? sys.months._years : null)
+          })
         ]
       );
     }
@@ -242,7 +259,10 @@ app.put('/api/systems/:id', requireCanInsert, async (req, res) => {
         sys.description || '',
         typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
         typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
-        typeof sys.months === 'string' ? sys.months : JSON.stringify(sys.months || {})
+        JSON.stringify({
+          ...(typeof sys.months === 'object' && sys.months !== null ? sys.months : {}),
+          _years: sys.years || (typeof sys.months === 'object' && sys.months ? sys.months._years : null)
+        })
       ]
     );
 
