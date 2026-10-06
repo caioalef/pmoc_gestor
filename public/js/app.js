@@ -358,13 +358,7 @@ class BoulevardMaintenanceApp {
       });
     }
 
-    // Botão de Alternar Agendamento no Modal do Mês
-    const btnToggleMonthSched = document.getElementById('btn-toggle-month-schedule');
-    if (btnToggleMonthSched) {
-      btnToggleMonthSched.addEventListener('click', () => {
-        this.handleToggleMonthSchedule();
-      });
-    }
+
 
     // Eventos de Upload de Documentos no Modal de Mês
     this.bindMonthDocUploadEvents();
@@ -921,30 +915,36 @@ class BoulevardMaintenanceApp {
     filtered.forEach(system => {
       const isNa = Boolean(system.na);
 
-      // Badge PMOC/ART da planilha
+      // Badge PMOC/ART da planilha conciso e elegante
       let pmocBadgeHtml = '';
       if (system.pmocStatus === 'REQUIRED_NOT_INSERTED') {
-        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação obrigatória não inserida - Clique para anexar">${system.pmocStatusLabel || 'Documentação obrigatória não inserida'}</button>`;
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação obrigatória não inserida - Clique para anexar">Pendente</button>`;
       } else if (system.pmocStatus === 'REQUIRED_ATTACHED') {
-        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação inserida sem pendência - Clique para visualizar">${system.pmocStatusLabel || 'Documentação obrigatória inserida sem pendência'}</button>`;
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação inserida sem pendência - Clique para visualizar">Conforme</button>`;
       } else if (system.pmocStatus === 'REQUIRED_EXPIRED') {
-        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-orange" data-action="open-pmoc" data-sys-id="${system.id}" title="Validade vencida - Clique para atualizar">${system.pmocStatusLabel || 'Documentação obrigatória inserida com data de validade vencida'}</button>`;
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-orange" data-action="open-pmoc" data-sys-id="${system.id}" title="Validade vencida - Clique para atualizar">Vencido</button>`;
       } else if (system.pmocStatus === 'NOT_REQUIRED') {
-        pmocBadgeHtml = system.pmocStatusLabel ? `<span class="pmoc-badge pmoc-badge-gray" data-action="open-pmoc" data-sys-id="${system.id}">${system.pmocStatusLabel}</span>` : '';
+        pmocBadgeHtml = `<span class="pmoc-badge pmoc-badge-gray" data-action="open-pmoc" data-sys-id="${system.id}" title="Não aplicável">N/A</span>`;
       } else {
         const attached = system.pmoc && system.pmoc.attached;
         pmocBadgeHtml = attached
-          ? `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}">Documentação obrigatória inserida sem pendência</button>`
-          : `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}">Documentação obrigatória não inserida</button>`;
+          ? `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação inserida sem pendência">Conforme</button>`
+          : `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação obrigatória não inserida">Pendente</button>`;
       }
 
-      // Badge de Máquina Parada / Status Operacional
+      // Status Operacional (Máquina Parada / Normal) - Design Clean e Discreto
       const isParado = Boolean(system.equipamentoParado && system.equipamentoParado.isParado);
       const maquinaBadgeHtml = isParado
-        ? `<button type="button" class="badge-maquina-parada" data-action="open-maquina" data-sys-id="${system.id}" title="Máquina Parada: ${system.equipamentoParado.maquina || 'Equipamento'} (Clique para gerenciar)">🔴 Parada: ${system.equipamentoParado.maquina || 'Equip.'}</button>`
-        : `<button type="button" class="badge-maquina-ok" data-action="open-maquina" data-sys-id="${system.id}" title="Operação normal - Clique para informar máquina parada">🟢 Operacional</button>`;
+        ? `<button type="button" class="btn-op-status is-stopped" data-action="open-maquina" data-sys-id="${system.id}" title="Máquina Parada: ${system.equipamentoParado.maquina || 'Equipamento'} (${system.equipamentoParado.motivo || 'Sem motivo'}) - Clique para gerenciar">
+             <span class="status-dot"></span>
+             <span>Parada: ${system.equipamentoParado.maquina || 'Equip.'}</span>
+           </button>`
+        : `<button type="button" class="btn-op-status" data-action="open-maquina" data-sys-id="${system.id}" title="Operação normal - Clique para reportar máquina parada">
+             <span class="status-dot"></span>
+             <span>Normal</span>
+           </button>`;
 
-      // Renderização dos meses (inclui agendamento dinâmico em meses não agendados)
+      // Renderização Estática dos Meses (Calendário Estático: meses não agendados permanecem vazios)
       let monthsHtml = '';
       const systemMonths = this.getSystemMonths(system, this.currentYear);
       for (let m = 1; m <= 12; m++) {
@@ -954,24 +954,17 @@ class BoulevardMaintenanceApp {
         const docs = (monthData && monthData.documents) || [];
         const hasDocs = docs.length > 0;
 
-        if (isNa) {
-          // Campo estático para sistema NA
+        if (isNa || !isScheduled) {
+          // Calendário Estático: mês sem manutenção é inalterável e desabilitado
           monthsHtml += `<td class="td-month td-month-static-empty" aria-disabled="true"></td>`;
-        } else if (!isScheduled) {
-          // Campo vazio com opção de inclusão dinâmica de manutenção
-          monthsHtml += `
-            <td class="td-month td-month-slot-empty" data-sys-id="${system.id}" data-month-index="${m}" title="Mês sem manutenção agendada - Clique para agendar manutenção neste mês">
-              <span class="empty-slot-plus">+</span>
-            </td>
-          `;
         } else {
-          // Campo agendado: interativo, permite alteração e inserção de documentos
+          // Mês agendado no cadastro: interativo, permite registrar execução e laudos
           const docBadgeHtml = hasDocs ? `<span class="month-doc-indicator" title="${docs.length} documento(s) anexado(s)">📎</span>` : '';
           let boxHtml = '';
 
           if (status === 'DONE') {
             boxHtml = `
-              <div class="month-box month-box-done" title="Realizado${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+              <div class="month-box month-box-done" title="Realizado${hasDocs ? ` (${docs.length} doc(s))` : ' - Clique para gerenciar'}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
@@ -980,14 +973,14 @@ class BoulevardMaintenanceApp {
             `;
           } else if (status === 'SCHEDULED') {
             boxHtml = `
-              <div class="month-box month-box-scheduled" title="Programado${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+              <div class="month-box month-box-scheduled" title="Programado${hasDocs ? ` (${docs.length} doc(s))` : ' - Clique para gerenciar'}">
                 <span class="month-triangle-icon">▲</span>
                 ${docBadgeHtml}
               </div>
             `;
           } else if (status === 'UNREALIZED') {
             boxHtml = `
-              <div class="month-box month-box-unrealized" title="Não Realizado / Pendência${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+              <div class="month-box month-box-unrealized" title="Não Realizado / Pendência${hasDocs ? ` (${docs.length} doc(s))` : ' - Clique para gerenciar'}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -997,7 +990,7 @@ class BoulevardMaintenanceApp {
             `;
           } else if (status === 'ATTENTION') {
             boxHtml = `
-              <div class="month-box month-box-attention" title="Atenção / Em Execução${hasDocs ? ` (${docs.length} documento(s) anexado(s))` : ' - Clique para gerenciar e anexar documentos'}">
+              <div class="month-box month-box-attention" title="Atenção / Em Execução${hasDocs ? ` (${docs.length} doc(s))` : ' - Clique para gerenciar'}">
                 <span style="font-weight: 800; font-size: 13px;">!</span>
                 ${docBadgeHtml}
               </div>
@@ -1012,7 +1005,7 @@ class BoulevardMaintenanceApp {
           }
 
           monthsHtml += `
-            <td class="td-month td-month-interactive" data-sys-id="${system.id}" data-month-index="${m}" title="Clique para gerenciar e anexar documentos">
+            <td class="td-month td-month-interactive" data-sys-id="${system.id}" data-month-index="${m}" title="Clique para gerenciar manutenção">
               ${boxHtml}
             </td>
           `;
@@ -1085,17 +1078,6 @@ class BoulevardMaintenanceApp {
     });
 
     tbody.querySelectorAll('.td-month-interactive').forEach(td => {
-      td.addEventListener('click', () => {
-        const sysId = td.getAttribute('data-sys-id');
-        const monthIndex = td.getAttribute('data-month-index');
-        const system = this.systems.find(s => s.id === sysId);
-        if (system && !system.na) {
-          this.openMonthStatusModal(sysId, parseInt(monthIndex, 10));
-        }
-      });
-    });
-
-    tbody.querySelectorAll('.td-month-slot-empty').forEach(td => {
       td.addEventListener('click', () => {
         const sysId = td.getAttribute('data-sys-id');
         const monthIndex = td.getAttribute('data-month-index');
@@ -1440,18 +1422,9 @@ class BoulevardMaintenanceApp {
       ? JSON.parse(JSON.stringify(monthData.documents))
       : [];
 
-    // Botão de alternar agendamento (Desmarcar ou Incluir agendamento dinamicamente)
-    const isScheduled = Boolean(monthData && monthData.scheduled);
     const btnToggleSchedule = document.getElementById('btn-toggle-month-schedule');
     if (btnToggleSchedule) {
-      btnToggleSchedule.style.display = 'inline-block';
-      if (isScheduled) {
-        btnToggleSchedule.textContent = 'Desmarcar Agendamento deste Mês';
-        btnToggleSchedule.style.color = '#ef4444';
-      } else {
-        btnToggleSchedule.textContent = '➕ Agendar Manutenção para este Mês';
-        btnToggleSchedule.style.color = '#10b981';
-      }
+      btnToggleSchedule.style.display = 'none';
     }
 
     this.renderMonthDocsList();

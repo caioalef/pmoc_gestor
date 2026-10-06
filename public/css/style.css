@@ -513,12 +513,14 @@ body {
 }
 
 .content-container {
-  max-width: 1750px;
-  margin: 0 auto;
-  padding: 0 24px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -1002,50 +1004,60 @@ body {
   accent-color: var(--bsfs-peach);
 }
 
-/* Badge e Indicadores de Máquina Parada */
-.badge-maquina-parada {
+/* Status Operacional / Máquina Parada - Design Clean e Elegante */
+.btn-op-status {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 8px;
-  background: rgba(239, 68, 68, 0.14);
+  padding: 2px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.3;
+}
+
+.btn-op-status:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-focus);
+  color: var(--text-primary);
+}
+
+.btn-op-status .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.btn-op-status.is-stopped {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  border-radius: var(--radius-full);
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  animation: pulseParada 2.5s infinite;
-}
-
-.badge-maquina-parada:hover {
-  background: rgba(239, 68, 68, 0.22);
-  transform: scale(1.02);
-}
-
-.badge-maquina-ok {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  border-radius: var(--radius-full);
-  font-size: 0.7rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
 }
 
-.badge-maquina-ok:hover {
-  background: rgba(16, 185, 129, 0.18);
+.btn-op-status.is-stopped:hover {
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.btn-op-status.is-stopped .status-dot {
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+  animation: pulseParada 2s infinite;
 }
 
 @keyframes pulseParada {
   0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+  70% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
@@ -1201,9 +1213,9 @@ body {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   text-align: center;
-  min-width: 1440px;
+  min-width: 1100px;
 }
 
 /* Header Marsala Vinho da Tabela (Identidade Visual) */
@@ -1211,12 +1223,12 @@ body {
   background: var(--table-header-gradient);
   color: #FFFFFF;
   font-weight: 700;
-  padding: 11px 8px;
+  padding: 9px 3px;
   border-bottom: 2px solid rgba(0, 0, 0, 0.25);
   border-right: 1px solid rgba(255, 255, 255, 0.15);
   white-space: nowrap;
   letter-spacing: 0.02em;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   user-select: none;
 }
 
@@ -1224,26 +1236,26 @@ body {
   border-right: none;
 }
 
-.th-shopping { width: 75px; min-width: 70px; }
-.th-programacao { width: 105px; min-width: 95px; }
+.th-shopping { width: 52px; min-width: 48px; }
+.th-programacao { width: 68px; min-width: 60px; }
 .th-sistema {
-  width: 190px;
-  min-width: 170px;
+  width: 115px;
+  min-width: 95px;
   text-align: left !important;
-  padding-left: 12px !important;
+  padding-left: 8px !important;
 }
 .th-manutencao {
-  width: 270px;
-  min-width: 240px;
+  width: 220px;
+  min-width: 160px;
   text-align: left !important;
-  padding-left: 12px !important;
+  padding-left: 8px !important;
 }
-.th-resp { width: 120px; min-width: 110px; }
-.th-period { width: 130px; min-width: 110px; }
-.th-na { width: 55px; min-width: 50px; }
-.th-pmoc-status { width: 230px; min-width: 210px; }
-.th-month { width: 60px; min-width: 55px; }
-.th-actions { width: 55px; min-width: 50px; }
+.th-resp { width: 85px; min-width: 72px; }
+.th-period { width: 75px; min-width: 68px; }
+.th-na { width: 36px; min-width: 30px; }
+.th-pmoc-status { width: 90px; min-width: 78px; }
+.th-month { width: 38px; min-width: 32px; padding: 9px 1px !important; }
+.th-actions { width: 38px; min-width: 32px; }
 
 /* Barra de Categoria / Disciplina */
 .category-row td {
@@ -1519,34 +1531,33 @@ body {
 
 /* Badges Status PMOC/ART Fiel à Planilha */
 .td-pmoc-status {
-  padding: 6px 4px !important;
+  padding: 4px 2px !important;
   text-align: center;
 }
 .pmoc-badge {
   display: inline-block;
-  width: 100%;
-  max-width: 215px;
-  padding: 4px 6px;
+  padding: 3px 8px;
   font-size: 0.68rem;
   font-weight: 700;
   line-height: 1.25;
-  border-radius: 4px;
+  border-radius: var(--radius-full);
   text-align: center;
   cursor: pointer;
   border: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  white-space: nowrap;
 }
 .pmoc-badge:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.18);
 }
 .pmoc-badge-red {
   background-color: #e53e3e;
   color: #ffffff;
 }
 .pmoc-badge-green {
-  background-color: #48bb78;
+  background-color: #38a169;
   color: #ffffff;
 }
 .pmoc-badge-orange {
@@ -1554,7 +1565,7 @@ body {
   color: #ffffff;
 }
 .pmoc-badge-gray {
-  background-color: #a0aec0;
+  background-color: #718096;
   color: #ffffff;
 }
 
@@ -1562,7 +1573,7 @@ body {
 .td-month {
   user-select: none;
   position: relative;
-  padding: 4px !important;
+  padding: 3px 1px !important;
 }
 
 /* Células em branco: ESTRITAMENTE ESTÁTICAS E INALTERÁVEIS */
