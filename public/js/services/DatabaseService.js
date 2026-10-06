@@ -32,13 +32,19 @@ class DatabaseService {
    */
   async fetchSystemsFromAPI() {
     try {
-      const res = await fetch('/api/systems');
+      const token = localStorage.getItem('auth_token') || '';
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/systems', { headers });
       if (res.ok) {
         const systems = await res.json();
         if (Array.isArray(systems) && systems.length > 0) {
           localStorage.setItem(this.systemsKey, JSON.stringify(systems));
           return systems;
         }
+      } else {
+        console.warn(`[DatabaseService] GET /api/systems retornou status ${res.status}`);
       }
     } catch (err) {
       console.warn('[DatabaseService] Falha ao sincronizar com MariaDB (usando cache local):', err.message);
@@ -51,26 +57,68 @@ class DatabaseService {
    */
   async saveSystems(systems) {
     try {
-      // 1. Atualização otimista no cache local
-      localStorage.setItem(this.systemsKey, JSON.stringify(systems));
+      const token = localStorage.getItem('auth_token') || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      // 2. Persistência real no MariaDB via API
       const res = await fetch('/api/systems', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-        },
+        headers: headers,
         body: JSON.stringify(systems)
       });
 
       if (!res.ok) {
-        console.warn('[DatabaseService] Servidor retornou erro ao salvar no MariaDB:', res.statusText);
+        const errJson = await res.json().catch(() => ({}));
+        const msg = errJson.error || `Erro HTTP ${res.status}: ${res.statusText}`;
+        console.error('[DatabaseService] Servidor retornou erro ao salvar no MariaDB:', msg);
+        throw new Error(msg);
       }
+
+      // Persistência confirmada pelo banco: atualiza cache local
+      localStorage.setItem(this.systemsKey, JSON.stringify(systems));
       return true;
     } catch (e) {
-      console.error('Erro ao salvar sistemas no MariaDB:', e);
-      return false;
+      console.error('[DatabaseService] Erro ao salvar sistemas no MariaDB:', e);
+      throw e;
+    }
+  }
+
+  /**
+   * Salva um único sistema de forma atômica no MariaDB (mais rápido e sem conflitos)
+   */
+  async saveSingleSystem(system) {
+    if (!system || !system.id) return false;
+    try {
+      const token = localStorage.getItem('auth_token') || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/systems/${encodeURIComponent(system.id)}`, {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(system)
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        const msg = errJson.error || `Erro HTTP ${res.status}: ${res.statusText}`;
+        console.error(`[DatabaseService] Servidor retornou erro ao salvar sistema ${system.id}:`, msg);
+        throw new Error(msg);
+      }
+
+      // Atualiza o sistema modificado no cache local
+      const local = this.getSystems();
+      const idx = local.findIndex(s => s.id === system.id);
+      if (idx !== -1) {
+        local[idx] = system;
+      } else {
+        local.push(system);
+      }
+      localStorage.setItem(this.systemsKey, JSON.stringify(local));
+      return true;
+    } catch (e) {
+      console.error(`[DatabaseService] Erro ao salvar sistema ${system.id}:`, e);
+      throw e;
     }
   }
 

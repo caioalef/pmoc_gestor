@@ -17,7 +17,11 @@ if [ ! -f .env ]; then
     cp .env.example .env
     echo "Arquivo .env criado a partir de .env.example."
 else
-    echo "Arquivo .env já existente."
+    echo "Arquivo .env já existente. Atualizando requisitos de segurança do AD..."
+    if grep -q "AD_REQUIRE_GROUP=false" .env; then
+        sed -i 's/AD_REQUIRE_GROUP=false/AD_REQUIRE_GROUP=true/' .env
+        echo "AD_REQUIRE_GROUP atualizado para true no arquivo .env."
+    fi
 fi
 
 echo "=== [3/5] Ajustando permissões e SELinux no Rocky Linux ==="

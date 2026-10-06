@@ -78,19 +78,21 @@ class BoulevardMaintenanceApp {
           if (mainView) {
             mainView.style.display = 'block';
           }
-          this.render();
 
-          // Sincroniza dados frescos do MariaDB em background
-          this.db.fetchSystemsFromAPI().then(fresh => {
+          // Busca IMEDIATAMENTE os dados frescos do MariaDB
+          try {
+            const fresh = await this.db.fetchSystemsFromAPI();
             if (fresh && fresh.length > 0) {
               this.systems = fresh;
-              this.render();
             }
-          }).catch(fetchErr => {
-            console.warn('Erro ao atualizar dados do MariaDB:', fetchErr);
-          });
+          } catch (fetchErr) {
+            console.warn('Erro ao atualizar dados do MariaDB após login:', fetchErr);
+          }
+
+          this.render();
+          this.showToast(`Bem-vindo, ${result.user.name}! Dados sincronizados com o servidor.`, 'success');
         } else {
-          errorMsg.textContent = (result && result.error) || 'Usuário ou senha incorretos.';
+          errorMsg.textContent = (result && result.error) || 'Acesso negado: usuário não autorizado.';
           errorMsg.style.display = 'block';
         }
       } catch (err) {
@@ -138,17 +140,36 @@ class BoulevardMaintenanceApp {
     this.bindEventListeners();
     this.checkAccessAndRender();
 
-    if (this.auth.hasAccess()) {
-      try {
-        const fresh = await this.db.fetchSystemsFromAPI();
-        if (fresh && fresh.length > 0) {
-          this.systems = fresh;
-          this.render();
+    // 1. Validação de sessão do usuário no servidor
+    if (this.auth.getToken()) {
+      const valid = await this.auth.validateSession();
+      if (!valid) {
+        this.checkAccessAndRender();
+        const overlay = document.getElementById('login-overlay');
+        if (overlay) {
+          overlay.style.display = 'flex';
+          overlay.classList.remove('hidden');
         }
-      } catch (e) {
-        console.warn('Sincronização com MariaDB falhou:', e);
+      } else {
+        this.updateAuthWidget();
       }
     }
+
+    // 2. Busca dados frescos do MariaDB para qualquer acesso
+    try {
+      const fresh = await this.db.fetchSystemsFromAPI();
+      if (fresh && fresh.length > 0) {
+        this.systems = fresh;
+        if (this.auth.hasAccess()) {
+          this.render();
+        }
+      }
+    } catch (e) {
+      console.warn('Sincronização inicial com MariaDB falhou:', e);
+    }
+
+    // 3. Configura sincronização em background e no foco da aba
+    this.setupSyncListeners();
   }
 
   /* ==========================================================================
@@ -578,46 +599,64 @@ class BoulevardMaintenanceApp {
     this.executeAuthorizedAction(actionData, this.auth.getCurrentUser(), authorizer);
   }
 
-  executeAuthorizedAction(actionData, requestUser, authorizer = null) {
+  async executeAuthorizedAction(actionData, requestUser, authorizer = null) {
     if (!actionData) return;
 
     if (actionData.type === 'DELETE_SYSTEM') {
       const systemIndex = this.systems.findIndex(s => s.id === actionData.systemId);
       if (systemIndex !== -1) {
+        const sysId = actionData.systemId;
         const sysName = this.systems[systemIndex].name;
         this.systems.splice(systemIndex, 1);
-        this.db.saveSystems(this.systems);
 
-        this.db.logOperation(
-          'EXCLUIR_SISTEMA',
-          'delete',
-          `Sistema "${sysName}" excluído do cronograma.`,
-          requestUser,
-          authorizer
-        );
+        try {
+          const token = localStorage.getItem('auth_token') || '';
+          await fetch(`/api/systems/${encodeURIComponent(sysId)}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          localStorage.setItem(this.db.systemsKey, JSON.stringify(this.systems));
 
-        this.updateKPIs();
-        this.renderTableOnly();
-        this.showToast(`Sistema "${sysName}" excluído com sucesso.`, 'success');
+          this.db.logOperation(
+            'EXCLUIR_SISTEMA',
+            'delete',
+            `Sistema "${sysName}" excluído do cronograma.`,
+            requestUser,
+            authorizer
+          );
+
+          this.updateKPIs();
+          this.renderTableOnly();
+          this.showToast(`Sistema "${sysName}" excluído com sucesso do MariaDB.`, 'success');
+        } catch (err) {
+          this.showToast('Erro ao excluir sistema no MariaDB: ' + err.message, 'danger');
+        }
       }
     } else if (actionData.type === 'DETACH_PMOC') {
       const system = this.systems.find(s => s.id === actionData.systemId);
       if (system) {
         system.pmoc = { attached: false };
-        this.db.saveSystems(this.systems);
+        system.pmocStatus = 'REQUIRED_NOT_INSERTED';
+        system.pmocStatusLabel = 'Documentação obrigatória não inserida';
 
-        this.db.logOperation(
-          'DESANEXAR_PMOC_ART',
-          'delete',
-          `Documentos PMOC e ART desanexados do sistema "${system.name}".`,
-          requestUser,
-          authorizer
-        );
+        try {
+          await this.db.saveSingleSystem(system);
 
-        this.updateKPIs();
-        this.renderTableOnly();
-        this.openPmocModal(actionData.systemId); // Atualiza modal para VERMELHO
-        this.showToast('Documentos desanexados. Sistema agora está pendente (Vermelho).', 'danger');
+          this.db.logOperation(
+            'DESANEXAR_PMOC_ART',
+            'delete',
+            `Documentos PMOC e ART desanexados do sistema "${system.name}".`,
+            requestUser,
+            authorizer
+          );
+
+          this.updateKPIs();
+          this.renderTableOnly();
+          this.openPmocModal(actionData.systemId); // Atualiza modal para VERMELHO
+          this.showToast('Documentos desanexados no MariaDB. Sistema agora está pendente (Vermelho).', 'danger');
+        } catch (err) {
+          this.showToast('Erro ao desanexar PMOC no banco: ' + err.message, 'danger');
+        }
       }
     }
   }
@@ -1068,7 +1107,7 @@ class BoulevardMaintenanceApp {
     modal.classList.add('is-active');
   }
 
-  handleUploadPmocArt() {
+  async handleUploadPmocArt() {
     const system = this.systems.find(s => s.id === this.activeSystemId);
     if (!system) return;
 
@@ -1099,22 +1138,39 @@ class BoulevardMaintenanceApp {
       artNumber: artNumber && artNumber.value.trim() ? artNumber.value.trim() : `ART-BA-${this.currentYear}-${Math.floor(100000 + Math.random() * 900000)}`,
       engineer: artEngineer && artEngineer.value.trim() ? artEngineer.value.trim() : 'Eng. Ricardo Silveira (CREA-BA 5062831)'
     };
+    system.pmocStatus = 'REQUIRED_ATTACHED';
+    system.pmocStatusLabel = 'Documentação obrigatória inserida sem pendência';
 
-    this.db.saveSystems(this.systems);
+    const saveBtn = document.getElementById('btn-save-pmoc-modal');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Salvando no MariaDB...';
+    }
 
-    this.db.logOperation(
-      'ANEXAR_PMOC_ART',
-      'update',
-      `Documentos PMOC (${pmocFileName}) e ART (${system.pmoc.artNumber}) anexados ao sistema "${system.name}".`,
-      this.auth.getCurrentUser()
-    );
+    try {
+      await this.db.saveSingleSystem(system);
 
-    this.updateKPIs();
-    this.renderTableOnly();
+      this.db.logOperation(
+        'ANEXAR_PMOC_ART',
+        'update',
+        `Documentos PMOC (${pmocFileName}) e ART (${system.pmoc.artNumber}) anexados ao sistema "${system.name}".`,
+        this.auth.getCurrentUser()
+      );
 
-    // Transição imediata para o modal VERDE
-    this.openPmocModal(this.activeSystemId);
-    this.showToast('✅ Arquivos PMOC e ART anexados ao banco de dados com sucesso! Sistema regularizado (Verde).', 'success');
+      this.updateKPIs();
+      this.renderTableOnly();
+
+      // Transição imediata para o modal VERDE
+      this.openPmocModal(this.activeSystemId);
+      this.showToast('✅ Arquivos PMOC e ART gravados no MariaDB com sucesso! Sistema regularizado (Verde).', 'success');
+    } catch (err) {
+      this.showToast('❌ Erro ao salvar PMOC no MariaDB: ' + err.message, 'danger');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Salvar e Regularizar PMOC/ART';
+      }
+    }
   }
 
   quickFillPmocSample() {
@@ -1265,7 +1321,7 @@ class BoulevardMaintenanceApp {
     modal.classList.add('is-active');
   }
 
-  handleSaveMonthStatus() {
+  async handleSaveMonthStatus() {
     const system = this.systems.find(s => s.id === this.activeSystemId);
     if (!system) return;
 
@@ -1289,22 +1345,37 @@ class BoulevardMaintenanceApp {
       documents: this.currentMonthDocs || []
     };
 
-    this.db.saveSystems(this.systems);
+    const saveBtn = document.getElementById('btn-save-month-status');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Salvando no MariaDB...';
+    }
 
-    this.db.logOperation(
-      'ATUALIZAR_MES',
-      'update',
-      `Status do mês ${this.activeMonthIndex}/${this.currentYear} atualizado para ${newStatus} com ${(this.currentMonthDocs || []).length} documento(s) no sistema "${system.name}".`,
-      this.auth.getCurrentUser()
-    );
+    try {
+      await this.db.saveSingleSystem(system);
 
-    this.updateKPIs();
-    this.renderTableOnly();
+      this.db.logOperation(
+        'ATUALIZAR_MES',
+        'update',
+        `Status do mês ${this.activeMonthIndex}/${this.currentYear} atualizado para ${newStatus} com ${(this.currentMonthDocs || []).length} documento(s) no sistema "${system.name}".`,
+        this.auth.getCurrentUser()
+      );
 
-    const modal = document.getElementById('modal-month-status');
-    if (modal) modal.classList.remove('is-active');
+      this.updateKPIs();
+      this.renderTableOnly();
 
-    this.showToast('Manutenção e documentos gravados com sucesso no banco de dados.', 'success');
+      const modal = document.getElementById('modal-month-status');
+      if (modal) modal.classList.remove('is-active');
+
+      this.showToast('✅ Manutenção gravada com sucesso no MariaDB!', 'success');
+    } catch (err) {
+      this.showToast('❌ Erro ao gravar manutenção no MariaDB: ' + err.message, 'danger');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Salvar Alterações';
+      }
+    }
   }
 
   bindMonthDocUploadEvents() {
@@ -1537,24 +1608,27 @@ class BoulevardMaintenanceApp {
     this.showToast('Documento removido da lista. Clique em Salvar para consolidar.', 'info');
   }
 
-  toggleSystemNa(systemId, isChecked) {
+  async toggleSystemNa(systemId, isChecked) {
     const system = this.systems.find(s => s.id === systemId);
     if (!system) return;
 
     system.na = isChecked;
-    this.db.saveSystems(this.systems);
+    try {
+      await this.db.saveSingleSystem(system);
 
-    this.db.logOperation(
-      'ALTERAR_APLICABILIDADE',
-      'update',
-      `Sistema "${system.name}" alterado para ${isChecked ? 'Não se Aplica (NA)' : 'Aplicável'}.`,
-      this.auth.getCurrentUser()
-    );
+      this.db.logOperation(
+        'ALTERAR_APLICABILIDADE',
+        'update',
+        `Sistema "${system.name}" alterado para ${isChecked ? 'Não se Aplica (NA)' : 'Aplicável'}.`,
+        this.auth.getCurrentUser()
+      );
 
-    this.updateKPIs();
-    this.renderTableOnly();
-
-    this.showToast(`${system.name}: marcado como ${isChecked ? 'Não se Aplica' : 'Aplicável'}.`, 'info');
+      this.updateKPIs();
+      this.renderTableOnly();
+      this.showToast(`${system.name}: marcado como ${isChecked ? 'Não se Aplica' : 'Aplicável'} e salvo no MariaDB.`, 'info');
+    } catch (err) {
+      this.showToast('Erro ao salvar no MariaDB: ' + err.message, 'danger');
+    }
   }
 
   openNewSystemModal() {
@@ -1564,7 +1638,7 @@ class BoulevardMaintenanceApp {
     if (modal) modal.classList.add('is-active');
   }
 
-  handleCreateNewSystem() {
+  async handleCreateNewSystem() {
     const cat = document.getElementById('new-sys-category').value;
     const name = document.getElementById('new-sys-name').value.trim();
     const period = document.getElementById('new-sys-period').value;
@@ -1597,22 +1671,27 @@ class BoulevardMaintenanceApp {
       months: {}
     };
 
-    this.systems.push(newSys);
-    this.db.saveSystems(this.systems);
+    try {
+      await this.db.saveSingleSystem(newSys);
+      this.systems.push(newSys);
+      localStorage.setItem(this.db.systemsKey, JSON.stringify(this.systems));
 
-    this.db.logOperation(
-      'CRIAR_SISTEMA',
-      'create',
-      `Novo sistema "${name}" (${period}) cadastrado no setor ${catNames[cat] || cat}.`,
-      this.auth.getCurrentUser()
-    );
+      this.db.logOperation(
+        'CRIAR_SISTEMA',
+        'create',
+        `Novo sistema "${name}" (${period}) cadastrado no setor ${catNames[cat] || cat}.`,
+        this.auth.getCurrentUser()
+      );
 
-    this.render();
+      this.render();
 
-    const modal = document.getElementById('modal-new-system');
-    if (modal) modal.classList.remove('is-active');
+      const modal = document.getElementById('modal-new-system');
+      if (modal) modal.classList.remove('is-active');
 
-    this.showToast(`Sistema "${name}" gravado no banco de dados!`, 'success');
+      this.showToast(`Sistema "${name}" gravado com sucesso no MariaDB!`, 'success');
+    } catch (err) {
+      this.showToast('Erro ao cadastrar novo sistema no MariaDB: ' + err.message, 'danger');
+    }
   }
 
   openDocPreview(docType) {
@@ -1721,6 +1800,67 @@ class BoulevardMaintenanceApp {
       toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 300);
     }, 3500);
+  }
+
+  isAnyModalOpen() {
+    const modals = document.querySelectorAll('.modal.is-active, .modal-custom.is-active');
+    return modals.length > 0;
+  }
+
+  setupSyncListeners() {
+    // 1. Botão do Header para sincronizar manualmente
+    const dbBtn = document.getElementById('btn-open-db-modal');
+    if (dbBtn) {
+      dbBtn.addEventListener('click', async () => {
+        this.showToast('Sincronizando com o banco MariaDB...', 'info');
+        try {
+          const fresh = await this.db.fetchSystemsFromAPI();
+          if (fresh && fresh.length > 0) {
+            this.systems = fresh;
+            this.render();
+            this.showToast('✅ Banco MariaDB sincronizado com sucesso!', 'success');
+          }
+        } catch (e) {
+          this.showToast('Falha na sincronização: ' + e.message, 'warning');
+        }
+      });
+    }
+
+    // 2. Sincronização ao retornar o foco à aba
+    window.addEventListener('focus', async () => {
+      if (this.auth.hasAccess() && !this.isAnyModalOpen()) {
+        try {
+          const fresh = await this.db.fetchSystemsFromAPI();
+          if (fresh && fresh.length > 0) {
+            const currentStr = JSON.stringify(this.systems);
+            const freshStr = JSON.stringify(fresh);
+            if (currentStr !== freshStr) {
+              this.systems = fresh;
+              this.render();
+              console.log('[AutoSync] Dados atualizados do MariaDB sincronizados.');
+            }
+          }
+        } catch (e) {}
+      }
+    });
+
+    // 3. Polling em background a cada 20 segundos
+    setInterval(async () => {
+      if (this.auth.hasAccess() && !this.isAnyModalOpen()) {
+        try {
+          const fresh = await this.db.fetchSystemsFromAPI();
+          if (fresh && fresh.length > 0) {
+            const currentStr = JSON.stringify(this.systems);
+            const freshStr = JSON.stringify(fresh);
+            if (currentStr !== freshStr) {
+              this.systems = fresh;
+              this.render();
+              console.log('[AutoSync] Alterações de outros usuários refletidas na tela.');
+            }
+          }
+        } catch (e) {}
+      }
+    }, 20000);
   }
 }
 

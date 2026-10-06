@@ -94,28 +94,17 @@ export async function authenticateWithAD(username, password) {
       // Busca dados do usuário (grupos, nome de exibição, e-mail)
       const searchOptions = {
         scope: 'sub',
-        filter: `(&(objectCategory=person)(objectClass=user)(sAMAccountName=${cleanUser}))`,
+        filter: `(&(objectCategory=person)(objectClass=user)(|(sAMAccountName=${cleanUser})(userPrincipalName=${upn})))`,
         attributes: ['sAMAccountName', 'displayName', 'cn', 'mail', 'memberOf']
       };
 
       client.search(adBaseDN, searchOptions, (searchErr, res) => {
         if (searchErr) {
-          console.warn('[LDAP] Erro na busca de grupos:', searchErr.message);
+          console.error('[LDAP] Erro na busca de grupos:', searchErr.message);
           client.unbind(() => {});
-          // Se o bind deu certo, concede acesso padrão como USER caso a busca falhe
           return resolve({
-            success: true,
-            user: {
-              id: cleanUser,
-              username: cleanUser,
-              name: cleanUser,
-              email: `${cleanUser}@${adDomain.toLowerCase()}`,
-              role: 'USER',
-              roleLabel: 'User (AD)',
-              canDelete: false,
-              canInsert: true,
-              authSource: 'AD_LDAP'
-            }
+            success: false,
+            error: `Falha ao consultar permissões do usuário no Active Directory: ${searchErr.message}`
           });
         }
 
@@ -132,24 +121,37 @@ export async function authenticateWithAD(username, password) {
         res.on('end', () => {
           client.unbind(() => {});
 
-          const displayName = (userData && (userData.displayName || userData.cn)) || cleanUser;
-          const email = (userData && userData.mail) || `${cleanUser}@${adDomain.toLowerCase()}`;
+          if (!userData) {
+            console.warn(`[LDAP] Usuário ${cleanUser} autenticou no bind, mas objeto não foi encontrado na base ${adBaseDN}`);
+            return resolve({
+              success: false,
+              error: `Usuário autenticado, mas suas informações de grupo não foram localizadas no Active Directory (${adBaseDN}).`
+            });
+          }
+
+          const displayName = userData.displayName || userData.cn || cleanUser;
+          const email = userData.mail || `${cleanUser}@${adDomain.toLowerCase()}`;
           
           let memberOf = [];
           if (userData && userData.memberOf) {
             memberOf = Array.isArray(userData.memberOf) ? userData.memberOf : [userData.memberOf];
           }
 
-          // Verifica se pertence ao grupo de Administradores ou Usuários
+          console.log(`[LDAP] Usuário ${cleanUser} - Grupos identificados (${memberOf.length}):`, memberOf);
+
+          // Verifica se pertence aos grupos autorizados
           const isSysAdmin = memberOf.some(g => String(g).toUpperCase().includes(adminGroup.toUpperCase()));
           const isSysUser = memberOf.some(g => String(g).toUpperCase().includes(userGroup.toUpperCase()));
 
-          // Se você deseja exigir que o usuário pertença explicitamente a um dos grupos:
-          const requireGroup = process.env.AD_REQUIRE_GROUP === 'true';
+          console.log(`[LDAP] Verificação de autorização: isSysAdmin=${isSysAdmin}, isSysUser=${isSysUser}`);
+
+          // BLOQUEIO ESTRITO: Apenas membros de BSFS_OPE_SYSADMIN ou BSFS_OPE_SYSUSER têm permissão
+          const requireGroup = process.env.AD_REQUIRE_GROUP !== 'false';
           if (requireGroup && !isSysAdmin && !isSysUser) {
+            console.warn(`[LDAP] ACESSO NEGADO: ${cleanUser} não pertence aos grupos ${adminGroup} ou ${userGroup}`);
             return resolve({
               success: false,
-              error: `Usuário não possui permissão. É necessário fazer parte do grupo ${userGroup} no AD.`
+              error: `Acesso negado: o usuário "${cleanUser}" não possui permissão de acesso. É obrigatório fazer parte do grupo ${userGroup} ou ${adminGroup} no Active Directory.`
             });
           }
 
@@ -157,7 +159,7 @@ export async function authenticateWithAD(username, password) {
           const roleLabel = isSysAdmin ? 'Superadmin (AD)' : 'User (AD)';
           const canDelete = isSysAdmin;
 
-          console.log(`[LDAP] Login concluído para ${cleanUser} [Role: ${role}]`);
+          console.log(`[LDAP] Login concluído e autorizado para ${cleanUser} [Perfil: ${role}]`);
 
           return resolve({
             success: true,

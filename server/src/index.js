@@ -17,6 +17,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Middleware de Autenticação JWT opcional
+// Middleware de Autenticação JWT
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -26,6 +27,33 @@ function authenticateToken(req, res, next) {
     if (!err) req.user = user;
     next();
   });
+}
+
+function requireAuth(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Acesso não autorizado. É necessário estar autenticado no sistema com usuário de rede.' });
+  }
+  next();
+}
+
+function requireCanInsert(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Acesso não autorizado. É necessário estar autenticado no sistema com usuário de rede.' });
+  }
+  if (!req.user.canInsert && req.user.role !== 'SUPERADMIN' && req.user.role !== 'USER') {
+    return res.status(403).json({ error: 'Acesso negado: seu usuário não possui permissão para salvar alterações no cronograma.' });
+  }
+  next();
+}
+
+function requireCanDelete(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Acesso não autorizado. É necessário estar autenticado no sistema com usuário de rede.' });
+  }
+  if (!req.user.canDelete && req.user.role !== 'SUPERADMIN') {
+    return res.status(403).json({ error: 'Acesso negado: apenas administradores do grupo BSFS_OPE_SYSADMIN podem excluir informações.' });
+  }
+  next();
 }
 
 app.use(authenticateToken);
@@ -73,7 +101,8 @@ app.get('/api/auth/me', (req, res) => {
 app.get('/api/systems', async (req, res) => {
   try {
     const pool = getPool();
-    const [rows] = await pool.query('SELECT * FROM systems ORDER BY category, id');
+    // Ordenação numérica pelo ID para manter a ordem estrita da planilha mestre (1 a 40)
+    const [rows] = await pool.query('SELECT * FROM systems ORDER BY CAST(SUBSTRING(id, 5) AS UNSIGNED), id ASC');
 
     const formatted = rows.map(r => ({
       id: r.id,
@@ -97,11 +126,12 @@ app.get('/api/systems', async (req, res) => {
     res.json(formatted);
   } catch (err) {
     console.error('[API Systems GET Error]:', err.message);
-    res.status(500).json({ error: 'Erro ao buscar sistemas no MariaDB.' });
+    res.status(500).json({ error: 'Erro ao buscar sistemas no MariaDB: ' + err.message });
   }
 });
 
-app.put('/api/systems', async (req, res) => {
+// Atualização / Criação em lote
+app.put('/api/systems', requireCanInsert, async (req, res) => {
   const systems = req.body;
   if (!Array.isArray(systems)) {
     return res.status(400).json({ error: 'Formato inválido. Esperado um array de sistemas.' });
@@ -148,9 +178,9 @@ app.put('/api/systems', async (req, res) => {
           sys.pmocStatusLabel || '',
           sys.standards || '',
           sys.description || '',
-          JSON.stringify(sys.pmoc || { attached: false }),
-          JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
-          JSON.stringify(sys.months || {})
+          typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
+          typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
+          typeof sys.months === 'string' ? sys.months : JSON.stringify(sys.months || {})
         ]
       );
     }
@@ -166,7 +196,64 @@ app.put('/api/systems', async (req, res) => {
   }
 });
 
-app.delete('/api/systems/:id', async (req, res) => {
+// Atualização de um único sistema (rápido e isolado)
+app.put('/api/systems/:id', requireCanInsert, async (req, res) => {
+  const { id } = req.params;
+  const sys = req.body;
+  if (!sys) {
+    return res.status(400).json({ error: 'Dados do sistema são obrigatórios.' });
+  }
+
+  const pool = getPool();
+  try {
+    await pool.query(
+      `INSERT INTO systems 
+       (id, shopping, programacao, category, category_name, name, periodicity, resp_tecnico, na, pmoc_status, pmoc_status_label, standards, description, pmoc_data, equipamento_parado, months_data)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         shopping = VALUES(shopping),
+         programacao = VALUES(programacao),
+         category = VALUES(category),
+         category_name = VALUES(category_name),
+         name = VALUES(name),
+         periodicity = VALUES(periodicity),
+         resp_tecnico = VALUES(resp_tecnico),
+         na = VALUES(na),
+         pmoc_status = VALUES(pmoc_status),
+         pmoc_status_label = VALUES(pmoc_status_label),
+         standards = VALUES(standards),
+         description = VALUES(description),
+         pmoc_data = VALUES(pmoc_data),
+         equipamento_parado = VALUES(equipamento_parado),
+         months_data = VALUES(months_data)`,
+      [
+        id,
+        sys.shopping || 'BSFS',
+        sys.programacao || 'Finalizada',
+        sys.category || 'GERAL',
+        sys.categoryName || sys.category || 'GERAL',
+        sys.name,
+        sys.periodicity || 'Mensal',
+        sys.respTecnico || '',
+        Boolean(sys.na),
+        sys.pmocStatus || 'NOT_REQUIRED',
+        sys.pmocStatusLabel || '',
+        sys.standards || '',
+        sys.description || '',
+        typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
+        typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
+        typeof sys.months === 'string' ? sys.months : JSON.stringify(sys.months || {})
+      ]
+    );
+
+    res.json({ success: true, message: `Sistema ${id} salvo com sucesso no MariaDB.` });
+  } catch (err) {
+    console.error(`[API Systems PUT :id Error for ${id}]:`, err.message);
+    res.status(500).json({ error: `Erro ao salvar sistema ${id} no MariaDB: ` + err.message });
+  }
+});
+
+app.delete('/api/systems/:id', requireCanDelete, async (req, res) => {
   const { id } = req.params;
   try {
     const pool = getPool();
@@ -174,7 +261,7 @@ app.delete('/api/systems/:id', async (req, res) => {
     res.json({ success: true, message: `Sistema ${id} excluído com sucesso.` });
   } catch (err) {
     console.error('[API Systems DELETE Error]:', err.message);
-    res.status(500).json({ error: 'Erro ao excluir sistema no MariaDB.' });
+    res.status(500).json({ error: 'Erro ao excluir sistema no MariaDB: ' + err.message });
   }
 });
 
@@ -203,7 +290,7 @@ app.get('/api/audit-logs', async (req, res) => {
   }
 });
 
-app.post('/api/audit-logs', async (req, res) => {
+app.post('/api/audit-logs', requireAuth, async (req, res) => {
   const log = req.body;
   if (!log || !log.action) {
     return res.status(400).json({ error: 'Dados de log inválidos.' });
@@ -220,8 +307,8 @@ app.post('/api/audit-logs', async (req, res) => {
       [
         id,
         timestamp,
-        log.user || 'anonimo@boulevardfs.com.br',
-        log.group || 'BSFS_OPE_SYSUSER',
+        log.user || (req.user && req.user.email) || 'anonimo@boulevardfs.com.br',
+        log.group || (req.user && req.user.role) || 'BSFS_OPE_SYSUSER',
         log.action,
         log.actionType || 'update',
         log.details || ''
@@ -235,7 +322,7 @@ app.post('/api/audit-logs', async (req, res) => {
   }
 });
 
-app.delete('/api/audit-logs', async (req, res) => {
+app.delete('/api/audit-logs', requireCanDelete, async (req, res) => {
   try {
     const pool = getPool();
     await pool.query('TRUNCATE TABLE audit_logs');

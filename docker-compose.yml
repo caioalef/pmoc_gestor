@@ -3,6 +3,7 @@ services:
     image: mariadb:10.11
     container_name: pmoc_gestor_db
     restart: unless-stopped
+    command: --max_allowed_packet=64M
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-pmoc_root_password_2026}
       MYSQL_DATABASE: ${DB_NAME:-pmoc_db}

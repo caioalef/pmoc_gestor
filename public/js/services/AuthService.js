@@ -100,6 +100,32 @@ class AuthService {
     }
   }
 
+  async validateSession() {
+    const token = this.getToken();
+    if (!token) {
+      this.currentUser = null;
+      localStorage.removeItem('auth_current_user');
+      return false;
+    }
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.user && (data.user.role === 'SUPERADMIN' || data.user.role === 'USER')) {
+          this.currentUser = data.user;
+          localStorage.setItem('auth_current_user', JSON.stringify(data.user));
+          return true;
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao validar sessão no servidor:', e);
+    }
+    this.logout();
+    return false;
+  }
+
   logout() {
     this.currentUser = null;
     localStorage.removeItem('auth_current_user');
@@ -115,7 +141,7 @@ class AuthService {
   }
 
   hasAccess() {
-    return this.currentUser !== null;
+    return this.currentUser !== null && (this.currentUser.role === 'SUPERADMIN' || this.currentUser.role === 'USER');
   }
 
   canDirectDelete() {
