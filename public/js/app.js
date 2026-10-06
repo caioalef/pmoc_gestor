@@ -1826,13 +1826,10 @@ class BoulevardMaintenanceApp {
     const form = document.getElementById('form-new-system');
     if (form) form.reset();
 
-    // Seleciona todos os meses por padrão
-    const gridCheckboxes = document.querySelectorAll('#new-sys-months-grid input[type="checkbox"]');
-    gridCheckboxes.forEach(cb => {
-      cb.checked = true;
-      const card = cb.closest('.month-checkbox-card');
-      if (card) card.classList.add('is-selected');
-    });
+    // Sincroniza os checkboxes com a periodicidade padrão (Mensal)
+    const periodSelect = document.getElementById('new-sys-period');
+    const initialPeriod = (periodSelect && periodSelect.value) || 'Mensal';
+    this.applyNewSystemPeriodPreset(initialPeriod);
 
     if (modal) modal.classList.add('is-active');
   }
@@ -1856,25 +1853,18 @@ class BoulevardMaintenanceApp {
       INCENDIO: 'PREVENÇÃO CONTRA INCÊNDIO'
     };
 
-    // Lê os meses marcados no grid de agendamento do cadastro
+    // Lê estritamente os 12 meses do grid
     const monthsObj = {};
-    const gridCheckboxes = document.querySelectorAll('#new-sys-months-grid input[type="checkbox"]');
-    if (gridCheckboxes.length > 0) {
-      gridCheckboxes.forEach(cb => {
-        const m = parseInt(cb.value, 10);
-        if (cb.checked) {
-          monthsObj[m] = {
-            scheduled: true,
-            status: 'SCHEDULED',
-            documents: []
-          };
-        }
-      });
-    } else {
-      // Fallback: todos os 12 meses agendados
-      for (let m = 1; m <= 12; m++) {
-        monthsObj[m] = { scheduled: true, status: 'SCHEDULED', documents: [] };
-      }
+    let scheduledCount = 0;
+    for (let m = 1; m <= 12; m++) {
+      const cb = document.querySelector(`#new-sys-months-grid input[value="${m}"]`);
+      const isChecked = Boolean(cb && cb.checked);
+      if (isChecked) scheduledCount++;
+      monthsObj[m] = {
+        scheduled: isChecked,
+        status: isChecked ? 'SCHEDULED' : null,
+        documents: []
+      };
     }
 
     const yr = String(this.currentYear || '2026');
@@ -2035,11 +2025,42 @@ class BoulevardMaintenanceApp {
   /* ==========================================================================
      10. Presets de Agendamento, Máquina Parada & Filtros Multi-Select
      ========================================================================== */
-  setupNewSystemSchedulePresets() {
+  applyNewSystemPeriodPreset(period) {
     const grid = document.getElementById('new-sys-months-grid');
     if (!grid) return;
 
-    // Alterna visual dos cards ao marcar/desmarcar
+    let predicate;
+    if (period === 'Mensal') {
+      predicate = () => true;
+    } else if (period === 'Bimestral') {
+      predicate = (m) => m % 2 === 0; // Fev, Abr, Jun, Ago, Out, Dez
+    } else if (period === 'Trimestral') {
+      predicate = (m) => m % 3 === 0; // Mar, Jun, Set, Dez
+    } else if (period === 'Semestral') {
+      predicate = (m) => m === 6 || m === 12; // Jun, Dez
+    } else if (period === 'Anual') {
+      predicate = (m) => m === 12; // Dez
+    } else {
+      return;
+    }
+
+    grid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      const m = parseInt(cb.value, 10);
+      cb.checked = predicate(m);
+      const card = cb.closest('.month-checkbox-card');
+      if (card) {
+        if (cb.checked) card.classList.add('is-selected');
+        else card.classList.remove('is-selected');
+      }
+    });
+  }
+
+  setupNewSystemSchedulePresets() {
+    const grid = document.getElementById('new-sys-months-grid');
+    const periodSelect = document.getElementById('new-sys-period');
+    if (!grid) return;
+
+    // Alterna visual dos cards ao marcar/desmarcar manualmente
     grid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
         const card = cb.closest('.month-checkbox-card');
@@ -2050,18 +2071,14 @@ class BoulevardMaintenanceApp {
       });
     });
 
-    const setMonths = (predicate) => {
-      grid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        const m = parseInt(cb.value, 10);
-        cb.checked = predicate(m);
-        const card = cb.closest('.month-checkbox-card');
-        if (card) {
-          if (cb.checked) card.classList.add('is-selected');
-          else card.classList.remove('is-selected');
-        }
+    // Sincroniza imediatamente quando o usuário seleciona uma opção no dropdown Periodicidade
+    if (periodSelect) {
+      periodSelect.addEventListener('change', (e) => {
+        this.applyNewSystemPeriodPreset(e.target.value);
       });
-    };
+    }
 
+    // Botões de Presets rápidos também atualizam o dropdown e os checkboxes
     const btnAll = document.getElementById('btn-preset-all-months');
     const btnBi = document.getElementById('btn-preset-bimestral');
     const btnTri = document.getElementById('btn-preset-trimestral');
@@ -2069,12 +2086,33 @@ class BoulevardMaintenanceApp {
     const btnAnual = document.getElementById('btn-preset-anual');
     const btnClear = document.getElementById('btn-preset-clear-months');
 
-    if (btnAll) btnAll.addEventListener('click', () => setMonths(() => true));
-    if (btnBi) btnBi.addEventListener('click', () => setMonths(m => m % 2 === 0));
-    if (btnTri) btnTri.addEventListener('click', () => setMonths(m => m % 3 === 0));
-    if (btnSem) btnSem.addEventListener('click', () => setMonths(m => m === 6 || m === 12));
-    if (btnAnual) btnAnual.addEventListener('click', () => setMonths(m => m === 12));
-    if (btnClear) btnClear.addEventListener('click', () => setMonths(() => false));
+    if (btnAll) btnAll.addEventListener('click', () => {
+      if (periodSelect) periodSelect.value = 'Mensal';
+      this.applyNewSystemPeriodPreset('Mensal');
+    });
+    if (btnBi) btnBi.addEventListener('click', () => {
+      if (periodSelect) periodSelect.value = 'Bimestral';
+      this.applyNewSystemPeriodPreset('Bimestral');
+    });
+    if (btnTri) btnTri.addEventListener('click', () => {
+      if (periodSelect) periodSelect.value = 'Trimestral';
+      this.applyNewSystemPeriodPreset('Trimestral');
+    });
+    if (btnSem) btnSem.addEventListener('click', () => {
+      if (periodSelect) periodSelect.value = 'Semestral';
+      this.applyNewSystemPeriodPreset('Semestral');
+    });
+    if (btnAnual) btnAnual.addEventListener('click', () => {
+      if (periodSelect) periodSelect.value = 'Anual';
+      this.applyNewSystemPeriodPreset('Anual');
+    });
+    if (btnClear) btnClear.addEventListener('click', () => {
+      grid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const card = cb.closest('.month-checkbox-card');
+        if (card) card.classList.remove('is-selected');
+      });
+    });
   }
 
   openMaquinaModal(systemId) {
