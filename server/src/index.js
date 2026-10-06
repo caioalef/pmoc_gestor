@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = (process.env.JWT_SECRET || 'pmoc_secret_boulevard_2026') + '_v2_strict_ad';
 
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 // Middleware de Autenticação JWT opcional
 // Middleware de Autenticação JWT

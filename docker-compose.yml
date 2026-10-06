@@ -3,7 +3,7 @@ services:
     image: mariadb:10.11
     container_name: pmoc_gestor_db
     restart: unless-stopped
-    command: --max_allowed_packet=64M
+    command: --max_allowed_packet=128M
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-pmoc_root_password_2026}
       MYSQL_DATABASE: ${DB_NAME:-pmoc_db}
@@ -34,6 +34,7 @@ services:
       DB_HOST: mariadb
       DB_PORT: 3306
     volumes:
+      - ./server/src:/app/src:ro,z
       - ./public/js/data:/public/js/data:ro,z
     networks:
       - pmoc_network
