@@ -857,24 +857,29 @@ body {
   flex-shrink: 0;
 }
 
-.dot-conforme {
+.dot-scheduled {
+  background-color: var(--bsfs-peach);
+  box-shadow: 0 0 5px rgba(232, 152, 94, 0.5);
+}
+
+.dot-done {
   background-color: #10b981;
   box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
 }
 
-.dot-pendente {
+.dot-unrealized {
   background-color: #ef4444;
   box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
 }
 
-.dot-vencido {
+.dot-attention {
   background-color: #f59e0b;
   box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
 }
 
-.dot-na {
-  background-color: #94a3b8;
-  box-shadow: 0 0 4px rgba(148, 163, 184, 0.35);
+.legend-row.is-active {
+  background: var(--bg-elevated);
+  outline: 1px solid var(--bsfs-peach);
 }
 
 .legend-label {

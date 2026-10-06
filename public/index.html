@@ -216,46 +216,46 @@
           </div>
         </div>
 
-        <!-- KPI 3: Gráfico de Pizza Responsivo - Status dos Sistemas -->
+        <!-- KPI 3: Gráfico de Pizza Responsivo - Status das Manutenções dos Sistemas -->
         <div class="kpi-card kpi-card-chart" id="kpi-card-status-chart">
           <div class="kpi-header">
             <span class="kpi-title">Status dos Sistemas</span>
-            <span class="kpi-badge" id="kpi-pie-total-badge">Boulevard Feira</span>
+            <span class="kpi-badge" id="kpi-pie-total-badge">Ano <span class="year-label">2026</span></span>
           </div>
           <div class="kpi-body kpi-chart-body">
             <div class="pie-chart-wrapper">
-              <svg id="systems-status-pie" class="pie-chart-svg" viewBox="0 0 42 42" aria-label="Gráfico de pizza com distribuição de status dos sistemas">
+              <svg id="systems-status-pie" class="pie-chart-svg" viewBox="0 0 42 42" aria-label="Gráfico de pizza com distribuição de status das manutenções">
                 <!-- Slices gerados dinamicamente via JavaScript -->
               </svg>
               <div class="pie-chart-center-label">
                 <span class="pie-center-val" id="kpi-total-systems">0</span>
-                <span class="pie-center-text" id="pie-center-text">Total</span>
+                <span class="pie-center-text" id="pie-center-text">Rotinas</span>
               </div>
             </div>
             <div class="pie-chart-legend" id="systems-status-legend">
-              <div class="legend-row" data-status="REQUIRED_ATTACHED" title="Filtrar por Conforme (Inserido sem pendência)">
-                <span class="legend-dot dot-conforme"></span>
-                <span class="legend-label">Conforme</span>
-                <strong class="legend-val text-emerald" id="legend-count-conforme">0</strong>
-                <span class="legend-pct" id="legend-pct-conforme">(0%)</span>
+              <div class="legend-row" data-status="SCHEDULED" title="Filtrar por Programado">
+                <span class="legend-dot dot-scheduled"></span>
+                <span class="legend-label">Programado</span>
+                <strong class="legend-val text-peach" id="legend-count-scheduled">0</strong>
+                <span class="legend-pct" id="legend-pct-scheduled">(0%)</span>
               </div>
-              <div class="legend-row" data-status="REQUIRED_NOT_INSERTED" title="Filtrar por Pendente (Documentação não inserida)">
-                <span class="legend-dot dot-pendente"></span>
-                <span class="legend-label">Pendente</span>
-                <strong class="legend-val text-red" id="legend-count-pendente">0</strong>
-                <span class="legend-pct" id="legend-pct-pendente">(0%)</span>
+              <div class="legend-row" data-status="DONE" title="Filtrar por Realizado">
+                <span class="legend-dot dot-done"></span>
+                <span class="legend-label">Realizado</span>
+                <strong class="legend-val text-emerald" id="legend-count-done">0</strong>
+                <span class="legend-pct" id="legend-pct-done">(0%)</span>
               </div>
-              <div class="legend-row" data-status="REQUIRED_EXPIRED" title="Filtrar por Vencido (Validade expirada)">
-                <span class="legend-dot dot-vencido"></span>
-                <span class="legend-label">Vencido</span>
-                <strong class="legend-val text-amber" id="legend-count-vencido">0</strong>
-                <span class="legend-pct" id="legend-pct-vencido">(0%)</span>
+              <div class="legend-row" data-status="UNREALIZED" title="Filtrar por Não Realizado / Recusado">
+                <span class="legend-dot dot-unrealized"></span>
+                <span class="legend-label">Não Realizado</span>
+                <strong class="legend-val text-red" id="legend-count-unrealized">0</strong>
+                <span class="legend-pct" id="legend-pct-unrealized">(0%)</span>
               </div>
-              <div class="legend-row" data-status="NOT_REQUIRED" title="Filtrar por Não Aplicável (N/A)">
-                <span class="legend-dot dot-na"></span>
-                <span class="legend-label">N/A</span>
-                <strong class="legend-val text-muted" id="legend-count-na">0</strong>
-                <span class="legend-pct" id="legend-pct-na">(0%)</span>
+              <div class="legend-row" data-status="ATTENTION" title="Filtrar por Atenção / Em Execução">
+                <span class="legend-dot dot-attention"></span>
+                <span class="legend-label">Em Execução</span>
+                <strong class="legend-val text-amber" id="legend-count-attention">0</strong>
+                <span class="legend-pct" id="legend-pct-attention">(0%)</span>
               </div>
             </div>
           </div>

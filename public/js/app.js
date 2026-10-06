@@ -34,7 +34,8 @@ class BoulevardMaintenanceApp {
       categories: [],
       pmocStatuses: [],
       periodicities: [],
-      machineStatuses: []
+      machineStatuses: [],
+      maintenanceStatus: null
     };
 
     this.init();
@@ -811,54 +812,52 @@ class BoulevardMaintenanceApp {
 
     if (!pieSvg) return;
 
-    let conformeCount = 0;
-    let pendenteCount = 0;
-    let vencidoCount = 0;
-    let naCount = 0;
+    let scheduledCount = 0;
+    let doneCount = 0;
+    let unrealizedCount = 0;
+    let attentionCount = 0;
 
-    this.systems.forEach(s => {
-      if (s.na || s.pmocStatus === 'NOT_REQUIRED') {
-        naCount++;
-      } else if (s.pmocStatus === 'REQUIRED_EXPIRED') {
-        vencidoCount++;
-      } else if (s.pmocStatus === 'REQUIRED_ATTACHED') {
-        conformeCount++;
-      } else if (s.pmocStatus === 'REQUIRED_NOT_INSERTED') {
-        pendenteCount++;
-      } else {
-        if (s.pmoc && s.pmoc.attached) conformeCount++;
-        else pendenteCount++;
-      }
+    this.systems.forEach(sys => {
+      if (sys.na) return;
+      const months = this.getSystemMonths(sys, this.currentYear);
+      if (!months) return;
+      Object.values(months).forEach(m => {
+        if (!m || !m.scheduled) return;
+        if (m.status === 'DONE') doneCount++;
+        else if (m.status === 'UNREALIZED') unrealizedCount++;
+        else if (m.status === 'ATTENTION') attentionCount++;
+        else scheduledCount++; // status 'SCHEDULED' ou default
+      });
     });
 
-    const total = this.systems.length;
+    const total = scheduledCount + doneCount + unrealizedCount + attentionCount;
 
     if (centerCountEl) centerCountEl.textContent = total;
-    if (centerTextEl) centerTextEl.textContent = 'Total';
-    if (totalBadgeEl) totalBadgeEl.textContent = `${total} sistemas`;
+    if (centerTextEl) centerTextEl.textContent = 'Rotinas';
+    if (totalBadgeEl) totalBadgeEl.innerHTML = `Ano <span class="year-label">${this.currentYear || '2026'}</span>`;
 
-    const pctConforme = total > 0 ? Math.round((conformeCount / total) * 100) : 0;
-    const pctPendente = total > 0 ? Math.round((pendenteCount / total) * 100) : 0;
-    const pctVencido = total > 0 ? Math.round((vencidoCount / total) * 100) : 0;
-    const pctNa = total > 0 ? Math.round((naCount / total) * 100) : 0;
+    const pctScheduled = total > 0 ? Math.round((scheduledCount / total) * 100) : 0;
+    const pctDone = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+    const pctUnrealized = total > 0 ? Math.round((unrealizedCount / total) * 100) : 0;
+    const pctAttention = total > 0 ? Math.round((attentionCount / total) * 100) : 0;
 
-    const elCountConforme = document.getElementById('legend-count-conforme');
-    const elPctConforme = document.getElementById('legend-pct-conforme');
-    const elCountPendente = document.getElementById('legend-count-pendente');
-    const elPctPendente = document.getElementById('legend-pct-pendente');
-    const elCountVencido = document.getElementById('legend-count-vencido');
-    const elPctVencido = document.getElementById('legend-pct-vencido');
-    const elCountNa = document.getElementById('legend-count-na');
-    const elPctNa = document.getElementById('legend-pct-na');
+    const elCountSched = document.getElementById('legend-count-scheduled');
+    const elPctSched = document.getElementById('legend-pct-scheduled');
+    const elCountDone = document.getElementById('legend-count-done');
+    const elPctDone = document.getElementById('legend-pct-done');
+    const elCountUnr = document.getElementById('legend-count-unrealized');
+    const elPctUnr = document.getElementById('legend-pct-unrealized');
+    const elCountAtt = document.getElementById('legend-count-attention');
+    const elPctAtt = document.getElementById('legend-pct-attention');
 
-    if (elCountConforme) elCountConforme.textContent = conformeCount;
-    if (elPctConforme) elPctConforme.textContent = `(${pctConforme}%)`;
-    if (elCountPendente) elCountPendente.textContent = pendenteCount;
-    if (elPctPendente) elPctPendente.textContent = `(${pctPendente}%)`;
-    if (elCountVencido) elCountVencido.textContent = vencidoCount;
-    if (elPctVencido) elPctVencido.textContent = `(${pctVencido}%)`;
-    if (elCountNa) elCountNa.textContent = naCount;
-    if (elPctNa) elPctNa.textContent = `(${pctNa}%)`;
+    if (elCountSched) elCountSched.textContent = scheduledCount;
+    if (elPctSched) elPctSched.textContent = `(${pctScheduled}%)`;
+    if (elCountDone) elCountDone.textContent = doneCount;
+    if (elPctDone) elPctDone.textContent = `(${pctDone}%)`;
+    if (elCountUnr) elCountUnr.textContent = unrealizedCount;
+    if (elPctUnr) elPctUnr.textContent = `(${pctUnrealized}%)`;
+    if (elCountAtt) elCountAtt.textContent = attentionCount;
+    if (elPctAtt) elPctAtt.textContent = `(${pctAttention}%)`;
 
     if (total === 0) {
       pieSvg.innerHTML = `
@@ -868,10 +867,10 @@ class BoulevardMaintenanceApp {
     }
 
     const slicesData = [
-      { key: 'REQUIRED_ATTACHED', label: 'Conforme', count: conformeCount, color: '#10b981' },
-      { key: 'REQUIRED_NOT_INSERTED', label: 'Pendente', count: pendenteCount, color: '#ef4444' },
-      { key: 'REQUIRED_EXPIRED', label: 'Vencido', count: vencidoCount, color: '#f59e0b' },
-      { key: 'NOT_REQUIRED', label: 'N/A', count: naCount, color: '#94a3b8' }
+      { key: 'SCHEDULED', label: 'Programado', count: scheduledCount, color: '#e8985e' },
+      { key: 'DONE', label: 'Realizado', count: doneCount, color: '#10b981' },
+      { key: 'UNREALIZED', label: 'Não Realizado', count: unrealizedCount, color: '#ef4444' },
+      { key: 'ATTENTION', label: 'Em Execução', count: attentionCount, color: '#f59e0b' }
     ];
 
     const activeSlices = slicesData.filter(s => s.count > 0);
@@ -928,7 +927,7 @@ class BoulevardMaintenanceApp {
 
     const resetCenter = () => {
       centerCountEl.textContent = total;
-      centerTextEl.textContent = 'Total';
+      centerTextEl.textContent = 'Rotinas';
       document.querySelectorAll('.legend-row').forEach(r => r.classList.remove('is-hovered'));
     };
 
@@ -945,7 +944,7 @@ class BoulevardMaintenanceApp {
 
       slice.addEventListener('click', () => {
         const key = slice.getAttribute('data-key');
-        this.filterTableBySingleStatus(key);
+        this.filterTableByMaintenanceStatus(key);
       });
     });
 
@@ -965,37 +964,31 @@ class BoulevardMaintenanceApp {
         resetCenter();
       };
       row.onclick = () => {
-        this.filterTableBySingleStatus(statusKey);
+        this.filterTableByMaintenanceStatus(statusKey);
       };
     });
   }
 
-  filterTableBySingleStatus(statusKey) {
-    const cbs = document.querySelectorAll('.cb-filter-pmoc');
-    if (!cbs || cbs.length === 0) return;
+  filterTableByMaintenanceStatus(statusKey) {
+    const labelMap = {
+      SCHEDULED: 'Programado',
+      DONE: 'Realizado',
+      UNREALIZED: 'Não Realizado / Recusado',
+      ATTENTION: 'Atenção / Em Execução'
+    };
 
-    const isCurrentlyOnly = this.filters.pmocStatuses &&
-      this.filters.pmocStatuses.length === 1 &&
-      this.filters.pmocStatuses[0] === statusKey;
-
-    if (isCurrentlyOnly) {
-      cbs.forEach(cb => {
-        cb.checked = false;
-      });
-      cbs[0].dispatchEvent(new Event('change'));
+    if (this.filters.maintenanceStatus === statusKey) {
+      this.filters.maintenanceStatus = null;
+      document.querySelectorAll('.legend-row').forEach(r => r.classList.remove('is-active'));
       this.showToast('Filtro de status removido (exibindo todos os sistemas).', 'info');
     } else {
-      let targetLabel = statusKey;
-      cbs.forEach(cb => {
-        cb.checked = (cb.value === statusKey);
-        if (cb.value === statusKey) {
-          const span = cb.nextElementSibling;
-          if (span) targetLabel = span.textContent.trim().replace(/^[^\w\s]+\s*/, '');
-        }
+      this.filters.maintenanceStatus = statusKey;
+      document.querySelectorAll('.legend-row').forEach(r => {
+        r.classList.toggle('is-active', r.getAttribute('data-status') === statusKey);
       });
-      cbs[0].dispatchEvent(new Event('change'));
-      this.showToast(`Filtrado por: ${targetLabel}`, 'info');
+      this.showToast(`Filtrado por status: ${labelMap[statusKey] || statusKey}`, 'info');
     }
+    this.renderTableOnly();
   }
 
   getFilteredSystems() {
@@ -1056,6 +1049,19 @@ class BoulevardMaintenanceApp {
         if (!matchesStopped && !matchesOperational) {
           return false;
         }
+      }
+
+      // 6. Filtro por Status de Manutenção (selecionado no gráfico de pizza)
+      if (this.filters.maintenanceStatus) {
+        if (item.na) return false;
+        const months = this.getSystemMonths(item, this.currentYear);
+        if (!months) return false;
+        const hasMatchingStatus = Object.values(months).some(m => {
+          if (!m || !m.scheduled) return false;
+          const st = m.status || 'SCHEDULED';
+          return st === this.filters.maintenanceStatus;
+        });
+        if (!hasMatchingStatus) return false;
       }
 
       return true;
@@ -2568,7 +2574,8 @@ class BoulevardMaintenanceApp {
         if (searchInput) searchInput.value = '';
         if (btnClear) btnClear.style.display = 'none';
 
-        this.filters = { search: '', categories: [], pmocStatuses: [], periodicities: [], machineStatuses: [] };
+        this.filters = { search: '', categories: [], pmocStatuses: [], periodicities: [], machineStatuses: [], maintenanceStatus: null };
+        document.querySelectorAll('.legend-row').forEach(r => r.classList.remove('is-active'));
 
         const labelCat = document.getElementById('label-filter-category');
         const labelPmoc = document.getElementById('label-filter-pmoc');
