@@ -12,7 +12,8 @@ export function getPool() {
       database: process.env.DB_NAME || 'pmoc_db',
       waitForConnections: true,
       connectionLimit: 10,
-      queueLimit: 0
+      queueLimit: 0,
+      maxAllowedPacket: 256 * 1024 * 1024 // 256MB para uploads de arquivos
     });
   }
   return pool;
@@ -22,6 +23,14 @@ export async function initDatabase() {
   const p = getPool();
 
   console.log('[MariaDB] Verificando e inicializando tabelas...');
+
+  // Garante dinamicamente que o MariaDB aceite queries de até 256MB
+  try {
+    await p.query('SET GLOBAL max_allowed_packet = 268435456');
+    console.log('[MariaDB] max_allowed_packet global configurado para 256MB.');
+  } catch (pktErr) {
+    console.warn('[MariaDB] Aviso ao configurar max_allowed_packet global:', pktErr.message);
+  }
 
   // 1. Tabela de Sistemas
   await p.query(`

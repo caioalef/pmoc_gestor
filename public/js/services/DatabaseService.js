@@ -28,6 +28,89 @@ class DatabaseService {
   }
 
   /**
+   * Sanitiza os sistemas para cache local no localStorage, removendo os grandes blobs base64
+   * e preservando metadados completos para nunca ultrapassar a cota de 5MB do navegador.
+   */
+  sanitizeSystemsForStorage(systems) {
+    if (!Array.isArray(systems)) return [];
+    try {
+      return systems.map(sys => {
+        const copy = { ...sys };
+
+        if (copy.months && typeof copy.months === 'object') {
+          const cleanMonths = {};
+          Object.entries(copy.months).forEach(([mKey, mVal]) => {
+            if (mVal && Array.isArray(mVal.documents)) {
+              cleanMonths[mKey] = {
+                ...mVal,
+                documents: mVal.documents.map(d => ({
+                  id: d.id,
+                  name: d.name,
+                  size: d.size,
+                  type: d.type,
+                  uploadedAt: d.uploadedAt,
+                  uploadedBy: d.uploadedBy,
+                  hasData: Boolean(d.dataUrl)
+                }))
+              };
+            } else {
+              cleanMonths[mKey] = mVal;
+            }
+          });
+          copy.months = cleanMonths;
+        }
+
+        if (copy.years && typeof copy.years === 'object') {
+          const cleanYears = {};
+          Object.entries(copy.years).forEach(([yKey, yVal]) => {
+            if (yVal && yVal.months && typeof yVal.months === 'object') {
+              const cleanYMonths = {};
+              Object.entries(yVal.months).forEach(([mKey, mVal]) => {
+                if (mVal && Array.isArray(mVal.documents)) {
+                  cleanYMonths[mKey] = {
+                    ...mVal,
+                    documents: mVal.documents.map(d => ({
+                      id: d.id,
+                      name: d.name,
+                      size: d.size,
+                      type: d.type,
+                      uploadedAt: d.uploadedAt,
+                      uploadedBy: d.uploadedBy,
+                      hasData: Boolean(d.dataUrl)
+                    }))
+                  };
+                } else {
+                  cleanYMonths[mKey] = mVal;
+                }
+              });
+              cleanYears[yKey] = { ...yVal, months: cleanYMonths };
+            } else {
+              cleanYears[yKey] = yVal;
+            }
+          });
+          copy.years = cleanYears;
+        }
+
+        return copy;
+      });
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /**
+   * Grava no localStorage com tratamento de erro resiliente
+   */
+  safeSaveToLocalStorage(systems) {
+    try {
+      const sanitized = this.sanitizeSystemsForStorage(systems);
+      localStorage.setItem(this.systemsKey, JSON.stringify(sanitized));
+    } catch (e) {
+      console.warn('[DatabaseService] Aviso: quota do localStorage excedida. Os dados estão salvos com segurança no MariaDB.', e.message);
+    }
+  }
+
+  /**
    * Sincroniza e busca a versão mais recente dos sistemas no MariaDB via API.
    */
   async fetchSystemsFromAPI() {
@@ -40,7 +123,7 @@ class DatabaseService {
       if (res.ok) {
         const systems = await res.json();
         if (Array.isArray(systems) && systems.length > 0) {
-          localStorage.setItem(this.systemsKey, JSON.stringify(systems));
+          this.safeSaveToLocalStorage(systems);
           return systems;
         }
       } else {
@@ -74,8 +157,8 @@ class DatabaseService {
         throw new Error(msg);
       }
 
-      // Persistência confirmada pelo banco: atualiza cache local
-      localStorage.setItem(this.systemsKey, JSON.stringify(systems));
+      // Persistência confirmada pelo banco: atualiza cache local de forma segura
+      this.safeSaveToLocalStorage(systems);
       return true;
     } catch (e) {
       console.error('[DatabaseService] Erro ao salvar sistemas no MariaDB:', e);
@@ -106,15 +189,20 @@ class DatabaseService {
         throw new Error(msg);
       }
 
-      // Atualiza o sistema modificado no cache local
-      const local = this.getSystems();
-      const idx = local.findIndex(s => s.id === system.id);
-      if (idx !== -1) {
-        local[idx] = system;
-      } else {
-        local.push(system);
+      // Atualiza o sistema modificado no cache local com proteção contra estouro de quota
+      try {
+        const local = this.getSystems();
+        const idx = local.findIndex(s => s.id === system.id);
+        if (idx !== -1) {
+          local[idx] = system;
+        } else {
+          local.push(system);
+        }
+        this.safeSaveToLocalStorage(local);
+      } catch (cacheErr) {
+        console.warn('[DatabaseService] Aviso ao atualizar cache local:', cacheErr.message);
       }
-      localStorage.setItem(this.systemsKey, JSON.stringify(local));
+
       return true;
     } catch (e) {
       console.error(`[DatabaseService] Erro ao salvar sistema ${system.id}:`, e);

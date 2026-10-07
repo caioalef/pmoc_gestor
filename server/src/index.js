@@ -14,8 +14,40 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = (process.env.JWT_SECRET || 'pmoc_secret_boulevard_2026') + '_v2_strict_ad';
 
 app.use(cors());
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({ limit: '200mb' }));
+app.use(express.urlencoded({ limit: '200mb', extended: true }));
+
+function prepareMonthsDataPayload(sys) {
+  const years = sys.years || null;
+  const rawMonths = typeof sys.months === 'object' && sys.months !== null ? sys.months : {};
+
+  let lightMonths = rawMonths;
+  if (years && (years['2026'] || Object.keys(years).length > 0)) {
+    lightMonths = {};
+    Object.entries(rawMonths).forEach(([mKey, mVal]) => {
+      if (mVal && Array.isArray(mVal.documents)) {
+        lightMonths[mKey] = {
+          ...mVal,
+          documents: mVal.documents.map(d => ({
+            id: d.id,
+            name: d.name,
+            size: d.size,
+            type: d.type,
+            uploadedAt: d.uploadedAt,
+            uploadedBy: d.uploadedBy
+          }))
+        };
+      } else {
+        lightMonths[mKey] = mVal;
+      }
+    });
+  }
+
+  return JSON.stringify({
+    ...lightMonths,
+    _years: years || (rawMonths._years ? rawMonths._years : null)
+  });
+}
 
 // Middleware de Autenticação JWT opcional
 // Middleware de Autenticação JWT
@@ -113,9 +145,13 @@ app.get('/api/systems', async (req, res) => {
         monthsData = {};
       }
       const yearsData = monthsData._years || monthsData.years || null;
-      const cleanMonths = { ...monthsData };
+      let cleanMonths = { ...monthsData };
       delete cleanMonths._years;
       delete cleanMonths.years;
+
+      if (yearsData && yearsData['2026'] && yearsData['2026'].months) {
+        cleanMonths = yearsData['2026'].months;
+      }
 
       return {
         id: r.id,
@@ -195,10 +231,7 @@ app.put('/api/systems', requireCanInsert, async (req, res) => {
           sys.description || '',
           typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
           typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
-          JSON.stringify({
-            ...(typeof sys.months === 'object' && sys.months !== null ? sys.months : {}),
-            _years: sys.years || (typeof sys.months === 'object' && sys.months ? sys.months._years : null)
-          })
+          prepareMonthsDataPayload(sys)
         ]
       );
     }
@@ -260,10 +293,7 @@ app.put('/api/systems/:id', requireCanInsert, async (req, res) => {
         sys.description || '',
         typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
         typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
-        JSON.stringify({
-          ...(typeof sys.months === 'object' && sys.months !== null ? sys.months : {}),
-          _years: sys.years || (typeof sys.months === 'object' && sys.months ? sys.months._years : null)
-        })
+        prepareMonthsDataPayload(sys)
       ]
     );
 

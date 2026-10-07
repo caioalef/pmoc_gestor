@@ -639,7 +639,7 @@ class BoulevardMaintenanceApp {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          localStorage.setItem(this.db.systemsKey, JSON.stringify(this.systems));
+          this.db.safeSaveToLocalStorage(this.systems);
 
           this.db.logOperation(
             'EXCLUIR_SISTEMA',
@@ -1800,15 +1800,19 @@ class BoulevardMaintenanceApp {
 
   handleProcessMonthFiles(files) {
     if (!this.currentMonthDocs) this.currentMonthDocs = [];
-    let loadedCount = 0;
-
-    files.forEach(file => {
-      // Limite individual de 15MB
-      if (file.size > 15 * 1024 * 1024) {
-        this.showToast(`Arquivo "${file.name}" ultrapassa 15MB e foi ignorado.`, 'warning');
-        return;
+    const validFiles = Array.from(files).filter(file => {
+      // Limite individual ampliado para 30MB
+      if (file.size > 30 * 1024 * 1024) {
+        this.showToast(`Arquivo "${file.name}" ultrapassa 30MB e foi ignorado.`, 'warning');
+        return false;
       }
+      return true;
+    });
 
+    if (validFiles.length === 0) return;
+
+    let loadedCount = 0;
+    validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const user = this.auth.getCurrentUser() || { name: 'Operador' };
@@ -1821,18 +1825,25 @@ class BoulevardMaintenanceApp {
           size: file.size,
           type: file.type || 'application/octet-stream',
           uploadedAt: dateStr,
-          uploadedBy: user.name,
+          uploadedBy: user.name || user.username || 'Operador',
           dataUrl: event.target.result
         };
 
         this.currentMonthDocs.push(docItem);
         loadedCount++;
+        this.renderMonthDocsList();
 
-        if (loadedCount === files.length) {
-          this.renderMonthDocsList();
-          this.showToast(`${loadedCount} documento(s) inserido(s). Clique em Salvar para gravar no banco.`, 'success');
+        if (loadedCount === validFiles.length) {
+          this.showToast(`${loadedCount} documento(s) inserido(s). Clique em Salvar para gravar no MariaDB.`, 'success');
         }
       };
+
+      reader.onerror = () => {
+        this.showToast(`Erro ao processar arquivo "${file.name}".`, 'danger');
+        loadedCount++;
+        this.renderMonthDocsList();
+      };
+
       reader.readAsDataURL(file);
     });
   }
@@ -2069,7 +2080,7 @@ class BoulevardMaintenanceApp {
     try {
       await this.db.saveSingleSystem(newSys);
       this.systems.push(newSys);
-      localStorage.setItem(this.db.systemsKey, JSON.stringify(this.systems));
+      this.db.safeSaveToLocalStorage(this.systems);
 
       this.db.logOperation(
         'CRIAR_SISTEMA',
