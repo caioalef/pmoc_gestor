@@ -1738,12 +1738,15 @@ body {
   padding: 3px 1px !important;
 }
 
-/* Células em branco: ESTRITAMENTE ESTÁTICAS E INALTERÁVEIS */
+/* Células em branco: Neutras com opção de clique para manutenção extraordinária */
 .td-month-static-empty {
-  pointer-events: none !important;
-  cursor: default !important;
-  user-select: none !important;
-  background: #ffffff !important;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-surface);
+  transition: background-color var(--transition-fast);
+}
+.td-month-static-empty:hover {
+  background-color: rgba(140, 71, 72, 0.08);
 }
 
 /* Células marcadas: Interativas com clique para detalhes e documentos */

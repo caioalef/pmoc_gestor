@@ -18,13 +18,29 @@ app.use(express.json({ limit: '200mb' }));
 app.use(express.urlencoded({ limit: '200mb', extended: true }));
 
 function prepareMonthsDataPayload(sys) {
-  const years = sys.years || null;
+  let years = sys.years || null;
   const rawMonths = typeof sys.months === 'object' && sys.months !== null ? sys.months : {};
+
+  // Normaliza anos para garantir estrutura consistente { [ano]: { months: { ... } } }
+  if (years && typeof years === 'object') {
+    const normYears = {};
+    Object.entries(years).forEach(([yrKey, yrVal]) => {
+      if (yrVal && typeof yrVal === 'object') {
+        if (yrVal.months && typeof yrVal.months === 'object') {
+          normYears[yrKey] = yrVal;
+        } else {
+          normYears[yrKey] = { months: yrVal };
+        }
+      }
+    });
+    years = normYears;
+  }
 
   let lightMonths = rawMonths;
   if (years && (years['2026'] || Object.keys(years).length > 0)) {
     lightMonths = {};
     Object.entries(rawMonths).forEach(([mKey, mVal]) => {
+      if (mKey === '_years' || mKey === 'years') return;
       if (mVal && Array.isArray(mVal.documents)) {
         lightMonths[mKey] = {
           ...mVal,
@@ -256,6 +272,22 @@ app.put('/api/systems/:id', requireCanInsert, async (req, res) => {
   }
 
   const pool = getPool();
+  const sysName = sys.name || sys.manutencao || id || 'Sistema';
+  const sysCategory = sys.category || 'GERAL';
+  const sysCategoryName = sys.categoryName || sys.category || 'GERAL';
+  const sysPeriodicity = sys.periodicity || 'Mensal';
+  const sysRespTecnico = sys.respTecnico || '';
+  const sysShopping = sys.shopping || 'BSFS';
+  const sysProgramacao = sys.programacao || 'Finalizada';
+  const sysNa = Boolean(sys.na);
+  const sysPmocStatus = sys.pmocStatus || 'NOT_REQUIRED';
+  const sysPmocStatusLabel = sys.pmocStatusLabel || '';
+  const sysStandards = sys.standards || '';
+  const sysDescription = sys.description || '';
+  const sysPmoc = typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false });
+  const sysEquipParado = typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null });
+  const sysMonthsData = prepareMonthsDataPayload(sys);
+
   try {
     await pool.query(
       `INSERT INTO systems 
@@ -279,28 +311,28 @@ app.put('/api/systems/:id', requireCanInsert, async (req, res) => {
          months_data = VALUES(months_data)`,
       [
         id,
-        sys.shopping || 'BSFS',
-        sys.programacao || 'Finalizada',
-        sys.category || 'GERAL',
-        sys.categoryName || sys.category || 'GERAL',
-        sys.name,
-        sys.periodicity || 'Mensal',
-        sys.respTecnico || '',
-        Boolean(sys.na),
-        sys.pmocStatus || 'NOT_REQUIRED',
-        sys.pmocStatusLabel || '',
-        sys.standards || '',
-        sys.description || '',
-        typeof sys.pmoc === 'string' ? sys.pmoc : JSON.stringify(sys.pmoc || { attached: false }),
-        typeof sys.equipamentoParado === 'string' ? sys.equipamentoParado : JSON.stringify(sys.equipamentoParado || { isParado: false, dataParada: null }),
-        prepareMonthsDataPayload(sys)
+        sysShopping,
+        sysProgramacao,
+        sysCategory,
+        sysCategoryName,
+        sysName,
+        sysPeriodicity,
+        sysRespTecnico,
+        sysNa,
+        sysPmocStatus,
+        sysPmocStatusLabel,
+        sysStandards,
+        sysDescription,
+        sysPmoc,
+        sysEquipParado,
+        sysMonthsData
       ]
     );
 
     res.json({ success: true, message: `Sistema ${id} salvo com sucesso no MariaDB.` });
   } catch (err) {
-    console.error(`[API Systems PUT :id Error for ${id}]:`, err.message);
-    res.status(500).json({ error: `Erro ao salvar sistema ${id} no MariaDB: ` + err.message });
+    console.error(`[API Systems PUT :id Error for ${id} ("${sysName}")]:`, err.code, err.sqlMessage || err.message);
+    res.status(500).json({ error: `Erro ao salvar sistema ${id} no MariaDB (${err.code || 'DB_ERROR'}): ` + (err.sqlMessage || err.message) });
   }
 });
 

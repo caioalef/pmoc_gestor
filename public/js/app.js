@@ -1135,8 +1135,11 @@ class BoulevardMaintenanceApp {
         const hasDocs = docs.length > 0;
 
         if (isNa || !isScheduled) {
-          // Calendário Estático: mês sem manutenção é inalterável e desabilitado
-          monthsHtml += `<td class="td-month td-month-static-empty" aria-disabled="true"></td>`;
+          // Calendário Estático: mês sem manutenção originalmente prevista
+          const emptyTitle = isNa
+            ? 'Sistema Não Aplicável (N.A.)'
+            : `Mês não previsto originalmente (Periodicidade: ${system.periodicity || 'Programada'}). Clique para registrar manutenção extraordinária ou anexar documentos.`;
+          monthsHtml += `<td class="td-month td-month-static-empty" data-sys-id="${system.id}" data-month-index="${m}" title="${emptyTitle}"></td>`;
         } else {
           // Mês agendado no cadastro: interativo, permite registrar execução e laudos
           const docBadgeHtml = hasDocs ? `<span class="month-doc-indicator" title="${docs.length} documento(s) anexado(s)">📎</span>` : '';
@@ -1264,6 +1267,32 @@ class BoulevardMaintenanceApp {
         const system = this.systems.find(s => s.id === sysId);
         if (system && !system.na) {
           this.openMonthStatusModal(sysId, parseInt(monthIndex, 10));
+        }
+      });
+    });
+
+    const monthNames = [
+      '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+
+    tbody.querySelectorAll('.td-month-static-empty').forEach(td => {
+      td.addEventListener('click', () => {
+        const sysId = td.getAttribute('data-sys-id');
+        const monthIndex = parseInt(td.getAttribute('data-month-index'), 10);
+        const system = this.systems.find(s => s.id === sysId);
+        if (!system) return;
+
+        if (system.na) {
+          this.showToast(`O sistema "${system.name}" é classificado como Não Aplicável (N.A.).`, 'info');
+          return;
+        }
+
+        const mName = monthNames[monthIndex] || `Mês ${monthIndex}`;
+        const confirmMsg = `O sistema "${system.name}" possui periodicidade "${system.periodicity}" e não possui rotina prevista para ${mName}/${this.currentYear} no calendário master.\n\nDeseja abrir este mês para registrar uma manutenção avulsa/extraordinária e anexar documentos?`;
+
+        if (confirm(confirmMsg)) {
+          this.openMonthStatusModal(sysId, monthIndex);
         }
       });
     });
@@ -1619,8 +1648,11 @@ class BoulevardMaintenanceApp {
     if (!system.years) system.years = {};
     if (!system.years[yr]) {
       system.years[yr] = { months: this.getSystemMonths(system, yr) };
+    } else if (!system.years[yr].months) {
+      const existingMonths = typeof system.years[yr] === 'object' ? { ...system.years[yr] } : {};
+      delete existingMonths.months;
+      system.years[yr] = { months: existingMonths };
     }
-    if (!system.years[yr].months) system.years[yr].months = {};
 
     const monthData = system.years[yr].months[this.activeMonthIndex] || {};
     const currentlyScheduled = Boolean(monthData.scheduled);
@@ -1678,9 +1710,10 @@ class BoulevardMaintenanceApp {
     if (!system.years) system.years = {};
     if (!system.years[yr]) {
       system.years[yr] = { months: this.getSystemMonths(system, yr) };
-    }
-    if (!system.years[yr].months) {
-      system.years[yr].months = {};
+    } else if (!system.years[yr].months) {
+      const existingMonths = typeof system.years[yr] === 'object' ? { ...system.years[yr] } : {};
+      delete existingMonths.months;
+      system.years[yr] = { months: existingMonths };
     }
 
     const prevMonthData = system.years[yr].months[this.activeMonthIndex] || {};

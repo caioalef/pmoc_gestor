@@ -63,9 +63,11 @@ class DatabaseService {
         if (copy.years && typeof copy.years === 'object') {
           const cleanYears = {};
           Object.entries(copy.years).forEach(([yKey, yVal]) => {
-            if (yVal && yVal.months && typeof yVal.months === 'object') {
+            if (yVal && typeof yVal === 'object') {
+              const srcMonths = (yVal.months && typeof yVal.months === 'object') ? yVal.months : yVal;
               const cleanYMonths = {};
-              Object.entries(yVal.months).forEach(([mKey, mVal]) => {
+              Object.entries(srcMonths).forEach(([mKey, mVal]) => {
+                if (mKey === 'months') return;
                 if (mVal && Array.isArray(mVal.documents)) {
                   cleanYMonths[mKey] = {
                     ...mVal,
@@ -83,7 +85,7 @@ class DatabaseService {
                   cleanYMonths[mKey] = mVal;
                 }
               });
-              cleanYears[yKey] = { ...yVal, months: cleanYMonths };
+              cleanYears[yKey] = { months: cleanYMonths };
             } else {
               cleanYears[yKey] = yVal;
             }
@@ -184,7 +186,7 @@ class DatabaseService {
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        const msg = errJson.error || `Erro HTTP ${res.status}: ${res.statusText}`;
+        const msg = errJson.error || errJson.sqlMessage || `Erro HTTP ${res.status}: ${res.statusText}`;
         console.error(`[DatabaseService] Servidor retornou erro ao salvar sistema ${system.id}:`, msg);
         throw new Error(msg);
       }

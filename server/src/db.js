@@ -10,6 +10,7 @@ export function getPool() {
       user: process.env.DB_USER || 'pmoc_user',
       password: process.env.DB_PASSWORD || 'pmoc_password_2026',
       database: process.env.DB_NAME || 'pmoc_db',
+      charset: 'utf8mb4',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
@@ -27,7 +28,8 @@ export async function initDatabase() {
   // Garante dinamicamente que o MariaDB aceite queries de até 256MB
   try {
     await p.query('SET GLOBAL max_allowed_packet = 268435456');
-    console.log('[MariaDB] max_allowed_packet global configurado para 256MB.');
+    await p.query('SET SESSION max_allowed_packet = 268435456');
+    console.log('[MariaDB] max_allowed_packet global e de sessão configurados para 256MB.');
   } catch (pktErr) {
     console.warn('[MariaDB] Aviso ao configurar max_allowed_packet global:', pktErr.message);
   }
@@ -56,33 +58,47 @@ export async function initDatabase() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
 
-  // 2. Verificação individual e migração de colunas
+  // 2. Garantir explicitamente que colunas de texto/JSON sejam LONGTEXT sem restrições
+  const alterColumns = [
+    'ALTER TABLE systems MODIFY COLUMN months_data LONGTEXT',
+    'ALTER TABLE systems MODIFY COLUMN description LONGTEXT',
+    'ALTER TABLE systems MODIFY COLUMN pmoc_data LONGTEXT',
+    'ALTER TABLE systems MODIFY COLUMN equipamento_parado LONGTEXT',
+    'ALTER TABLE systems MODIFY COLUMN name VARCHAR(255) NOT NULL',
+    'ALTER TABLE systems MODIFY COLUMN category VARCHAR(100) NOT NULL',
+    'ALTER TABLE systems MODIFY COLUMN category_name VARCHAR(150) NOT NULL',
+    'ALTER TABLE systems MODIFY COLUMN periodicity VARCHAR(100) NOT NULL',
+    'ALTER TABLE systems MODIFY COLUMN resp_tecnico VARCHAR(255) DEFAULT \'\''
+  ];
+
+  for (const alterSql of alterColumns) {
+    try {
+      await p.query(alterSql);
+    } catch (alterErr) {
+      // Ignora se tabela acabou de ser criada com esses tipos
+    }
+  }
+
+  // 3. Verificação de colunas adicionais legadas
   const requiredColumns = [
     { name: 'shopping', def: "VARCHAR(100) DEFAULT 'BSFS'" },
     { name: 'programacao', def: "VARCHAR(100) DEFAULT 'Finalizada'" },
     { name: 'resp_tecnico', def: "VARCHAR(255) DEFAULT ''" },
     { name: 'pmoc_status', def: "VARCHAR(100) DEFAULT 'NOT_REQUIRED'" },
     { name: 'pmoc_status_label', def: "VARCHAR(255) DEFAULT ''" },
-    { name: 'standards', def: "TEXT" },
-    { name: 'description', def: "LONGTEXT" },
-    { name: 'pmoc_data', def: "LONGTEXT" },
-    { name: 'equipamento_parado', def: "LONGTEXT" },
-    { name: 'months_data', def: "LONGTEXT" }
+    { name: 'standards', def: "TEXT" }
   ];
 
   for (const col of requiredColumns) {
     try {
       const [existing] = await p.query(
-        `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
+        `SELECT COLUMN_NAME FROM information_schema.COLUMNS 
          WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'systems' AND COLUMN_NAME = ?`,
         [col.name]
       );
       if (existing.length === 0) {
         console.log(`[MariaDB] Adicionando coluna ausente \`${col.name}\` em systems...`);
         await p.query(`ALTER TABLE systems ADD COLUMN \`${col.name}\` ${col.def}`);
-      } else if (col.def === 'LONGTEXT' && existing[0].DATA_TYPE !== 'longtext') {
-        console.log(`[MariaDB] Atualizando tipo da coluna \`${col.name}\` para LONGTEXT...`);
-        await p.query(`ALTER TABLE systems MODIFY COLUMN \`${col.name}\` LONGTEXT`);
       }
     } catch (colErr) {
       console.warn(`[MariaDB] Aviso ao verificar coluna ${col.name}:`, colErr.message);
