@@ -2,9 +2,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependências necessárias
-COPY package.json ./
-RUN npm install --production
+# Instalar dependências necessárias de produção
+COPY package*.json ./
+RUN npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
 
 # Copiar código da API
 COPY src ./src
