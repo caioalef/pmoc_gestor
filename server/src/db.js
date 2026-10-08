@@ -13,8 +13,7 @@ export function getPool() {
       charset: 'utf8mb4',
       waitForConnections: true,
       connectionLimit: 10,
-      queueLimit: 0,
-      maxAllowedPacket: 256 * 1024 * 1024 // 256MB para uploads de arquivos
+      queueLimit: 0
     });
   }
   return pool;
