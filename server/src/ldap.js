@@ -117,7 +117,7 @@ export async function authenticateWithAD(username, password) {
     // Realiza o Bind com as credenciais do usuário
     client.bind(upn, password, (bindErr) => {
       if (bindErr) {
-        console.warn(`[LDAP] Falha de autenticação para ${upn}:`, bindErr.message);
+        console.warn('[LDAP] Falha de autenticação para %s:', upn, bindErr.message);
         client.unbind(() => { });
         return resolve({
           success: false,
@@ -182,7 +182,7 @@ export async function authenticateWithAD(username, password) {
             memberOf = Array.isArray(rawMemberOf) ? rawMemberOf : [rawMemberOf];
           }
 
-          console.log(`[LDAP] Usuário ${cleanUser} - Grupos identificados (${memberOf.length}):`, memberOf);
+          console.log('[LDAP] Usuário %s - Grupos identificados (%d):', cleanUser, memberOf.length, memberOf);
 
           // Verifica se pertence aos grupos autorizados
           const isSysAdmin = memberOf.some(g => String(g).toUpperCase().includes(adminGroup.toUpperCase()));

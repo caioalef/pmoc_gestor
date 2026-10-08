@@ -101,7 +101,7 @@ export async function initDatabase() {
         await p.query(`ALTER TABLE systems ADD COLUMN \`${col.name}\` ${col.def}`);
       }
     } catch (colErr) {
-      console.warn(`[MariaDB] Aviso ao verificar coluna ${col.name}:`, colErr.message);
+      console.warn('[MariaDB] Aviso ao verificar coluna %s:', col.name, colErr.message);
     }
   }
 

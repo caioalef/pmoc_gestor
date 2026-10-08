@@ -187,7 +187,7 @@ class DatabaseService {
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
         const msg = errJson.error || errJson.sqlMessage || `Erro HTTP ${res.status}: ${res.statusText}`;
-        console.error(`[DatabaseService] Servidor retornou erro ao salvar sistema ${system.id}:`, msg);
+        console.error('[DatabaseService] Servidor retornou erro ao salvar sistema %s:', system.id, msg);
         throw new Error(msg);
       }
 
@@ -207,7 +207,7 @@ class DatabaseService {
 
       return true;
     } catch (e) {
-      console.error(`[DatabaseService] Erro ao salvar sistema ${system.id}:`, e);
+      console.error('[DatabaseService] Erro ao salvar sistema %s:', system.id, e);
       throw e;
     }
   }

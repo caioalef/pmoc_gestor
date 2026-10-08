@@ -1448,7 +1448,11 @@ class BoulevardMaintenanceApp {
       pmocSize: '2.3 MB',
       pmocDesc: pmocDesc && pmocDesc.value.trim() ? pmocDesc.value.trim() : `Plano de Manutenção Preventiva do ${system.name} - Boulevard Feira`,
       artFile: artFileName,
-      artNumber: artNumber && artNumber.value.trim() ? artNumber.value.trim() : `ART-BA-${this.currentYear}-${Math.floor(100000 + Math.random() * 900000)}`,
+      artNumber: artNumber && artNumber.value.trim() ? artNumber.value.trim() : (() => {
+        const buf = new Uint32Array(1);
+        (window.crypto || crypto).getRandomValues(buf);
+        return `ART-BA-${this.currentYear}-${100000 + (buf[0] % 900000)}`;
+      })(),
       engineer: artEngineer && artEngineer.value.trim() ? artEngineer.value.trim() : 'Eng. Ricardo Silveira (CREA-BA 5062831)'
     };
     system.pmocStatus = 'REQUIRED_ATTACHED';
@@ -1495,7 +1499,11 @@ class BoulevardMaintenanceApp {
     const artEngineer = document.getElementById('input-art-engineer');
 
     if (pmocDesc) pmocDesc.value = `PMOC Conforme Normas ABNT e Lei 13.589/2018 para ${system ? system.name : 'Sistema'} - Boulevard Shopping`;
-    if (artNumber) artNumber.value = `ART-BA-${this.currentYear}-${Math.floor(100000 + Math.random() * 900000)}`;
+    if (artNumber) {
+      const buf = new Uint32Array(1);
+      (window.crypto || crypto).getRandomValues(buf);
+      artNumber.value = `ART-BA-${this.currentYear}-${100000 + (buf[0] % 900000)}`;
+    }
     if (artEngineer) artEngineer.value = 'Eng. Ricardo Silveira (CREA-BA 5062831)';
 
     const prevPmoc = document.getElementById('preview-file-pmoc');
@@ -1852,8 +1860,12 @@ class BoulevardMaintenanceApp {
         const now = new Date();
         const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
+        const randBuf = new Uint8Array(4);
+        (window.crypto || crypto).getRandomValues(randBuf);
+        const randHex = Array.from(randBuf, b => b.toString(16).padStart(2, '0')).join('');
+
         const docItem = {
-          id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+          id: `doc-${Date.now()}-${randHex}`,
           name: file.name,
           size: file.size,
           type: file.type || 'application/octet-stream',

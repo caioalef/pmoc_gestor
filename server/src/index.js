@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = (process.env.JWT_SECRET || 'pmoc_secret_boulevard_2026') + '_v2_strict_ad';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(express.json({ limit: '200mb' }));
@@ -331,7 +331,7 @@ app.put('/api/systems/:id', requireCanInsert, async (req, res) => {
 
     res.json({ success: true, message: `Sistema ${id} salvo com sucesso no MariaDB.` });
   } catch (err) {
-    console.error(`[API Systems PUT :id Error for ${id} ("${sysName}")]:`, err.code, err.sqlMessage || err.message);
+    console.error('[API Systems PUT :id Error for %s ("%s")]:', id, sysName, err.code, err.sqlMessage || err.message);
     res.status(500).json({ error: `Erro ao salvar sistema ${id} no MariaDB (${err.code || 'DB_ERROR'}): ` + (err.sqlMessage || err.message) });
   }
 });
