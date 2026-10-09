@@ -1743,10 +1743,10 @@ class BoulevardMaintenanceApp {
       system.months[this.activeMonthIndex] = updatedMonth;
     }
 
-    // Se foram anexados arquivos neste card mensal e a documentação PMOC estiver pendente,
-    // atualiza o status do sistema para CONFORME/ANEXADO
+    // Se foram anexados arquivos neste card mensal e a documentação PMOC for exigida e estiver pendente,
+    // atualiza o status do sistema para CONFORME/ANEXADO (mantém NÃO EXIGIDO se pmocStatus === 'NOT_REQUIRED')
     if (this.currentMonthDocs && this.currentMonthDocs.length > 0) {
-      if (!system.pmoc || !system.pmoc.attached) {
+      if (system.pmocStatus !== 'NOT_REQUIRED' && !system.na && (!system.pmoc || !system.pmoc.attached)) {
         system.pmoc = system.pmoc || {};
         system.pmoc.attached = true;
         system.pmoc.pmocFile = this.currentMonthDocs[0].name;

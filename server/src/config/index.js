@@ -5,7 +5,7 @@ export const config = {
   port: parseInt(process.env.PORT || '3000', 10),
   jwtSecret: process.env.JWT_SECRET || 'pmoc_super_secret_jwt_key_2026',
   jwtExpiresIn: '8h',
-  bodyLimit: '200mb',
+  bodyLimit: process.env.BODY_LIMIT || '250mb',
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

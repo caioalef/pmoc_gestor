@@ -82,4 +82,89 @@ describe('Systems Service - Lógica de Normalização', () => {
     expect(formatted.months).toEqual({});
     expect(formatted.years).toBeDefined();
   });
+
+  it('deve processar corretamente sistema sys-10 (Teste de hidrantes - Anual Fev) preservando documentos e removendo dataUrl duplicado', () => {
+    const sys10Input = {
+      id: 'sys-10',
+      name: 'Teste de hidrantes (com água)',
+      category: 'PREVENÇÃO_CONTRA_INCÊNDIO',
+      categoryName: 'PREVENÇÃO CONTRA INCÊNDIO',
+      periodicity: 'Anual',
+      respTecnico: 'Renato Santos',
+      pmocStatus: 'NOT_REQUIRED',
+      pmocStatusLabel: 'Não exigido',
+      years: {
+        '2026': {
+          months: {
+            '2': {
+              scheduled: true,
+              status: 'DONE',
+              date: '2026-02-15',
+              documents: [
+                {
+                  id: 'doc-hidrante-01',
+                  name: 'laudo_hidrantes_fev2026.pdf',
+                  size: 204800,
+                  type: 'application/pdf',
+                  uploadedAt: '15/02/2026 14:30',
+                  uploadedBy: 'Renato Santos',
+                  dataUrl: 'data:application/pdf;base64,JVBERi0xLjQKJ...'
+                }
+              ]
+            }
+          }
+        }
+      },
+      months: {
+        '2': {
+          scheduled: true,
+          status: 'DONE',
+          date: '2026-02-15',
+          documents: [
+            {
+              id: 'doc-hidrante-01',
+              name: 'laudo_hidrantes_fev2026.pdf',
+              size: 204800,
+              type: 'application/pdf',
+              uploadedAt: '15/02/2026 14:30',
+              uploadedBy: 'Renato Santos',
+              dataUrl: 'data:application/pdf;base64,JVBERi0xLjQKJ...'
+            }
+          ]
+        }
+      }
+    };
+
+    const payloadStr = prepareMonthsDataPayload(sys10Input);
+    const parsed = JSON.parse(payloadStr);
+
+    // No nível raiz espelhado (months), o dataUrl pesado é removido para não duplicar espaço
+    expect(parsed['2'].documents[0].name).toBe('laudo_hidrantes_fev2026.pdf');
+    expect(parsed['2'].documents[0].dataUrl).toBeUndefined();
+
+    // No nível canônico _years, os dados completos e o documento com dataUrl são mantidos com integridade
+    expect(parsed._years['2026'].months['2'].documents[0].dataUrl).toBe('data:application/pdf;base64,JVBERi0xLjQKJ...');
+
+    // Verifica que formatSystemRow recupera os dados do ano 2026 perfeitamente
+    const row = {
+      id: 'sys-10',
+      name: 'Teste de hidrantes (com água)',
+      category: 'PREVENÇÃO_CONTRA_INCÊNDIO',
+      category_name: 'PREVENÇÃO CONTRA INCÊNDIO',
+      periodicity: 'Anual',
+      resp_tecnico: 'Renato Santos',
+      pmoc_status: 'NOT_REQUIRED',
+      pmoc_status_label: 'Não exigido',
+      na: 0,
+      months_data: payloadStr
+    };
+
+    const formatted = formatSystemRow(row);
+    expect(formatted.id).toBe('sys-10');
+    expect(formatted.pmocStatus).toBe('NOT_REQUIRED');
+    expect(formatted.periodicity).toBe('Anual');
+    expect(formatted.months['2'].status).toBe('DONE');
+    expect(formatted.years['2026'].months['2'].documents[0].name).toBe('laudo_hidrantes_fev2026.pdf');
+  });
 });
+

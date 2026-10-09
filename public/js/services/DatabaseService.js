@@ -138,6 +138,35 @@ class DatabaseService {
   }
 
   /**
+   * Sanitiza o payload antes do envio à API: se o sistema já possui a árvore 'years'
+   * completa com os arquivos, remove o 'dataUrl' duplicado em 'months' (mantendo apenas metadados).
+   * Isso corta o tamanho do JSON pela metade e evita erros HTTP 413 de forma preemptiva.
+   */
+  sanitizeSystemPayload(system) {
+    if (!system || typeof system !== 'object') return system;
+    try {
+      const clone = JSON.parse(JSON.stringify(system));
+      if (clone.years && clone.months && typeof clone.months === 'object') {
+        Object.keys(clone.months).forEach(mKey => {
+          const m = clone.months[mKey];
+          if (m && Array.isArray(m.documents)) {
+            m.documents = m.documents.map(doc => {
+              if (doc && doc.dataUrl) {
+                const { dataUrl, ...metaOnly } = doc;
+                return metaOnly;
+              }
+              return doc;
+            });
+          }
+        });
+      }
+      return clone;
+    } catch (e) {
+      return system;
+    }
+  }
+
+  /**
    * Salva os sistemas no MariaDB via API e atualiza o cache local.
    */
   async saveSystems(systems) {
@@ -146,13 +175,20 @@ class DatabaseService {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
+      const payload = Array.isArray(systems)
+        ? systems.map(s => this.sanitizeSystemPayload(s))
+        : systems;
+
       const res = await fetch('/api/systems', {
         method: 'PUT',
         headers: headers,
-        body: JSON.stringify(systems)
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
+        if (res.status === 413) {
+          throw new Error('Erro HTTP 413 (Payload Too Large): O volume de dados excede o limite permitido pelo servidor. Reduza os anexos ou envie individualmente.');
+        }
         const errJson = await res.json().catch(() => ({}));
         const msg = errJson.error || `Erro HTTP ${res.status}: ${res.statusText}`;
         console.error('[DatabaseService] Servidor retornou erro ao salvar no MariaDB:', msg);
@@ -178,13 +214,18 @@ class DatabaseService {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
+      const payload = this.sanitizeSystemPayload(system);
+
       const res = await fetch(`/api/systems/${encodeURIComponent(system.id)}`, {
         method: 'PUT',
         headers: headers,
-        body: JSON.stringify(system)
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
+        if (res.status === 413) {
+          throw new Error('Erro HTTP 413 (Payload Too Large): Os arquivos anexados ultrapassam o limite do servidor. O limite do Nginx foi configurado para ilimitado e o Express para 250MB. Verifique se o proxy intermediário permite o envio.');
+        }
         const errJson = await res.json().catch(() => ({}));
         const msg = errJson.error || errJson.sqlMessage || `Erro HTTP ${res.status}: ${res.statusText}`;
         console.error('[DatabaseService] Servidor retornou erro ao salvar sistema %s:', system.id, msg);
