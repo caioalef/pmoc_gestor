@@ -1,12 +1,4 @@
 {
-  "name": "pmoc-gestor-360",
-  "version": "1.0.0",
-  "description": "PMOC Gestor 360 - Boulevard Shopping Feira de Santana",
-  "type": "module",
-  "scripts": {
-    "dev": "node scripts/dev_local.js",
-    "start": "node scripts/dev_local.js"
-  },
   "dependencies": {
     "xlsx": "^0.20.2"
   }
