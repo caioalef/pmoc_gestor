@@ -4,54 +4,55 @@
    Identidade Visual: Marsala Vinho (#8C4748), Âmbar Tangerina (#E8985E), Areia (#FAF3EB)
    ========================================================================== */
 :root {
-  /* Paleta Corporativa - Blue & White Theme */
-  --bsfs-marsala: #0F172A; /* Primary Navy */
-  --bsfs-marsala-dark: #020617;
+  /* Paleta Corporativa Boulevard - Engenharia & Operações */
+  --bsfs-marsala: #0F172A; /* Deep Navy */
+  --bsfs-marsala-dark: #070B14;
   --bsfs-marsala-light: #1E293B;
-  --bsfs-marsala-glow: rgba(15, 23, 42, 0.25);
+  --bsfs-marsala-glow: rgba(15, 23, 42, 0.35);
 
-  --bsfs-peach: #2563EB; /* Accent Blue */
+  --bsfs-peach: #2563EB; /* Technical Royal Blue */
   --bsfs-peach-dark: #1D4ED8;
   --bsfs-peach-light: #60A5FA;
   --bsfs-peach-glow: rgba(37, 99, 235, 0.25);
 
-  --bsfs-sand-light: #F8FAFC; /* White-ish bg */
+  --bsfs-sand-light: #F8FAFC;
   --bsfs-sand-alt: #F1F5F9;
   --bsfs-sand-border: #E2E8F0;
 
-  /* Modo Escuro Padrão Profissional (Slate / Dark Neutral) */
-  --bg-app: #0B0F19;
-  --bg-surface: #111827;
-  --bg-card: #1E293B;
-  --bg-card-hover: #273549;
-  --bg-elevated: #1F2937;
-  --bg-row-alt: rgba(30, 41, 59, 0.45);
+  /* Modo Escuro Profissional Slate (Padrão Engenharia) */
+  --bg-app: #080D18;
+  --bg-surface: #0E1626;
+  --bg-card: #131E33;
+  --bg-card-hover: #192742;
+  --bg-elevated: #1D2D4D;
+  --bg-row-alt: rgba(19, 30, 51, 0.45);
 
   --text-primary: #F8FAFC;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-  --text-inverse: #0B0F19;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #080D18;
 
   /* Cores Temáticas da Tabela */
-  --table-header-bg: #0F172A;
-  --table-header-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  --category-bar-bg: #1E293B;
-  --category-bar-text: #60A5FA;
+  --table-header-bg: #090F1B;
+  --table-header-gradient: linear-gradient(180deg, #0E1626 0%, #090F1B 100%);
+  --category-bar-bg: #152238;
+  --category-bar-text: #93C5FD;
 
-  /* Status Colors Técnicos */
-  --status-done: #10b981;
-  --status-done-bg: rgba(16, 185, 129, 0.16);
+  /* Status Colors Técnicos Padronizados */
+  --status-done: #10B981;
+  --status-done-bg: rgba(16, 185, 129, 0.14);
   --status-done-border: rgba(16, 185, 129, 0.35);
 
-  --status-attention: #0284c7;
-  --status-attention-bg: rgba(2, 132, 199, 0.16);
+  --status-attention: #0284C7;
+  --status-attention-bg: rgba(2, 132, 199, 0.14);
   --status-attention-border: rgba(2, 132, 199, 0.35);
 
   --status-scheduled: #F59E0B;
-  --status-scheduled-bg: rgba(245, 158, 11, 0.16);
+  --status-scheduled-bg: rgba(245, 158, 11, 0.14);
+  --status-scheduled-border: rgba(245, 158, 11, 0.35);
 
-  --status-unrealized: #ef4444;
-  --status-unrealized-bg: rgba(239, 68, 68, 0.16);
+  --status-unrealized: #EF4444;
+  --status-unrealized-bg: rgba(239, 68, 68, 0.14);
   --status-unrealized-border: rgba(239, 68, 68, 0.35);
 
   /* Modal Verde e Vermelho (Requisito PMOC/ART) */
@@ -59,44 +60,45 @@
   --modal-green-border: rgba(16, 185, 129, 0.45);
   --modal-green-bg: rgba(5, 150, 105, 0.12);
 
-  --modal-red-header: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --modal-red-header: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
   --modal-red-border: rgba(239, 68, 68, 0.45);
   --modal-red-bg: rgba(220, 38, 38, 0.12);
 
-  /* Bordas e Sombras */
+  /* Bordas e Sombras Arquiteturais */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
   --border-table: rgba(255, 255, 255, 0.08);
+  --border-focus: #3B82F6;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.55);
-  --shadow-modal: 0 20px 50px -10px rgba(0, 0, 0, 0.85);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.45), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 24px 60px -12px rgba(0, 0, 0, 0.85);
 
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-lg: 14px;
   --radius-full: 9999px;
 
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-serif: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+  --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Modo Claro Corporativo (Cores Blue/White) */
+/* Modo Claro Corporativo */
 [data-theme="light"] {
-  --bg-app: #F8FAFC;
+  --bg-app: #F4F6F9;
   --bg-surface: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
-  --bg-elevated: #E2E8F0;
+  --bg-card-hover: #F8FAFC;
+  --bg-elevated: #F1F5F9;
   --bg-row-alt: #F8FAFC;
 
   --text-primary: #0F172A;
-  --text-secondary: #334155;
+  --text-secondary: #475569;
   --text-muted: #64748B;
   --text-inverse: #FFFFFF;
 
@@ -108,9 +110,9 @@
   --border-strong: #CBD5E1;
   --border-table: #E2E8F0;
 
-  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.12);
-  --shadow-modal: 0 20px 45px rgba(15, 23, 42, 0.25);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.09);
+  --shadow-modal: 0 20px 45px rgba(15, 23, 42, 0.2);
 }
 
 /* Reset e Base */
@@ -589,11 +591,23 @@ body {
   justify-content: space-between;
   position: relative;
   overflow: hidden;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .kpi-card.highlight-card {
   border-color: rgba(37, 99, 235, 0.35);
   background: linear-gradient(145deg, var(--bg-surface) 0%, rgba(37, 99, 235, 0.08) 100%);
+}
+
+.kpi-card.highlight-card:hover {
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.2);
 }
 
 .kpi-header {
@@ -677,7 +691,8 @@ body {
 }
 
 .progress-bsfs {
-  background: linear-gradient(90deg, var(--bsfs-marsala) 0%, var(--bsfs-peach) 100%);
+  background: linear-gradient(90deg, #10B981 0%, #059669 55%, #2563EB 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
 }
 
 .kpi-footer-stats {
@@ -1762,35 +1777,40 @@ body {
 .month-box {
   width: 28px;
   height: 28px;
-  border-radius: 4px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
   margin: 0 auto;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 .month-box:hover {
-  transform: scale(1.18);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .month-box-done {
-  background-color: #48bb78;
-  color: #ffffff;
+  background-color: #10B981;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
 }
 .month-box-scheduled {
-  background-color: #0c4a6e;
-  color: #ffffff;
+  background-color: #2563EB;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
 }
 .month-box-unrealized {
-  background-color: #e53e3e;
-  color: #ffffff;
+  background-color: #EF4444;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
 }
 .month-box-attention {
-  background-color: #dd6b20;
-  color: #ffffff;
+  background-color: #F59E0B;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
 }
 
 .month-triangle-icon {

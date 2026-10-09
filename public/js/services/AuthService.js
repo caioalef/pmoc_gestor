@@ -4,7 +4,28 @@
 class AuthService {
   constructor() {
     this.usersKey = 'bsfs_db_users';
-    this.defaultUsers = {};
+    this.defaultUsers = {
+      'admin.teste': {
+        username: 'admin.teste',
+        name: 'Administrador Local (Homologação)',
+        email: 'admin.teste@boulevardfs.com.br',
+        role: 'SUPERADMIN',
+        roleLabel: 'Administrador de Domínio (Contingência)',
+        password: 'admin',
+        canInsert: true,
+        canDelete: true
+      },
+      'operador.teste': {
+        username: 'operador.teste',
+        name: 'Operador Local (Homologação)',
+        email: 'operador.teste@boulevardfs.com.br',
+        role: 'USER',
+        roleLabel: 'Operador de Sistemas (Contingência)',
+        password: '123',
+        canInsert: true,
+        canDelete: false
+      }
+    };
     this.users = this.loadUsers();
 
     // Carrega usuário salvo da sessão
@@ -21,15 +42,16 @@ class AuthService {
   }
 
   loadUsers() {
+    let stored = {};
     try {
       const data = localStorage.getItem(this.usersKey);
       if (data) {
-        return JSON.parse(data);
+        stored = JSON.parse(data);
       }
     } catch (e) {
       console.warn('Erro ao carregar usuarios locais:', e);
     }
-    return JSON.parse(JSON.stringify(this.defaultUsers));
+    return { ...this.defaultUsers, ...stored };
   }
 
   saveUsers() {
