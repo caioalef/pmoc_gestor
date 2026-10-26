@@ -438,6 +438,14 @@ class BoulevardMaintenanceApp {
       });
     }
 
+    const btnGoToCalendar = document.getElementById('btn-close-pmoc-go-to-calendar');
+    if (btnGoToCalendar) {
+      btnGoToCalendar.addEventListener('click', () => {
+        const modal = document.getElementById('modal-pmoc-art');
+        if (modal) modal.classList.remove('is-active');
+      });
+    }
+
     // Drag and Drop e Seleção de Arquivos
     this.setupDropZone('dropzone-pmoc', 'file-pmoc-input', 'preview-file-pmoc', 'name-file-pmoc', 'btn-remove-pmoc-sel');
     this.setupDropZone('dropzone-art', 'file-art-input', 'preview-file-art', 'name-file-art', 'btn-remove-art-sel');
@@ -1014,13 +1022,17 @@ class BoulevardMaintenanceApp {
         }
       }
 
-      // 2. Filtro Multi-select de Categoria / Setor
+      // 2. Filtro Multi-select de Categoria / Setor (com normalização sem acento)
       if (Array.isArray(this.filters.categories) && this.filters.categories.length > 0) {
-        const itemCat = String(item.category || '').toUpperCase();
-        const itemCatName = String(item.categoryName || '').toUpperCase();
+        const cleanStr = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const itemCatClean = cleanStr(item.category);
+        const itemCatNameClean = cleanStr(item.categoryName);
+
         const matches = this.filters.categories.some(c => {
-          const cUpper = String(c).toUpperCase();
-          return itemCat === cUpper || itemCatName === cUpper || itemCat.includes(cUpper) || cUpper.includes(itemCat);
+          const fClean = cleanStr(c);
+          return itemCatClean.includes(fClean) || fClean.includes(itemCatClean) ||
+                 itemCatNameClean.includes(fClean) || fClean.includes(itemCatNameClean) ||
+                 (fClean.startsWith('ELETRIC') && itemCatClean.startsWith('ELETRIC'));
         });
         if (!matches) return false;
       }
@@ -1095,21 +1107,21 @@ class BoulevardMaintenanceApp {
     filtered.forEach(system => {
       const isNa = Boolean(system.na);
 
-      // Badge PMOC/ART da planilha conciso e elegante
+      // Badge PMOC/ART da planilha conciso e elegante (indicador de conformidade)
       let pmocBadgeHtml = '';
       if (system.pmocStatus === 'REQUIRED_NOT_INSERTED') {
-        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação obrigatória não inserida - Clique para anexar">Pendente</button>`;
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Pendente de comprovação nos meses agendados - Clique para ver detalhes">Pendente</button>`;
       } else if (system.pmocStatus === 'REQUIRED_ATTACHED') {
-        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação inserida sem pendência - Clique para visualizar">Conforme</button>`;
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação em conformidade - Clique para visualizar">Conforme</button>`;
       } else if (system.pmocStatus === 'REQUIRED_EXPIRED') {
-        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-orange" data-action="open-pmoc" data-sys-id="${system.id}" title="Validade vencida - Clique para atualizar">Vencido</button>`;
+        pmocBadgeHtml = `<button type="button" class="pmoc-badge pmoc-badge-orange" data-action="open-pmoc" data-sys-id="${system.id}" title="Validade vencida - Clique para ver detalhes">Vencido</button>`;
       } else if (system.pmocStatus === 'NOT_REQUIRED') {
-        pmocBadgeHtml = `<span class="pmoc-badge pmoc-badge-gray" data-action="open-pmoc" data-sys-id="${system.id}" title="Não aplicável">N/A</span>`;
+        pmocBadgeHtml = `<span class="pmoc-badge pmoc-badge-gray" title="Não aplicável">N/A</span>`;
       } else {
         const attached = system.pmoc && system.pmoc.attached;
         pmocBadgeHtml = attached
-          ? `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação inserida sem pendência">Conforme</button>`
-          : `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Documentação obrigatória não inserida">Pendente</button>`;
+          ? `<button type="button" class="pmoc-badge pmoc-badge-green" data-action="open-pmoc" data-sys-id="${system.id}" title="Conforme">Conforme</button>`
+          : `<button type="button" class="pmoc-badge pmoc-badge-red" data-action="open-pmoc" data-sys-id="${system.id}" title="Pendente">Pendente</button>`;
       }
 
       // Status Operacional (Máquina Parada / Normal) - Design Clean e Discreto
@@ -1839,10 +1851,10 @@ class BoulevardMaintenanceApp {
     }
   }
 
-  handleProcessMonthFiles(files) {
+  async handleProcessMonthFiles(files) {
     if (!this.currentMonthDocs) this.currentMonthDocs = [];
     const validFiles = Array.from(files).filter(file => {
-      // Limite individual ampliado para 30MB
+      // Limite individual de 30MB
       if (file.size > 30 * 1024 * 1024) {
         this.showToast(`Arquivo "${file.name}" ultrapassa 30MB e foi ignorado.`, 'warning');
         return false;
@@ -1852,45 +1864,55 @@ class BoulevardMaintenanceApp {
 
     if (validFiles.length === 0) return;
 
-    let loadedCount = 0;
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const user = this.auth.getCurrentUser() || { name: 'Operador' };
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const token = localStorage.getItem('auth_token') || '';
+    const user = this.auth.getCurrentUser() || { name: 'Operador' };
+    const dateStr = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-        const randBuf = new Uint8Array(4);
-        (window.crypto || crypto).getRandomValues(randBuf);
-        const randHex = Array.from(randBuf, b => b.toString(16).padStart(2, '0')).join('');
+    let successCount = 0;
 
-        const docItem = {
-          id: `doc-${Date.now()}-${randHex}`,
-          name: file.name,
-          size: file.size,
-          type: file.type || 'application/octet-stream',
-          uploadedAt: dateStr,
-          uploadedBy: user.name || user.username || 'Operador',
-          dataUrl: event.target.result
-        };
+    for (const file of validFiles) {
+      const formData = new FormData();
+      formData.append('file', file);
 
-        this.currentMonthDocs.push(docItem);
-        loadedCount++;
-        this.renderMonthDocsList();
+      this.showToast(`Enviando "${file.name}" (${(file.size / 1024).toFixed(0)} KB)...`, 'info');
 
-        if (loadedCount === validFiles.length) {
-          this.showToast(`${loadedCount} documento(s) inserido(s). Clique em Salvar para gravar no MariaDB.`, 'success');
+      try {
+        const res = await fetch('/api/uploads', {
+          method: 'POST',
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          body: formData
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.file) {
+            this.currentMonthDocs.push({
+              id: data.file.id,
+              name: data.file.name,
+              fileName: data.file.fileName,
+              size: data.file.size,
+              type: data.file.type,
+              url: data.file.url,
+              uploadedAt: dateStr,
+              uploadedBy: user.name || user.username || 'Operador'
+            });
+            successCount++;
+            this.renderMonthDocsList();
+          }
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          const errMsg = errData.error || `Erro HTTP ${res.status}`;
+          this.showToast(`Falha ao enviar "${file.name}": ${errMsg}`, 'danger');
         }
-      };
+      } catch (err) {
+        console.error('Erro no upload unitário de arquivo:', err);
+        this.showToast(`Erro de conexão ao enviar "${file.name}".`, 'danger');
+      }
+    }
 
-      reader.onerror = () => {
-        this.showToast(`Erro ao processar arquivo "${file.name}".`, 'danger');
-        loadedCount++;
-        this.renderMonthDocsList();
-      };
-
-      reader.readAsDataURL(file);
-    });
+    if (successCount > 0) {
+      this.showToast(`✅ ${successCount} arquivo(s) enviado(s) individualmente com sucesso! Clique em "Salvar no Banco de Dados" para confirmar o vínculo.`, 'success');
+    }
   }
 
   renderMonthDocsList() {
@@ -1983,14 +2005,16 @@ class BoulevardMaintenanceApp {
 
   viewMonthDocument(docId) {
     const doc = (this.currentMonthDocs || []).find(d => d.id === docId);
-    if (!doc || !doc.dataUrl) return;
+    if (!doc) return;
+    const fileSource = doc.url || doc.dataUrl;
+    if (!fileSource) return;
 
-    const isImg = doc.dataUrl.startsWith('data:image/');
-    const isPdf = doc.dataUrl.startsWith('data:application/pdf');
+    const isImg = fileSource.startsWith('data:image/') || fileSource.match(/\.(jpg|jpeg|png|webp)$/i);
+    const isPdf = fileSource.startsWith('data:application/pdf') || fileSource.toLowerCase().endsWith('.pdf');
 
     if (isImg || isPdf) {
-      const win = window.open('', '_blank');
-      if (win) {
+      const win = window.open(fileSource.startsWith('/uploads') ? fileSource : '', '_blank');
+      if (win && !fileSource.startsWith('/uploads')) {
         win.document.write(`
           <!DOCTYPE html>
           <html>
@@ -2004,10 +2028,12 @@ class BoulevardMaintenanceApp {
               </style>
             </head>
             <body>
-              ${isImg ? `<img src="${doc.dataUrl}" alt="${doc.name}">` : `<iframe src="${doc.dataUrl}"></iframe>`}
+              ${isImg ? `<img src="${fileSource}" alt="${doc.name}">` : `<iframe src="${fileSource}"></iframe>`}
             </body>
           </html>
         `);
+        return;
+      } else if (win) {
         return;
       }
     }
@@ -2017,10 +2043,12 @@ class BoulevardMaintenanceApp {
 
   downloadMonthDocument(docId) {
     const doc = (this.currentMonthDocs || []).find(d => d.id === docId);
-    if (!doc || !doc.dataUrl) return;
+    if (!doc) return;
+    const fileSource = doc.url || doc.dataUrl;
+    if (!fileSource) return;
 
     const a = document.createElement('a');
-    a.href = doc.dataUrl;
+    a.href = fileSource;
     a.download = doc.name || 'documento-manutencao.pdf';
     document.body.appendChild(a);
     a.click();

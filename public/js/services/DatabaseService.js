@@ -46,11 +46,13 @@ class DatabaseService {
                 documents: mVal.documents.map(d => ({
                   id: d.id,
                   name: d.name,
+                  fileName: d.fileName,
+                  url: d.url,
                   size: d.size,
                   type: d.type,
                   uploadedAt: d.uploadedAt,
                   uploadedBy: d.uploadedBy,
-                  hasData: Boolean(d.dataUrl)
+                  hasData: Boolean(d.dataUrl || d.url)
                 }))
               };
             } else {
@@ -74,11 +76,13 @@ class DatabaseService {
                     documents: mVal.documents.map(d => ({
                       id: d.id,
                       name: d.name,
+                      fileName: d.fileName,
+                      url: d.url,
                       size: d.size,
                       type: d.type,
                       uploadedAt: d.uploadedAt,
                       uploadedBy: d.uploadedBy,
-                      hasData: Boolean(d.dataUrl)
+                      hasData: Boolean(d.dataUrl || d.url)
                     }))
                   };
                 } else {

@@ -2,6 +2,7 @@ import app from './app.js';
 import { config } from './config/index.js';
 import { initDatabase } from './db.js';
 import { checkAndSeedDatabase } from './seed.js';
+import { initCronJobs } from './services/cron.service.js';
 
 export async function startServer() {
   let connected = false;
@@ -16,6 +17,7 @@ export async function startServer() {
       await checkAndSeedDatabase();
       connected = true;
       console.log('[API] Conectado ao MariaDB com sucesso.');
+      initCronJobs();
     } catch (err) {
       console.warn(`[API] Tentativa ${attempts}/${maxAttempts} falhou (${err.message}). Tentando novamente em 3s...`);
       await new Promise(r => setTimeout(r, 3000));

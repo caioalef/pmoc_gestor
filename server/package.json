@@ -16,7 +16,9 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "ldapjs": "^3.0.7",
+    "multer": "^2.5.0",
     "mysql2": "^3.9.7",
+    "node-cron": "^4.6.0",
     "nodemailer": "^10.0.15"
   },
   "devDependencies": {

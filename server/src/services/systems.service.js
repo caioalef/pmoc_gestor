@@ -30,6 +30,8 @@ export function prepareMonthsDataPayload(sys) {
           documents: mVal.documents.map(d => ({
             id: d.id,
             name: d.name,
+            fileName: d.fileName,
+            url: d.url,
             size: d.size,
             type: d.type,
             uploadedAt: d.uploadedAt,
