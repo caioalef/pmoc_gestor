@@ -1,5 +1,5 @@
 import { getPool } from '../db.js';
-import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 
 /**
  * Retorna todos os responsáveis cadastrados
@@ -33,7 +33,7 @@ export async function saveResponsible(data) {
   const pool = getPool();
   if (!pool) throw new Error('Banco de dados indisponível');
 
-  const id = data.id || `resp-${nanoid(8)}`;
+  const id = data.id || `resp-${crypto.randomUUID().slice(0, 8)}`;
   const name = (data.name || '').trim();
   const email = (data.email || '').trim().toLowerCase();
   const role = data.role === 'GERENTE' ? 'GERENTE' : 'RESPONSAVEL';

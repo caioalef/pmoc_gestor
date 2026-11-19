@@ -5,7 +5,7 @@ import {
   getManagerInfo,
   findResponsibleByNameOrId
 } from './responsibles.service.js';
-import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 
 /**
  * Formata data em DD/MM/AAAA tratando UTC ou timezone local
@@ -53,7 +53,7 @@ export async function recordNotificationSent(systemId, alertType, refCompetencia
   const pool = getPool();
   if (!pool) return;
 
-  const id = `notif-${nanoid(8)}`;
+  const id = `notif-${crypto.randomUUID().slice(0, 8)}`;
   const now = new Date();
   await pool.query(`
     INSERT INTO notification_history (id, system_id, alert_type, ref_competencia, recipient_email, last_sent_at)
