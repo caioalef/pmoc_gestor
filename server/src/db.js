@@ -118,5 +118,34 @@ export async function initDatabase() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
 
+  // 4. Tabela de Pessoas / Responsáveis e Gerência
+  await p.query(`
+    CREATE TABLE IF NOT EXISTS responsibles (
+      id VARCHAR(100) PRIMARY KEY,
+      name VARCHAR(200) NOT NULL,
+      email VARCHAR(200) NOT NULL,
+      role VARCHAR(50) NOT NULL DEFAULT 'RESPONSAVEL',
+      company VARCHAR(150) DEFAULT '',
+      phone VARCHAR(50) DEFAULT '',
+      active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `);
+
+  // 5. Tabela de Histórico de Notificações Enviadas (para controle de 7 dias)
+  await p.query(`
+    CREATE TABLE IF NOT EXISTS notification_history (
+      id VARCHAR(100) PRIMARY KEY,
+      system_id VARCHAR(100) NOT NULL,
+      alert_type VARCHAR(50) NOT NULL,
+      ref_competencia VARCHAR(50) NOT NULL,
+      recipient_email VARCHAR(255) NOT NULL,
+      last_sent_at DATETIME NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_notif_lookup (system_id, alert_type, ref_competencia)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `);
+
   console.log('[MariaDB] Inicialização e migrações concluídas com sucesso.');
 }

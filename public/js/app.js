@@ -129,10 +129,14 @@ class BoulevardMaintenanceApp {
         roleBadge.className = 'ad-badge-admin';
         const btnManage = document.getElementById('btn-manage-users');
         if (btnManage) btnManage.style.display = 'inline-block';
+        const btnResp = document.getElementById('btn-open-responsibles');
+        if (btnResp) btnResp.style.display = 'inline-flex';
       } else {
         roleBadge.className = 'ad-badge-user';
         const btnManage = document.getElementById('btn-manage-users');
         if (btnManage) btnManage.style.display = 'none';
+        const btnResp = document.getElementById('btn-open-responsibles');
+        if (btnResp) btnResp.style.display = 'none';
       }
     }
   }
@@ -375,6 +379,10 @@ class BoulevardMaintenanceApp {
 
     // Presets de Meses no Cadastro de Novo Sistema
     this.setupNewSystemSchedulePresets();
+
+    // Gestão de Responsáveis (SYSADMIN)
+    this.setupResponsiblesEvents();
+    this.loadResponsibles();
 
     // Formulário Máquina Parada
     const formMaquina = document.getElementById('form-maquina-parada');
@@ -2109,12 +2117,18 @@ class BoulevardMaintenanceApp {
   async handleCreateNewSystem() {
     const cat = document.getElementById('new-sys-category').value;
     const name = document.getElementById('new-sys-name').value.trim();
+    const respTecnico = (document.getElementById('new-sys-resp')?.value || '').trim();
     const pendencias = document.getElementById('new-sys-pendencias').value.trim();
     const desc = document.getElementById('new-sys-desc').value.trim();
     const na = document.getElementById('new-sys-na').checked;
 
     if (!name) {
       this.showToast('Por favor, informe o nome do sistema ou serviço.', 'warning');
+      return;
+    }
+
+    if (!respTecnico) {
+      this.showToast('Por favor, informe o Responsável pelo sistema.', 'warning');
       return;
     }
 
@@ -2157,6 +2171,7 @@ class BoulevardMaintenanceApp {
       category: cat,
       categoryName: catNames[cat] || cat,
       name: name,
+      respTecnico: respTecnico,
       periodicity: period,
       periodicityCategory: periodAnalysis.category,
       pendencias: pendencias,
@@ -2746,6 +2761,183 @@ class BoulevardMaintenanceApp {
 
         this.renderTableOnly();
       });
+    }
+  }
+
+  /* ==========================================================================
+     11. Gestão de Responsáveis e Notificações (SYSADMIN)
+     ========================================================================== */
+  async loadResponsibles() {
+    try {
+      const token = this.auth.getToken();
+      const res = await fetch('/api/responsibles', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        this.responsiblesList = await res.json();
+        this.populateResponsiblesDatalist();
+        this.renderResponsiblesTable();
+      }
+    } catch (err) {
+      console.warn('Erro ao carregar responsáveis da API:', err);
+    }
+  }
+
+  populateResponsiblesDatalist() {
+    const datalist = document.getElementById('datalist-responsibles');
+    if (!datalist || !Array.isArray(this.responsiblesList)) return;
+
+    datalist.innerHTML = this.responsiblesList.map(r => `
+      <option value="${r.name}">${r.name} (${r.company || r.role}) - ${r.email}</option>
+    `).join('');
+  }
+
+  renderResponsiblesTable() {
+    const tbody = document.getElementById('tbody-responsibles');
+    if (!tbody) return;
+
+    if (!Array.isArray(this.responsiblesList) || this.responsiblesList.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 14px;">Nenhuma pessoa cadastrada ainda.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = this.responsiblesList.map(r => `
+      <tr>
+        <td style="font-weight: 600;">${r.name}</td>
+        <td>${r.email}</td>
+        <td>
+          <span class="badge ${r.role === 'GERENTE' ? 'badge-purple' : 'badge-blue'}" style="font-size: 0.72rem;">
+            ${r.role === 'GERENTE' ? 'Gerente Operações' : 'Responsável'}
+          </span>
+        </td>
+        <td>${r.company || '-'}</td>
+        <td style="text-align: right;">
+          <button type="button" class="btn btn-outline btn-xs btn-edit-resp" data-id="${r.id}" title="Editar">✏️</button>
+          <button type="button" class="btn btn-outline btn-xs btn-del-resp" data-id="${r.id}" title="Excluir" style="color: #ef4444; border-color: rgba(239,68,68,0.3);">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+
+    tbody.querySelectorAll('.btn-edit-resp').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const item = this.responsiblesList.find(x => x.id === id);
+        if (!item) return;
+
+        document.getElementById('resp-edit-id').value = item.id;
+        document.getElementById('resp-input-name').value = item.name;
+        document.getElementById('resp-input-email').value = item.email;
+        document.getElementById('resp-input-role').value = item.role;
+        document.getElementById('resp-input-company').value = item.company || '';
+        document.getElementById('resp-form-title').textContent = `Editar: ${item.name}`;
+        document.getElementById('btn-save-responsible').textContent = 'Salvar Alterações';
+        document.getElementById('btn-cancel-resp-edit').style.display = 'inline-block';
+      });
+    });
+
+    tbody.querySelectorAll('.btn-del-resp').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const item = this.responsiblesList.find(x => x.id === id);
+        if (!item) return;
+
+        if (confirm(`Deseja remover "${item.name}" da lista de alertas?`)) {
+          await this.deleteResponsibleItem(id);
+        }
+      });
+    });
+  }
+
+  setupResponsiblesEvents() {
+    this.setupModalDismiss('modal-responsibles', ['btn-close-resp-modal', 'btn-close-resp-footer']);
+
+    const btnOpen = document.getElementById('btn-open-responsibles');
+    if (btnOpen) {
+      btnOpen.addEventListener('click', () => {
+        this.loadResponsibles();
+        const modal = document.getElementById('modal-responsibles');
+        if (modal) modal.classList.add('is-active');
+      });
+    }
+
+    const form = document.getElementById('form-manage-responsible');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await this.handleSaveResponsibleForm();
+      });
+    }
+
+    const btnCancel = document.getElementById('btn-cancel-resp-edit');
+    if (btnCancel) {
+      btnCancel.addEventListener('click', () => {
+        this.resetResponsibleForm();
+      });
+    }
+  }
+
+  resetResponsibleForm() {
+    document.getElementById('resp-edit-id').value = '';
+    document.getElementById('resp-input-name').value = '';
+    document.getElementById('resp-input-email').value = '';
+    document.getElementById('resp-input-role').value = 'RESPONSAVEL';
+    document.getElementById('resp-input-company').value = '';
+    document.getElementById('resp-form-title').textContent = 'Adicionar / Editar Pessoa';
+    document.getElementById('btn-save-responsible').textContent = 'Salvar Pessoa';
+    document.getElementById('btn-cancel-resp-edit').style.display = 'none';
+  }
+
+  async handleSaveResponsibleForm() {
+    const id = document.getElementById('resp-edit-id').value;
+    const name = document.getElementById('resp-input-name').value.trim();
+    const email = document.getElementById('resp-input-email').value.trim();
+    const role = document.getElementById('resp-input-role').value;
+    const company = document.getElementById('resp-input-company').value.trim();
+
+    if (!name || !email) {
+      this.showToast('Nome e e-mail são obrigatórios.', 'warning');
+      return;
+    }
+
+    try {
+      const token = this.auth.getToken();
+      const res = await fetch('/api/responsibles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id, name, email, role, company })
+      });
+
+      if (res.ok) {
+        this.showToast(`Pessoa "${name}" salva com sucesso!`, 'success');
+        this.resetResponsibleForm();
+        await this.loadResponsibles();
+      } else {
+        const data = await res.json();
+        this.showToast('Erro ao salvar: ' + (data.error || 'Falha na requisição'), 'danger');
+      }
+    } catch (err) {
+      this.showToast('Erro de conexão ao salvar responsável.', 'danger');
+    }
+  }
+
+  async deleteResponsibleItem(id) {
+    try {
+      const token = this.auth.getToken();
+      const res = await fetch(`/api/responsibles/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        this.showToast('Responsável removido da lista.', 'success');
+        await this.loadResponsibles();
+      } else {
+        this.showToast('Não foi possível remover o responsável.', 'warning');
+      }
+    } catch (e) {
+      this.showToast('Erro de conexão ao remover.', 'danger');
     }
   }
 

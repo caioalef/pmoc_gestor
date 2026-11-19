@@ -10,6 +10,7 @@ import auditRoutes from './routes/audit.routes.js';
 import emailRoutes from './routes/email.routes.js';
 import healthRoutes from './routes/health.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import responsiblesRoutes from './routes/responsibles.routes.js';
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/audit-logs', auditRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/responsibles', responsiblesRoutes);
 
 // Tratamento Global de Erros
 app.use(errorHandler);

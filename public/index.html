@@ -136,6 +136,17 @@
             <span>Novo Sistema</span>
           </button>
 
+          <!-- Gestão de Responsáveis & Notificações (Apenas SYSADMIN) -->
+          <button id="btn-open-responsibles" class="btn btn-outline btn-sm admin-only" title="Configurar Responsáveis e Gerência para envio de notificações" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Responsáveis & Alertas</span>
+          </button>
+
           <!-- Alternador de Tema -->
           <button id="theme-toggle" class="btn-icon" aria-label="Alternar modo claro e escuro" title="Alternar tema">
             <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1139,9 +1150,21 @@
               <input type="text" id="new-sys-name" class="form-input" placeholder="Ex: Grupo Gerador de Emergência - Boulevard" required>
             </div>
 
-            <div class="form-group-field">
-              <label for="new-sys-pendencias" class="field-label">Pendências do Ano Anterior:</label>
-              <input type="text" id="new-sys-pendencias" class="form-input" placeholder="Ex: Nenhuma ou detalhar">
+            <div class="form-grid-two">
+              <div class="form-group-field">
+                <label for="new-sys-resp" class="field-label">Responsável pelo Sistema: *</label>
+                <div style="display: flex; gap: 6px;">
+                  <input type="text" id="new-sys-resp" class="form-input" list="datalist-responsibles" placeholder="Selecione ou digite o nome" required>
+                  <datalist id="datalist-responsibles">
+                    <!-- Populado dinamicamente via API -->
+                  </datalist>
+                </div>
+              </div>
+
+              <div class="form-group-field">
+                <label for="new-sys-pendencias" class="field-label">Pendências do Ano Anterior:</label>
+                <input type="text" id="new-sys-pendencias" class="form-input" placeholder="Ex: Nenhuma ou detalhar">
+              </div>
             </div>
 
             <!-- Programação de Meses (Quando a Manutenção deve ser Realizada) -->
@@ -1293,6 +1316,94 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" id="btn-close-preview-footer">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 9: GESTÃO DE RESPONSÁVEIS E GERÊNCIA (SYSADMIN ONLY)
+       ========================================================================== -->
+  <div id="modal-responsibles" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="resp-modal-title">
+    <div class="modal-dialog" style="max-width: 680px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-text">
+            <div class="modal-pre-title">CONFIGURAÇÃO DE EQUIPE E NOTIFICAÇÕES</div>
+            <h3 class="modal-title" id="resp-modal-title">Gestão de Responsáveis & Alertas</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-resp-modal" aria-label="Fechar modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Cadastre os e-mails corporativos dos Responsáveis e do Gerente de Operações para o envio automático das notificações e lembretes de acompanhamento (às 09h).
+          </p>
+
+          <!-- Formulário de Novo/Edição de Responsável -->
+          <form id="form-manage-responsible" style="background: var(--bg-surface-secondary, rgba(255,255,255,0.03)); border: 1px solid var(--border-subtle); padding: 14px; border-radius: 8px; margin-bottom: 20px;">
+            <input type="hidden" id="resp-edit-id" value="">
+            <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; color: var(--color-primary, #0284c7);">
+              <span id="resp-form-title">Adicionar / Editar Pessoa</span>
+            </div>
+
+            <div class="form-grid-two">
+              <div class="form-group-field">
+                <label for="resp-input-name" class="field-label">Nome Completo: *</label>
+                <input type="text" id="resp-input-name" class="form-input" placeholder="Ex: Eng. Renato Santos" required>
+              </div>
+
+              <div class="form-group-field">
+                <label for="resp-input-email" class="field-label">E-mail Corporativo: *</label>
+                <input type="email" id="resp-input-email" class="form-input" placeholder="Ex: renato.santos@boulevardfeira.com.br" required>
+              </div>
+            </div>
+
+            <div class="form-grid-two" style="margin-top: 8px;">
+              <div class="form-group-field">
+                <label for="resp-input-role" class="field-label">Função na Operação: *</label>
+                <select id="resp-input-role" class="form-select" required>
+                  <option value="RESPONSAVEL">Responsável pelo Sistema (Notificado no dia 16)</option>
+                  <option value="GERENTE">Gerente de Operações (Notificado no dia 20 e aos 60 dias)</option>
+                </select>
+              </div>
+
+              <div class="form-group-field">
+                <label for="resp-input-company" class="field-label">Empresa / Terceirizada:</label>
+                <input type="text" id="resp-input-company" class="form-input" placeholder="Ex: Interno ou ClimaTech Refrigeração">
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-resp-edit" style="display: none;">Cancelar Edição</button>
+              <button type="submit" class="btn btn-primary btn-sm" id="btn-save-responsible">Salvar Pessoa</button>
+            </div>
+          </form>
+
+          <!-- Tabela de Pessoas Cadastradas -->
+          <div style="font-weight: 600; font-size: 0.88rem; margin-bottom: 8px;">Equipe Cadastrada para Alertas:</div>
+          <div class="table-responsive" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: 6px;">
+            <table class="data-table" style="font-size: 0.82rem; margin: 0;">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Função</th>
+                  <th>Empresa</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-responsibles">
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 14px;">Carregando equipe...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-close-resp-footer">Fechar</button>
         </div>
       </div>
     </div>
