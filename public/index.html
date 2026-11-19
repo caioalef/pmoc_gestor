@@ -1139,38 +1139,24 @@
               <input type="text" id="new-sys-name" class="form-input" placeholder="Ex: Grupo Gerador de Emergência - Boulevard" required>
             </div>
 
-            <div class="form-grid-two">
-              <div class="form-group-field">
-                <label for="new-sys-period" class="field-label">Periodicidade: *</label>
-                <select id="new-sys-period" class="form-select" required>
-                  <option value="Mensal">Mensal</option>
-                  <option value="Bimestral">Bimestral</option>
-                  <option value="Trimestral">Trimestral</option>
-                  <option value="Semestral">Semestral</option>
-                  <option value="Anual">Anual</option>
-                  <option value="Conforme Instrutivo">Conforme Instrutivo</option>
-                </select>
-              </div>
-
-              <div class="form-group-field">
-                <label for="new-sys-pendencias" class="field-label">Pendências do Ano Anterior:</label>
-                <input type="text" id="new-sys-pendencias" class="form-input" placeholder="Ex: Nenhuma ou detalhar">
-              </div>
+            <div class="form-group-field">
+              <label for="new-sys-pendencias" class="field-label">Pendências do Ano Anterior:</label>
+              <input type="text" id="new-sys-pendencias" class="form-input" placeholder="Ex: Nenhuma ou detalhar">
             </div>
 
             <!-- Programação de Meses (Quando a Manutenção deve ser Realizada) -->
             <div class="form-group-field" style="margin-top: 10px;">
               <label class="field-label" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Quando a Manutenção deve ser Realizada (Meses): *</span>
-                <span style="font-size: 0.72rem; color: var(--text-secondary);">Marque os meses previstos no ano</span>
+                <span>Meses de Realização do Serviço: *</span>
+                <span id="new-sys-months-summary" style="font-size: 0.75rem; font-weight: 600; color: var(--color-primary, #0284c7);">12 meses (Mensal)</span>
               </label>
               <div class="schedule-presets-bar">
-                <button type="button" class="btn-xs-tag" id="btn-preset-all-months">Todos (Mensal)</button>
-                <button type="button" class="btn-xs-tag" id="btn-preset-bimestral">Bimestral</button>
-                <button type="button" class="btn-xs-tag" id="btn-preset-trimestral">Trimestral</button>
-                <button type="button" class="btn-xs-tag" id="btn-preset-semestral">Semestral</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-all-months">Todos os Meses</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-bimestral">Bimestral (Pares)</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-trimestral">Trimestral (Mar, Jun, Set, Dez)</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-semestral">Semestral (Jun, Dez)</button>
                 <button type="button" class="btn-xs-tag" id="btn-preset-anual">Anual (Dez)</button>
-                <button type="button" class="btn-xs-tag" id="btn-preset-clear-months">Limpar</button>
+                <button type="button" class="btn-xs-tag" id="btn-preset-clear-months">Limpar Seleção</button>
               </div>
               <div class="months-checkbox-grid" id="new-sys-months-grid">
                 <label class="month-checkbox-card is-selected"><input type="checkbox" value="1" checked>Jan</label>

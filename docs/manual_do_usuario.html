@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Manual do Usuário — PMOC Gestor 360</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 20mm 16mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+    
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.5;
+      font-size: 10.5pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* CAPA ELEGANTE BOULEVARD SHOPPING */
+    .cover-page {
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
+      min-height: 920px;
+      padding: 40px 20px;
+      background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 50%, #4a044e 100%);
+      color: #ffffff;
+      border-radius: 8px;
+    }
+
+    .cover-header {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      padding-bottom: 20px;
+    }
+
+    .cover-brand {
+      font-size: 14pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #f59e0b;
+    }
+
+    .cover-subbrand {
+      font-size: 10pt;
+      color: #cbd5e1;
+      margin-top: 4px;
+    }
+
+    .cover-body {
+      margin-top: 60px;
+      margin-bottom: 60px;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 9.5pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    .cover-title {
+      font-size: 32pt;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 16px 0;
+      color: #ffffff;
+    }
+
+    .cover-subtitle {
+      font-size: 15pt;
+      font-weight: 300;
+      color: #e2e8f0;
+      max-width: 600px;
+      line-height: 1.4;
+    }
+
+    .cover-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 9pt;
+      color: #94a3b8;
+    }
+
+    /* CONTEÚDO */
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      font-weight: 700;
+      page-break-after: avoid;
+    }
+
+    h2 {
+      font-size: 15pt;
+      border-bottom: 2px solid #8c4748;
+      padding-bottom: 6px;
+      margin-top: 28px;
+      margin-bottom: 14px;
+      color: #8c4748;
+    }
+
+    h3 {
+      font-size: 12pt;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+
+    p {
+      margin: 0 0 10px 0;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin: 0 0 14px 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    /* BOXES E DESTAQUES */
+    .callout {
+      background: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 12px 16px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 9.5pt;
+    }
+
+    .callout-warning {
+      background: #fffbeb;
+      border-left-color: #f59e0b;
+    }
+
+    .callout-success {
+      background: #f0fdf4;
+      border-left-color: #10b981;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 8pt;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .badge-blue { background: #e0f2fe; color: #0369a1; }
+    .badge-purple { background: #f3e8ff; color: #7e22ce; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-orange { background: #ffedd5; color: #c2410c; }
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+
+    /* TABELAS */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* ESQUEMA DE PASSO A PASSO */
+    .step-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #ffffff;
+      padding: 14px 18px;
+      margin: 14px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      page-break-inside: avoid;
+    }
+
+    .step-box-title {
+      font-weight: 700;
+      font-size: 11pt;
+      color: #0284c7;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .step-number {
+      background: #0284c7;
+      color: #fff;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9pt;
+      margin-right: 8px;
+    }
+
+    .symbol-pill {
+      display: inline-block;
+      font-family: monospace;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CAPA -->
+  <div class="cover-page">
+    <div class="cover-header">
+      <div class="cover-brand">Boulevard Shopping Feira de Santana</div>
+      <div class="cover-subbrand">Divisão de Operações e Engenharia Predial</div>
+    </div>
+    <div class="cover-body">
+      <div class="cover-badge">Manual Operacional de Treinamento</div>
+      <h1 class="cover-title">PMOC Gestor 360</h1>
+      <div class="cover-subtitle">
+        Guia Completo de Operação, Cronograma Master de Manutenção, Controle de PMOC e ART (CREA/CFT).
+      </div>
+    </div>
+    <div class="cover-footer">
+      <div>
+        <strong>Versão:</strong> 2.0 (Atualização Cadastral por Meses)<br>
+        <strong>Ambiente:</strong> Produção Corporativa
+      </div>
+      <div>
+        Boulevard Shopping Feira de Santana &copy; 2026
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 1 -->
+  <h2>1. Apresentação e Controle de Acesso (Active Directory)</h2>
+  <p>
+    O <strong>PMOC Gestor 360</strong> é a plataforma de controle técnico operacional do Boulevard Shopping Feira de Santana. Seu propósito é garantir que todos os 40 sistemas prediais do shopping estejam em conformidade com as normas da ABNT, a <strong>Lei Federal 13.589/2018 (PMOC)</strong> e as Anotações de Responsabilidade Técnica (ART/TRT).
+  </p>
+  <p>
+    O acesso ao sistema é unificado com o <strong>Active Directory (AD corporativo)</strong>. Você utiliza o mesmo login e senha do seu computador de trabalho.
+  </p>
+
+  <h3>Perfis de Acesso no Sistema</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Grupo AD</th>
+        <th>Perfil no Sistema</th>
+        <th>Badge</th>
+        <th>O que pode fazer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>BSFS_OPE_SYSUSER</strong></td>
+        <td>Operador</td>
+        <td><span class="badge badge-blue">Operador</span></td>
+        <td>
+          • Consultar todo o calendário master anual.<br>
+          • <strong>Cadastrar novos serviços selecionando os meses de realização.</strong><br>
+          • Lançar status mensal das manutenções (Realizado, Programado, etc.).<br>
+          • Anexar laudos, fotos, relatórios e Ordens de Serviço (OS).<br>
+          • Reportar e gerenciar Máquinas Paradas.<br>
+          • Exportar dados em planilha CSV (Excel).
+        </td>
+      </tr>
+      <tr>
+        <td><strong>BSFS_OPE_SYSADMIN</strong></td>
+        <td>Administrador</td>
+        <td><span class="badge badge-purple">Administrador</span></td>
+        <td>
+          • Todas as atribuições de Operador.<br>
+          • <strong>Autorização mandatória para exclusão de sistemas</strong> (requer senha de confirmação).<br>
+          • Desanexação e exclusão de PMOC e ART.<br>
+          • Acesso à trilha completa de auditoria do sistema.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warning">
+    <strong>Auditoria Técnica Contínua:</strong> Todas as operações realizadas no sistema (criação de sistemas, atualização de status de manutenções e upload de relatórios) são carimbadas no banco de dados com a identidade corporativa do usuário, data e horário exato.
+  </div>
+
+  <!-- SEÇÃO 2 -->
+  <h2>2. Painel Executivo e Indicadores (Dashboard)</h2>
+  <p>
+    No topo da tela inicial, três componentes visuais proporcionam uma visão de 360 graus do estado operacional do shopping:
+  </p>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">1</span> Medidor Circular de Conformidade Legal (Gauge PMOC / ART)</div>
+    <p>
+      Calcula em tempo real a proporção de sistemas com responsabilidade técnica regularizada perante o CREA/CFT:
+    </p>
+    <ul>
+      <li><span class="badge badge-green">Verde Esmeralda (&gt; 90%)</span>: Alta conformidade. A maioria esmagadora dos sistemas possui PMOC e ART válidos anexados.</li>
+      <li><span class="badge badge-orange">Laranja Âmbar (70% a 89%)</span>: Alerta operacional. Existem sistemas necessitando de renovação ou inserção documental.</li>
+      <li><span class="badge badge-red">Vermelho Crítico (&lt; 70%)</span>: Situação regulatória irregular. Requer ação imediata da gerência de engenharia.</li>
+    </ul>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">2</span> Gráfico de Rosca de Manutenções Anuais</div>
+    <p>
+      Consolida todos os agendamentos preventivos do ano em exercício (ex.: 2026):
+    </p>
+    <ul>
+      <li><span class="badge badge-green">Realizado</span>: Serviços executados e atestados com documento.</li>
+      <li><span class="badge badge-orange">Programado</span>: Serviços previstos para os próximos meses.</li>
+      <li><span class="badge badge-blue">Em Andamento</span>: Atividades atualmente em execução no shopping.</li>
+      <li><span class="badge badge-red">Não Realizado</span>: Meses em que a manutenção não ocorreu dentro do prazo.</li>
+    </ul>
+    <p><em>Dica Operacional: Clicar sobre qualquer cor da rosca filtra imediatamente a tabela principal para mostrar apenas as atividades com aquele status.</em></p>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">3</span> Card de Máquinas Paradas</div>
+    <p>
+      Exibe em destaque qualquer ativo fora de operação no Boulevard Shopping. Permite visualizar o motivo da falha, data da parada e previsão de retorno.
+    </p>
+  </div>
+
+  <!-- SEÇÃO 3 -->
+  <h2>3. Entendendo a Tabela Principal (Calendário Master)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Coluna</th>
+        <th>Finalidade</th>
+        <th>Interação do Usuário</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>SHOPPING</strong></td>
+        <td>Identificação da unidade (`BSFS`).</td>
+        <td>Informativa.</td>
+      </tr>
+      <tr>
+        <td><strong>DISCIPLINA</strong></td>
+        <td>Área técnica (Elétrica, Ar Condicionado, Incêndio, etc.).</td>
+        <td>Identificação e agrupamento visual.</td>
+      </tr>
+      <tr>
+        <td><strong>SISTEMA / EQUIPAMENTO</strong></td>
+        <td>Nome do ativo predial e alertas de máquina parada.</td>
+        <td><strong>Clique no nome</strong> para abrir a ficha completa do equipamento. Se houver ícone de parada, exibe os detalhes da falha.</td>
+      </tr>
+      <tr>
+        <td><strong>RESPONSÁVEL</strong></td>
+        <td>Engenheiro interno ou empresa terceirizada.</td>
+        <td>Informativa.</td>
+      </tr>
+      <tr>
+        <td><strong>PERIODICIDADE</strong></td>
+        <td>Frequência do serviço (ex: Mensal, Trimestral, Mar/Jul/Nov).</td>
+        <td>Calculada dinamicamente com base nos meses agendados.</td>
+      </tr>
+      <tr>
+        <td><strong>PMOC / ART</strong></td>
+        <td>Indicador de conformidade legal de engenharia.</td>
+        <td><strong>Clique no botão</strong> para visualizar ou anexar o PMOC assinado e a ART do CREA/CFT.</td>
+      </tr>
+      <tr>
+        <td><strong>MESES (JAN a DEZ)</strong></td>
+        <td>12 colunas com o cronograma anual.</td>
+        <td><strong>Clique em qualquer célula de mês</strong> para lançar a manutenção, mudar status e anexar Ordens de Serviço.</td>
+      </tr>
+      <tr>
+        <td><strong>AÇÕES</strong></td>
+        <td>Botão de lixeira.</td>
+        <td>Excluir o sistema (requer aprovação de perfil `SYSADMIN`).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Significado dos Símbolos nas Células Mensais:</h3>
+  <ul>
+    <li><span class="symbol-pill">▲</span> <strong>Laranja (Programado):</strong> Manutenção prevista para este mês no plano de engenharia.</li>
+    <li><span class="symbol-pill">✓</span> <strong>Verde (Realizado):</strong> Manutenção concluída pela equipe e registrada no sistema.</li>
+    <li><span class="symbol-pill">✗</span> <strong>Vermelho (Não Realizado):</strong> O mês encerrou sem que a rotina tenha sido executada.</li>
+    <li><span class="symbol-pill">!</span> <strong>Azul (Em Andamento):</strong> Serviço em execução pelas equipes de campo.</li>
+    <li><span class="symbol-pill">📎</span> <strong>Ícone de Clipe:</strong> Indica que há laudos, fotos de medições ou Ordens de Serviço anexadas a este mês.</li>
+  </ul>
+
+  <!-- SEÇÃO 4 -->
+  <h2>4. Guia Passo a Passo: Rotinas e Ações do Sistema</h2>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">A</span> Como Cadastrar um Novo Serviço / Sistema de Manutenção</div>
+    <ol>
+      <li>Clique no botão <strong><code>+ Novo Sistema</code></strong> localizado na barra superior da tela.</li>
+      <li>Selecione a <strong>Disciplina / Categoria</strong> correspondente (ex.: <em>Elétrica, Prevenção Contra Incêndio, Elevadores</em>).</li>
+      <li>Digite o <strong>Nome do Sistema</strong> (ex.: <em>Gerador de Emergência Boulevard 02</em>).</li>
+      <li>Preencha as eventuais <strong>Pendências do Ano Anterior</strong> (caso haja pendência contratual).</li>
+      <li>
+        <strong>Selecione os Meses de Realização do Serviço:</strong>
+        <p>Você tem total liberdade para marcar diretamente os meses em que o serviço ocorrerá:</p>
+        <ul>
+          <li>Clique diretamente sobre os meses que desejar (ex.: <em>Fevereiro e Agosto</em>).</li>
+          <li>Ou utilize os atalhos rápidos: <code>Todos os Meses</code>, <code>Bimestral</code>, <code>Trimestral</code>, <code>Semestral</code>, <code>Anual (Dez)</code> ou <code>Limpar Seleção</code>.</li>
+          <li><em>Observe o resumo em tempo real: ele deduzirá o rótulo ideal (ex: "Semestral", "Mensal" ou "Jan, Mai, Set") automaticamente!</em></li>
+        </ul>
+      </li>
+      <li>Insira a <strong>Descrição Técnica e Escopo Preventivo</strong> com as instruções e peças envolvidas.</li>
+      <li>Se for um sistema isento de laudo formal, marque <strong>NA (Não se Aplica)</strong>.</li>
+      <li>Clique em <strong><code>Gravar no Banco de Dados</code></strong>. O serviço será persistido e o calendário atualizado instantaneamente.</li>
+    </ol>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">B</span> Como Lançar uma Manutenção Mensal e Anexar Documentos</div>
+    <ol>
+      <li>Na tabela, localize a linha do equipamento e <strong>clique sobre a célula do mês desejado</strong> (ex.: Linha <em>Chiller 01</em>, Coluna <em>MAR</em>).</li>
+      <li>No modal de acompanhamento mensal que se abrirá:
+        <ul>
+          <li>Defina o <strong>Status</strong>: escolha <code>Realizado</code> (ou <code>Em Andamento</code>, <code>Não Realizado</code>).</li>
+          <li>Informe a <strong>Data da Execução</strong> da rotina (ex.: <code>15/03/2026</code>).</li>
+          <li>Informe o <strong>Nome do Responsável / Técnico</strong> executante.</li>
+          <li>Descreva as <strong>Observações Técnicas</strong> (medições de pressão, corrente elétrica, troca de filtros).</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Anexo de Comprovantes (Laudo, Relatório, Fotos ou OS):</strong>
+        <p>Arraste o arquivo em PDF ou JPG para a caixa pontilhada (ou clique para buscar no computador) e clique em <strong><code>+ Anexar Documento</code></strong>.</p>
+      </li>
+      <li>Clique em <strong><code>Salvar Informações do Mês</code></strong>. A célula se tornará verde com o símbolo de atestado <code>✓</code> e o clipe <code>📎</code>.</li>
+    </ol>
+    <div class="callout callout-success">
+      <strong>Manutenções Extraordinárias:</strong> Se você clicar em um mês que não estava originalmente programado, o sistema perguntará se deseja registrar uma <em>Manutenção Corretiva ou Extraordinária</em>. Basta confirmar para lançar o serviço!
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">C</span> Como Anexar e Regularizar o PMOC e a ART do Sistema</div>
+    <ol>
+      <li>Na linha do sistema, localize a coluna <strong>PMOC / ART</strong> e clique no botão (vermelho <code>Pendente</code> ou verde <code>Conforme</code>).</li>
+      <li>No modal de auditoria legal, preencha:
+        <ul>
+          <li><strong>Número da ART / TRT</strong> emitida no CREA ou CFT (ex.: <code>ART-BA-2026-98124</code>).</li>
+          <li><strong>Nome do Responsável Técnico Habilitado</strong>.</li>
+          <li><strong>Registro Profissional</strong>.</li>
+          <li><strong>Data de Validade da ART</strong> (o sistema emitirá alerta quando faltar menos de 30 dias para vencer).</li>
+        </ul>
+      </li>
+      <li>Faça o upload do <strong>Arquivo do PMOC</strong> (PDF) e do <strong>Arquivo da ART</strong> (PDF).</li>
+      <li>Clique em <strong><code>Salvar e Autenticar Documentos</code></strong>. O status mudará imediatamente para verde <code>Conforme</code> e elevará o índice de conformidade legal do shopping.</li>
+    </ol>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">D</span> Como Sinalizar uma Máquina Parada</div>
+    <ol>
+      <li>Na coluna <strong>Sistema / Equipamento</strong>, clique sobre o botão de alerta de parada do ativo.</li>
+      <li>Marque a opção <strong>"Equipamento com Parada Crítica em Andamento"</strong>.</li>
+      <li>Preencha o nome do componente paralisado, o motivo da avaria, a data da parada e a previsão de retorno.</li>
+      <li>Clique em <strong><code>Gravar Status de Operação</code></strong>. O painel destacará a linha em vermelho e alertará os gestores.</li>
+      <li>Quando o equipamento for consertado, basta retornar ao mesmo modal, desmarcar a caixa e salvar.</li>
+    </ol>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title"><span class="step-number">E</span> Como Exportar Relatórios em Planilha (CSV / Excel)</div>
+    <p>
+      Na barra de ferramentas, clique no botão <strong><code>Exportar CSV</code></strong>. Será gerada uma planilha oficial contendo todas as 40 linhas do plano de engenharia do Boulevard, incluindo nomes de terceirizados, periodicidades, status dos 12 meses e regularidade da ART/PMOC.
+    </p>
+  </div>
+
+  <!-- SEÇÃO 5 -->
+  <h2>5. Boas Práticas e Recomendações Técnicas</h2>
+  <ul>
+    <li><strong>Rastreabilidade Obrigatória:</strong> Sempre anexe a Ordem de Serviço ou laudo assinado ao marcar um mês como <em>Realizado</em>.</li>
+    <li><strong>Lançamentos em Tempo Real:</strong> Registre as manutenções logo após o término da intervenção. Isso garante que as reuniões de diretoria e auditorias disponham de dados 100% atualizados.</li>
+    <li><strong>Controle de Validades de ART:</strong> Contratos terceirizados de elevadores, subestação e chillers exigem emissão de nova ART ao final de cada exercício anual.</li>
+  </ul>
+
+</body>
+</html>

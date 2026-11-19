@@ -68,3 +68,66 @@ export function calculateComplianceMetrics(systems = [], year = '2026') {
 
   return { total, compliant, pending, notRequired, percentage };
 }
+
+/**
+ * Dedução de periodicidade a partir da lista de números de meses selecionados (1..12).
+ * Retorna { label: string, category: 'Mensal' | 'Bimestral' | 'Trimestral' | 'Semestral' | 'Anual' | 'Personalizado' | 'Nenhum' }
+ */
+export function derivePeriodicityFromMonths(monthNumbers = []) {
+  const sorted = Array.from(new Set(monthNumbers.map(Number)))
+    .filter(m => m >= 1 && m <= 12)
+    .sort((a, b) => a - b);
+
+  const count = sorted.length;
+  const monthNames = ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (count === 0) {
+    return {
+      label: 'Não programado',
+      category: 'Nenhum',
+      count: 0,
+      months: []
+    };
+  }
+
+  if (count === 12) {
+    return {
+      label: 'Mensal',
+      category: 'Mensal',
+      count: 12,
+      months: sorted
+    };
+  }
+
+  const strJoined = sorted.join(',');
+
+  // Padrões regulares típicos
+  if (count === 6 && strJoined === '2,4,6,8,10,12') {
+    return { label: 'Bimestral', category: 'Bimestral', count: 6, months: sorted };
+  }
+  if (count === 4 && strJoined === '3,6,9,12') {
+    return { label: 'Trimestral', category: 'Trimestral', count: 4, months: sorted };
+  }
+  if (count === 2 && strJoined === '6,12') {
+    return { label: 'Semestral', category: 'Semestral', count: 2, months: sorted };
+  }
+  if (count === 1) {
+    const mName = monthNames[sorted[0]];
+    return { label: `Anual (${mName})`, category: 'Anual', count: 1, months: sorted };
+  }
+
+  // Combinações genéricas com contagem de vezes ao ano e listagem dos meses
+  const abbr = sorted.map(m => monthNames[m]).join(', ');
+  let category = 'Personalizado';
+  if (count === 6) category = 'Bimestral';
+  else if (count === 4) category = 'Trimestral';
+  else if (count === 2) category = 'Semestral';
+  else if (count === 1) category = 'Anual';
+
+  return {
+    label: `${abbr}`,
+    category,
+    count,
+    months: sorted
+  };
+}
